@@ -4,12 +4,6 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-# -----------------------------
-
-# STEP 1: Smarter Momentum Logic
-
-# -----------------------------
-
 def compute_momentum(df):
 if df is None or df.empty or len(df) < 6:
 return None
@@ -17,13 +11,9 @@ return None
 ```
 df = df.copy()
 
-# Log returns
 df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
 
-# 1-week momentum (5 trading days)
 momentum = (df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1
-
-# Annualized volatility
 volatility = df["log_returns"].std() * np.sqrt(252)
 
 if volatility == 0 or np.isnan(volatility):
@@ -38,19 +28,7 @@ return {
 }
 ```
 
-# -----------------------------
-
-# Your Existing Universe (KEEP SIMPLE FOR NOW)
-
-# -----------------------------
-
 TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
-
-# -----------------------------
-
-# Fetch + Rank
-
-# -----------------------------
 
 def analyze_ticker(ticker):
 try:
