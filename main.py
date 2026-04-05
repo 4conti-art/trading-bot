@@ -12,18 +12,18 @@ def compute_momentum(df):
 
     df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
 
-    momentum = (df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1
-    volatility = df["log_returns"].std() * np.sqrt(252)
+    momentum = float((df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1)
+    volatility = float(df["log_returns"].std() * np.sqrt(252))
 
     if volatility == 0 or np.isnan(volatility):
         return None
 
-    score = momentum / volatility
+    score = float(momentum / volatility)
 
     return {
-        "score": float(score),
-        "momentum": float(momentum),
-        "volatility": float(volatility),
+        "score": score,
+        "momentum": momentum,
+        "volatility": volatility,
     }
 
 TICKERS = ["AAPL"]
