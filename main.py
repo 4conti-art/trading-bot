@@ -12,9 +12,8 @@ def compute_momentum(df):
 
     df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
 
-    momentum = float((df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1)
-    volatility = float(df["log_returns"].std() * np.sqrt(252))
-    print("VOLATILITY:", volatility)
+    momentum = float((df["Close"].iloc[-1].item() / df["Close"].iloc[-6].item()) - 1)
+    volatility = float(df["log_returns"].std().item() * np.sqrt(252))
 
     if volatility == 0 or np.isnan(volatility):
         return None
