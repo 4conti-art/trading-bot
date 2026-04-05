@@ -5,6 +5,9 @@ import time
 from fastapi import FastAPI
 from threading import Thread
 
+# ===== VERSION MARKER (for Render logs) =====
+print("RUNNING VERSION: BACKGROUND CACHE V1")
+
 app = FastAPI()
 
 API_KEY = "O81J337DJX2XO5YH"
@@ -33,6 +36,7 @@ def fetch_alpha_vantage(ticker):
         data = response.json()
 
         if "Time Series (Daily)" not in data:
+            print(f"{ticker}: bad response keys={list(data.keys())}")
             return None
 
         df = pd.DataFrame.from_dict(data["Time Series (Daily)"], orient="index")
@@ -42,7 +46,8 @@ def fetch_alpha_vantage(ticker):
 
         return df
 
-    except Exception:
+    except Exception as e:
+        print(f"{ticker}: fetch error {e}")
         return None
 
 
@@ -69,6 +74,7 @@ def compute_momentum(df):
 
 
 def refresh_cache():
+    print("Refreshing cache...")
     results = []
 
     for ticker in TICKERS:
@@ -87,6 +93,8 @@ def refresh_cache():
 
     CACHE["data"] = results[:5]
     CACHE["last_update"] = time.time()
+
+    print("Cache updated:", CACHE["data"])
 
 
 def background_update():
