@@ -1,6 +1,5 @@
 import numpy as np
 import yfinance as yf
-import time
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -27,14 +26,12 @@ def compute_momentum(df):
         "volatility": float(volatility),
     }
 
-TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
+TICKERS = ["AAPL"]
 
 def analyze_ticker(ticker):
     try:
         df = yf.download(ticker, period="10d", interval="1d", progress=False)
         print(ticker, "rows:", len(df))
-
-        time.sleep(1)  # prevent rate limiting
 
         result = compute_momentum(df)
         if result is None:
