@@ -6,20 +6,22 @@ app = FastAPI()
 
 
 def compute_momentum(df):
-    # Safety checks
     if df is None or df.empty or len(df) < 6:
         return None
 
     df = df.copy()
 
-    # Log returns
-    df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
+    # Ensure Close is a proper Series
+    close = df["Close"].squeeze()
 
-    # 1-week momentum (5 trading days)
-    momentum = (df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1
+    # Log returns
+    log_returns = np.log(close / close.shift(1))
+
+    # 1-week momentum
+    momentum = (close.iloc[-1] / close.iloc[-6]) - 1
 
     # Annualized volatility
-    volatility = df["log_returns"].std() * np.sqrt(252)
+    volatility = log_returns.std() * np.sqrt(252)
 
     if volatility == 0 or np.isnan(volatility):
         return None
