@@ -24,7 +24,7 @@ def get_sp500_tickers():
     df = pd.read_html("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")[0]
     tickers = df["Symbol"].tolist()
 
-    # Fix tickers like BRK.B -> BRK-B (yfinance format)
+    # Fix tickers like BRK.B -> BRK-B
     tickers = [t.replace(".", "-") for t in tickers]
 
     TICKER_CACHE["tickers"] = tickers
@@ -81,6 +81,7 @@ def root():
 @app.get("/top")
 def get_top_stocks():
     tickers = get_sp500_tickers()
+    print(f"TOTAL TICKERS: {len(tickers)}")
 
     results = []
 
