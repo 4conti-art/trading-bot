@@ -5,40 +5,28 @@ from fastapi import FastAPI
 app = FastAPI()
 
 
-def compute_momentum(df, ticker=""):
-    if df is None or df.empty:
-        print(f"{ticker} failed: empty df")
-        return None
-
-    print(f"{ticker} rows: {len(df)}")
-
-    if len(df) < 6:
-        print(f"{ticker} failed: not enough rows")
+def compute_momentum(df):
+    if df is None or df.empty or len(df) < 6:
         return None
 
     df = df.copy()
 
-    try:
-        close = df["Close"].squeeze()
-    except Exception as e:
-        print(f"{ticker} failed: close extraction error {e}")
-        return None
+    # Ensure Close is a proper Series
+    close = df["Close"].squeeze()
 
+    # Log returns
     log_returns = np.log(close / close.shift(1))
 
+    # 1-week momentum
     momentum = (close.iloc[-1] / close.iloc[-6]) - 1
 
+    # Annualized volatility
     volatility = log_returns.std() * np.sqrt(252)
 
-    print(f"{ticker} volatility: {volatility}")
-
     if volatility == 0 or np.isnan(volatility):
-        print(f"{ticker} failed: volatility invalid")
         return None
 
     score = momentum / volatility
-
-    print(f"{ticker} OK")
 
     return {
         "score": float(score),
@@ -52,11 +40,9 @@ TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
 
 def analyze_ticker(ticker):
     try:
-        print(f"Processing {ticker}")
-
         df = yf.download(ticker, period="10d", interval="1d", progress=False)
 
-        result = compute_momentum(df, ticker)
+        result = compute_momentum(df)
 
         if result is None:
             return None
@@ -66,8 +52,7 @@ def analyze_ticker(ticker):
             **result
         }
 
-    except Exception as e:
-        print(f"ERROR {ticker}: {e}")
+    except Exception:
         return None
 
 
