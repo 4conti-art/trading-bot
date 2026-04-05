@@ -1,10 +1,11 @@
 import numpy as np
 import yfinance as yf
 from fastapi import FastAPI
+from concurrent.futures import ThreadPoolExecutor
 
 app = FastAPI()
 
-# NOTE: Subset of large-cap S&P 500 tickers (safe, no scraping)
+# Same stable ticker set
 TICKERS = [
     "AAPL","MSFT","NVDA","AMZN","META","GOOGL","GOOG","BRK-B","LLY","AVGO",
     "TSLA","JPM","UNH","V","XOM","MA","HD","PG","COST","MRK",
@@ -63,10 +64,12 @@ def root():
 def get_top_stocks():
     results = []
 
-    for ticker in TICKERS:
-        data = analyze_ticker(ticker)
-        if data:
-            results.append(data)
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        data = executor.map(analyze_ticker, TICKERS)
+
+    for r in data:
+        if r:
+            results.append(r)
 
     ranked = sorted(results, key=lambda x: x["score"], reverse=True)
 
