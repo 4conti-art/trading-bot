@@ -1,39 +1,56 @@
 import numpy as np
-import yfinance as yf
+import requests
 from fastapi import FastAPI
 
 app = FastAPI()
 
-def compute_momentum(df):
-    if df is None or df.empty or len(df) < 6:
+API_KEY = "O81J337DJX2XO5YH"
+
+def fetch_data(symbol):
+    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=compact&apikey={API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+
+    if "Time Series (Daily)" not in data:
+        print("Error fetching data:", data)
         return None
 
-    df = df.copy()
+    ts = data["Time Series (Daily)"]
+    closes = [float(v["4. close"]) for v in ts.values()]
+    closes.reverse()  # oldest → newest
 
-    df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
+    return closes
 
-    momentum = float((df["Close"].iloc[-1].item() / df["Close"].iloc[-6].item()) - 1)
-    volatility = float(df["log_returns"].std().item() * np.sqrt(252))
+def compute_momentum(closes):
+    if closes is None or len(closes) < 6:
+        return None
+
+    closes = np.array(closes)
+
+    log_returns = np.log(closes[1:] / closes[:-1])
+
+    momentum = (closes[-1] / closes[-6]) - 1
+    volatility = np.std(log_returns) * np.sqrt(252)
 
     if volatility == 0 or np.isnan(volatility):
         return None
 
-    score = float(momentum / volatility)
+    score = momentum / volatility
 
     return {
-        "score": score,
-        "momentum": momentum,
-        "volatility": volatility,
+        "score": float(score),
+        "momentum": float(momentum),
+        "volatility": float(volatility),
     }
 
 TICKERS = ["AAPL"]
 
 def analyze_ticker(ticker):
     try:
-        df = yf.download(ticker, period="10d", interval="1d", progress=False)
-        print(ticker, "rows:", len(df))
+        closes = fetch_data(ticker)
+        print(ticker, "points:", len(closes) if closes else 0)
 
-        result = compute_momentum(df)
+        result = compute_momentum(closes)
         if result is None:
             return None
 
@@ -48,7 +65,7 @@ def analyze_ticker(ticker):
 
 @app.get("/")
 def root():
-    return {"message": "Trading bot is running"}
+    return {"message": "Trading bot is running (Alpha Vantage)"}
 
 @app.get("/top")
 def get_top_stocks():
