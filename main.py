@@ -31,6 +31,7 @@ TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
 def analyze_ticker(ticker):
     try:
         df = yf.download(ticker, period="10d", interval="1d", progress=False)
+        print(ticker, "rows:", len(df))
 
         result = compute_momentum(df)
         if result is None:
@@ -41,7 +42,8 @@ def analyze_ticker(ticker):
             **result
         }
 
-    except Exception:
+    except Exception as e:
+        print(f"Error with {ticker}: {e}")
         return None
 
 @app.get("/")
