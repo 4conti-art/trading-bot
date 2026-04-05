@@ -17,7 +17,7 @@ def fetch_data(symbol):
 
     ts = data["Time Series (Daily)"]
     closes = [float(v["4. close"]) for v in ts.values()]
-    closes.reverse()  # oldest → newest
+    closes.reverse()
 
     return closes
 
@@ -31,6 +31,9 @@ def compute_momentum(closes):
 
     momentum = (closes[-1] / closes[-6]) - 1
     volatility = np.std(log_returns) * np.sqrt(252)
+
+    print("MOMENTUM:", momentum)
+    print("VOLATILITY:", volatility)
 
     if volatility == 0 or np.isnan(volatility):
         return None
