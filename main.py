@@ -1,25 +1,46 @@
 import numpy as np
-import yfinance as yf
+import pandas as pd
+import requests
 from fastapi import FastAPI
-from concurrent.futures import ThreadPoolExecutor
+import time
 
 app = FastAPI()
 
-# Same stable ticker set
-TICKERS = [
-    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","GOOG","BRK-B","LLY","AVGO",
-    "TSLA","JPM","UNH","V","XOM","MA","HD","PG","COST","MRK",
-    "ABBV","PEP","KO","ADBE","NFLX","CRM","WMT","ACN","AMD","MCD",
-    "INTC","TMO","LIN","DHR","ORCL","NKE","QCOM","TXN","AMAT","LOW",
-    "HON","UPS","RTX","BA","IBM","GE","CAT","GS","BLK","PLD"
-]
+API_KEY = "O81J337DJX2XO5YH"
+
+# Keep small list due to rate limits
+TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META"]
+
+
+def fetch_alpha_vantage(ticker):
+    url = f"https://www.alphavantage.co/query"
+    params = {
+        "function": "TIME_SERIES_DAILY_ADJUSTED",
+        "symbol": ticker,
+        "apikey": API_KEY,
+        "outputsize": "compact"
+    }
+
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    if "Time Series (Daily)" not in data:
+        return None
+
+    df = pd.DataFrame.from_dict(data["Time Series (Daily)"], orient="index")
+    df.index = pd.to_datetime(df.index)
+    df = df.sort_index()
+
+    df["Close"] = df["4. close"].astype(float)
+
+    return df
 
 
 def compute_momentum(df):
     if df is None or df.empty or len(df) < 6:
         return None
 
-    close = df["Close"].squeeze()
+    close = df["Close"]
 
     log_returns = np.log(close / close.shift(1))
     momentum = (close.iloc[-1] / close.iloc[-6]) - 1
@@ -39,8 +60,7 @@ def compute_momentum(df):
 
 def analyze_ticker(ticker):
     try:
-        df = yf.download(ticker, period="10d", interval="1d", progress=False)
-
+        df = fetch_alpha_vantage(ticker)
         result = compute_momentum(df)
 
         if result is None:
@@ -57,19 +77,19 @@ def analyze_ticker(ticker):
 
 @app.get("/")
 def root():
-    return {"message": "Trading bot is running"}
+    return {"message": "Trading bot is running (Alpha Vantage)"}
 
 
 @app.get("/top")
 def get_top_stocks():
     results = []
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        data = executor.map(analyze_ticker, TICKERS)
+    for ticker in TICKERS:
+        data = analyze_ticker(ticker)
+        if data:
+            results.append(data)
 
-    for r in data:
-        if r:
-            results.append(r)
+        time.sleep(12)  # avoid rate limits
 
     ranked = sorted(results, key=lambda x: x["score"], reverse=True)
 
