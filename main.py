@@ -1,39 +1,25 @@
 import numpy as np
-import requests
+import yfinance as yf
 from fastapi import FastAPI
 
 app = FastAPI()
 
-API_KEY = "O81J337DJX2XO5YH"
 
-def fetch_data(symbol):
-    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=compact&apikey={API_KEY}"
-    response = requests.get(url)
-    data = response.json()
-
-    if "Time Series (Daily)" not in data:
-        print("Error fetching data:", data)
+def compute_momentum(df):
+    # Safety checks
+    if df is None or df.empty or len(df) < 6:
         return None
 
-    ts = data["Time Series (Daily)"]
-    closes = [float(v["4. close"]) for v in ts.values()]
-    closes.reverse()
+    df = df.copy()
 
-    return closes
+    # Log returns
+    df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
 
-def compute_momentum(closes):
-    if closes is None or len(closes) < 6:
-        return None
+    # 1-week momentum (5 trading days)
+    momentum = (df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1
 
-    closes = np.array(closes)
-
-    log_returns = np.log(closes[1:] / closes[:-1])
-
-    momentum = (closes[-1] / closes[-6]) - 1
-    volatility = np.std(log_returns) * np.sqrt(252)
-
-    print("MOMENTUM:", momentum)
-    print("VOLATILITY:", volatility)
+    # Annualized volatility
+    volatility = df["log_returns"].std() * np.sqrt(252)
 
     if volatility == 0 or np.isnan(volatility):
         return None
@@ -46,15 +32,20 @@ def compute_momentum(closes):
         "volatility": float(volatility),
     }
 
-TICKERS = ["AAPL"]
+
+TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
+
 
 def analyze_ticker(ticker):
     try:
-        closes = fetch_data(ticker)
-        print(ticker, "points:", len(closes) if closes else 0)
+        print(f"Processing {ticker}")
 
-        result = compute_momentum(closes)
+        df = yf.download(ticker, period="10d", interval="1d", progress=False)
+
+        result = compute_momentum(df)
+
         if result is None:
+            print(f"{ticker} returned None")
             return None
 
         return {
@@ -63,12 +54,14 @@ def analyze_ticker(ticker):
         }
 
     except Exception as e:
-        print(f"Error with {ticker}: {e}")
+        print(f"ERROR {ticker}: {e}")
         return None
+
 
 @app.get("/")
 def root():
-    return {"message": "Trading bot is running (Alpha Vantage)"}
+    return {"message": "Trading bot is running"}
+
 
 @app.get("/top")
 def get_top_stocks():
