@@ -5,7 +5,7 @@ import time
 from fastapi import FastAPI
 from threading import Thread
 
-print("RUNNING VERSION: ROTATING UNIVERSE")
+print("RUNNING VERSION: ROTATING SAFE")
 
 app = FastAPI()
 
@@ -114,7 +114,7 @@ def refresh_cache():
 
 
 def background():
-    time.sleep(5)
+    time.sleep(10)  # delay startup work
     while True:
         if time.time() - CACHE["last_update"] > CACHE_TTL:
             refresh_cache()
@@ -128,7 +128,7 @@ def start():
 
 @app.get("/")
 def root():
-    return {"message": "Rotating universe bot running"}
+    return {"message": "Rotating universe bot running (safe startup)"}
 
 
 @app.get("/top")
