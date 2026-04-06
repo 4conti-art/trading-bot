@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from threading import Thread
 
-print("RUNNING VERSION: FINNHUB")
+print("RUNNING VERSION: FINNHUB KEEPALIVE")
 
 app = FastAPI()
 
@@ -46,10 +46,7 @@ def fetch_data(ticker):
             print(f"{ticker}: bad response -> {data}")
             return None
 
-        df = pd.DataFrame({
-            "Close": data["c"]
-        })
-
+        df = pd.DataFrame({"Close": data["c"]})
         return df
 
     except Exception as e:
@@ -95,10 +92,7 @@ def refresh_cache():
 
         if result:
             results = [r for r in results if r["ticker"] != ticker]
-            results.append({
-                "ticker": ticker,
-                **result
-            })
+            results.append({"ticker": ticker, **result})
 
         time.sleep(1)
 
@@ -121,9 +115,19 @@ def background():
         time.sleep(5)
 
 
+def keep_alive():
+    while True:
+        try:
+            requests.get("http://127.0.0.1:10000/")
+        except:
+            pass
+        time.sleep(30)
+
+
 @app.on_event("startup")
 def start():
     Thread(target=background, daemon=True).start()
+    Thread(target=keep_alive, daemon=True).start()
 
 
 @app.get("/")
