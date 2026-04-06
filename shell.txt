@@ -1,0 +1,1496 @@
+Microsoft Windows [Version 10.0.22621.4387]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Users\Fabrizio>cd C:\Users\Fabrizio\Dropbox\PATENT\trading-bot
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>dir
+ Volume in drive C is 2TB
+ Volume Serial Number is 82F0-7F68
+
+ Directory of C:\Users\Fabrizio\Dropbox\PATENT\trading-bot
+
+04/04/2026  02:10 PM    <DIR>          .
+04/04/2026  09:48 AM    <DIR>          ..
+04/04/2026  02:13 PM                29 .gitignore
+04/04/2026  01:57 PM        64,564,304 Git-2.53.0.2-64-bit.exe
+04/04/2026  05:09 PM             1,311 main.py
+04/04/2026  10:49 AM        46,229,451 python-manager-26.0.msix
+04/04/2026  11:55 AM                26 requirements.txt
+04/04/2026  11:54 AM    <DIR>          __pycache__
+               5 File(s)    110,795,121 bytes
+               3 Dir(s)  778,474,504,192 bytes free
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>del .git\index
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "fix indentation"
+[main f1315fc] fix indentation
+ 1 file changed, 22 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 369 bytes | 369.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/4conti-art/trading-bot.git
+   375ae25..f1315fc  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>  File "/opt/render/project/python/Python-3.14.3/lib/python3.14/importlib/__init__.py", line 88, in import_module
+'File' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    return _bootstrap._gcd_import(name[level:], package, level)
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+'~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+'File' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+'File' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+'File' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+'File' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+'File' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>  File "<frozen importlib._bootstrap_external>", line 893, in get_code
+'File' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>  File "<frozen importlib._bootstrap_external>", line 823, in source_to_code
+'File' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+'File' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>  File "/opt/render/project/src/main.py", line 8
+'File' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    if df is None or df.empty or len(df) < 6:
+is was unexpected at this time.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    ^^
+'^' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>IndentationError: expected an indented block after function definition on line 7
+'IndentationError:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>INFO:     Started server process [38]
+'INFO:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>INFO:     Waiting for application startup.
+'INFO:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>INFO:     Application startup complete.
+'INFO:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>INFO:     Uvicorn running on http://0.0.0.0:10000 (Press CTRL+C to quit)
+'INFO:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>==> Port scan timeout reached, no open ports detected. Bind your service to at least one port. If you don't need to receive traffic on any port, create a background worker instead.
+'scan' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+'on' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>INFO:     Shutting down
+'INFO:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>INFO:     Waiting for application shutdown.
+'INFO:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>INFO:     Application shutdown complete.
+'INFO:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>INFO:     Finished server process
+'INFO:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>notepad main.py
+'notepad' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "fix indentation properly"
+[main ab4de44] fix indentation properly
+ 2 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 Docs
+ create mode 100644 Port
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>dir
+ Volume in drive C is 2TB
+ Volume Serial Number is 82F0-7F68
+
+ Directory of C:\Users\Fabrizio\Dropbox\PATENT\trading-bot
+
+04/04/2026  05:59 PM    <DIR>          .
+04/04/2026  09:48 AM    <DIR>          ..
+04/04/2026  02:13 PM                29 .gitignore
+04/04/2026  05:59 PM                 0 Docs
+04/04/2026  01:57 PM        64,564,304 Git-2.53.0.2-64-bit.exe
+04/04/2026  06:01 PM             1,311 main.py
+04/04/2026  05:59 PM                 0 Port
+04/04/2026  10:49 AM        46,229,451 python-manager-26.0.msix
+04/04/2026  11:55 AM                26 requirements.txt
+04/04/2026  11:54 AM    <DIR>          __pycache__
+               7 File(s)    110,795,121 bytes
+               3 Dir(s)  778,493,095,936 bytes free
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>dir
+ Volume in drive C is 2TB
+ Volume Serial Number is 82F0-7F68
+
+ Directory of C:\Users\Fabrizio\Dropbox\PATENT\trading-bot
+
+04/04/2026  05:59 PM    <DIR>          .
+04/04/2026  09:48 AM    <DIR>          ..
+04/04/2026  02:13 PM                29 .gitignore
+04/04/2026  05:59 PM                 0 Docs
+04/04/2026  01:57 PM        64,564,304 Git-2.53.0.2-64-bit.exe
+04/04/2026  06:01 PM             1,311 main.py
+04/04/2026  05:59 PM                 0 Port
+04/04/2026  10:49 AM        46,229,451 python-manager-26.0.msix
+04/04/2026  11:55 AM                26 requirements.txt
+04/04/2026  11:54 AM    <DIR>          __pycache__
+               7 File(s)    110,795,121 bytes
+               3 Dir(s)  778,493,030,400 bytes free
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>del Docs
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>del Port
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>dir
+ Volume in drive C is 2TB
+ Volume Serial Number is 82F0-7F68
+
+ Directory of C:\Users\Fabrizio\Dropbox\PATENT\trading-bot
+
+04/04/2026  06:03 PM    <DIR>          .
+04/04/2026  09:48 AM    <DIR>          ..
+04/04/2026  02:13 PM                29 .gitignore
+04/04/2026  01:57 PM        64,564,304 Git-2.53.0.2-64-bit.exe
+04/04/2026  06:01 PM             1,311 main.py
+04/04/2026  10:49 AM        46,229,451 python-manager-26.0.msix
+04/04/2026  11:55 AM                26 requirements.txt
+04/04/2026  11:54 AM    <DIR>          __pycache__
+               5 File(s)    110,795,121 bytes
+               3 Dir(s)  778,492,588,032 bytes free
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "remove bad files"
+[main 4c29c9e] remove bad files
+ 2 files changed, 0 insertions(+), 0 deletions(-)
+ delete mode 100644 Docs
+ delete mode 100644 Port
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (4/4), 508 bytes | 508.00 KiB/s, done.
+Total 4 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/4conti-art/trading-bot.git
+   f1315fc..4c29c9e  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>type main.py
+import numpy as np
+import yfinance as yf
+from fastapi import FastAPI
+
+app = FastAPI()
+
+def compute_momentum(df):
+if df is None or df.empty or len(df) < 6:
+return None
+
+```
+df = df.copy()
+
+df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
+
+momentum = (df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1
+volatility = df["log_returns"].std() * np.sqrt(252)
+
+if volatility == 0 or np.isnan(volatility):
+    return None
+
+score = momentum / volatility
+
+return {
+    "score": float(score),
+    "momentum": float(momentum),
+    "volatility": float(volatility),
+}
+```
+
+TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
+
+def analyze_ticker(ticker):
+try:
+df = yf.download(ticker, period="10d", interval="1d", progress=False)
+
+```
+    result = compute_momentum(df)
+    if result is None:
+        return None
+
+    return {
+        "ticker": ticker,
+        **result
+    }
+
+except Exception:
+    return None
+```
+
+@app.get("/")
+def root():
+return {"message": "Trading bot is running"}
+
+@app.get("/top")
+def get_top_stocks():
+results = []
+
+```
+for ticker in TICKERS:
+    data = analyze_ticker(ticker)
+    if data:
+        results.append(data)
+
+ranked = sorted(results, key=lambda x: x["score"], reverse=True)
+
+return ranked[:5]
+```
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "fix indentation FINAL"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Everything up-to-date
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>type main.py
+import numpy as np
+import yfinance as yf
+from fastapi import FastAPI
+
+app = FastAPI()
+
+def compute_momentum(df):
+if df is None or df.empty or len(df) < 6:
+return None
+
+```
+df = df.copy()
+
+df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
+
+momentum = (df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1
+volatility = df["log_returns"].std() * np.sqrt(252)
+
+if volatility == 0 or np.isnan(volatility):
+    return None
+
+score = momentum / volatility
+
+return {
+    "score": float(score),
+    "momentum": float(momentum),
+    "volatility": float(volatility),
+}
+```
+
+TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
+
+def analyze_ticker(ticker):
+try:
+df = yf.download(ticker, period="10d", interval="1d", progress=False)
+
+```
+    result = compute_momentum(df)
+    if result is None:
+        return None
+
+    return {
+        "ticker": ticker,
+        **result
+    }
+
+except Exception:
+    return None
+```
+
+@app.get("/")
+def root():
+return {"message": "Trading bot is running"}
+
+@app.get("/top")
+def get_top_stocks():
+results = []
+
+```
+for ticker in TICKERS:
+    data = analyze_ticker(ticker)
+    if data:
+        results.append(data)
+
+ranked = sorted(results, key=lambda x: x["score"], reverse=True)
+
+return ranked[:5]
+```
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>@"
+'"' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>import numpy as np
+'import' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>import yfinance as yf
+'import' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>from fastapi import FastAPI
+'from' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>app = FastAPI()
+'app' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>def compute_momentum(df):
+'def' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    if df is None or df.empty or len(df) < 6:
+is was unexpected at this time.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        return None
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    df = df.copy()
+'df' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
+'df["log_returns"]' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    momentum = (df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1
+'momentum' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    volatility = df["log_returns"].std() * np.sqrt(252)
+'volatility' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    if volatility == 0 or np.isnan(volatility):
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        return None
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    score = momentum / volatility
+'score' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    return {
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        "score": float(score),
+'"score":' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        "momentum": float(momentum),
+'"momentum":' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        "volatility": float(volatility),
+'"volatility":' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    }
+'}' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
+'TICKERS' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>def analyze_ticker(ticker):
+'def' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    try:
+'try:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        df = yf.download(ticker, period="10d", interval="1d", progress=False)
+'df' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        result = compute_momentum(df)
+'result' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        if result is None:
+is was unexpected at this time.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>            return None
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        return {
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>            "ticker": ticker,
+'"ticker":' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>            **result
+'**result' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        }
+'}' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    except Exception:
+'except' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        return None
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>@app.get("/")
+'app.get' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>def root():
+'def' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    return {"message": "Trading bot is running"}
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>@app.get("/top")
+'app.get' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>def get_top_stocks():
+'def' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    results = []
+'results' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    for ticker in TICKERS:
+ticker was unexpected at this time.
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        data = analyze_ticker(ticker)
+'data' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        if data:
+The syntax of the command is incorrect.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>            results.append(data)
+'results.append' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    ranked = sorted(results, key=lambda x: x["score"], reverse=True)
+'ranked' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    return ranked[:5]
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>"@ | Set-Content main.py
+'"@ | Set-Content main.py' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>type main.py
+import numpy as np
+import yfinance as yf
+from fastapi import FastAPI
+
+app = FastAPI()
+
+def compute_momentum(df):
+if df is None or df.empty or len(df) < 6:
+return None
+
+df = df.copy()
+
+df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
+
+momentum = (df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1
+volatility = df["log_returns"].std() * np.sqrt(252)
+
+if volatility == 0 or np.isnan(volatility):
+    return None
+
+score = momentum / volatility
+
+return {
+    "score": float(score),
+    "momentum": float(momentum),
+    "volatility": float(volatility),
+}
+
+TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
+
+def analyze_ticker(ticker):
+try:
+df = yf.download(ticker, period="10d", interval="1d", progress=False)
+
+    result = compute_momentum(df)
+    if result is None:
+        return None
+
+    return {
+        "ticker": ticker,
+        **result
+    }
+
+except Exception:
+    return None
+
+@app.get("/")
+def root():
+return {"message": "Trading bot is running"}
+
+@app.get("/top")
+def get_top_stocks():
+results = []
+
+for ticker in TICKERS:
+    data = analyze_ticker(ticker)
+    if data:
+        results.append(data)
+
+ranked = sorted(results, key=lambda x: x["score"], reverse=True)
+
+return ranked[:5]
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>@"
+'"' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>import numpy as np
+'import' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>import yfinance as yf
+'import' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>from fastapi import FastAPI
+'from' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>app = FastAPI()
+'app' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>def compute_momentum(df):
+'def' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    if df is None or df.empty or len(df) < 6:
+is was unexpected at this time.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        return None
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    df = df.copy()
+'df' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
+'df["log_returns"]' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    momentum = (df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1
+'momentum' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    volatility = df["log_returns"].std() * np.sqrt(252)
+'volatility' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    if volatility == 0 or np.isnan(volatility):
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        return None
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    score = momentum / volatility
+'score' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    return {
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        "score": float(score),
+'"score":' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        "momentum": float(momentum),
+'"momentum":' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        "volatility": float(volatility),
+'"volatility":' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    }
+'}' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
+'TICKERS' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>def analyze_ticker(ticker):
+'def' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    try:
+'try:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        df = yf.download(ticker, period="10d", interval="1d", progress=False)
+'df' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        result = compute_momentum(df)
+'result' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        if result is None:
+is was unexpected at this time.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>            return None
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        return {
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>            "ticker": ticker,
+'"ticker":' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>            **result
+'**result' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        }
+'}' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    except Exception:
+'except' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        return None
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>@app.get("/")
+'app.get' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>def root():
+'def' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    return {"message": "Trading bot is running"}
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>@app.get("/top")
+'app.get' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>def get_top_stocks():
+'def' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    results = []
+'results' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    for ticker in TICKERS:
+ticker was unexpected at this time.
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        data = analyze_ticker(ticker)
+'data' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>        if data:
+The syntax of the command is incorrect.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>            results.append(data)
+'results.append' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    ranked = sorted(results, key=lambda x: x["score"], reverse=True)
+'ranked' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>    return ranked[:5]
+'return' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>"@ | Out-File -Encoding utf8 main.py
+'"@ | Out-File -Encoding utf8 main.py' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "clean working file"
+[main 3b1a2ae] clean working file
+ 1 file changed, 33 insertions(+), 39 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git pushcd..
+git: 'pushcd..' is not a git command. See 'git --help'.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "add debug logging"
+[main 8e07a7e] add debug logging
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git pushgit add .
+git: 'pushgit' is not a git command. See 'git --help'.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "handle rate limits"
+On branch main
+Your branch is ahead of 'origin/main' by 2 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   main.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git pushcd..
+git: 'pushcd..' is not a git command. See 'git --help'.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "handle rate limits"
+[main 074e8c6] handle rate limits
+ 1 file changed, 3 insertions(+)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git pushgit add .
+git: 'pushgit' is not a git command. See 'git --help'.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "test single ticker"
+On branch main
+Your branch is ahead of 'origin/main' by 3 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   main.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add main.py
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "test single ticker"
+[main 2b61406] test single ticker
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+To https://github.com/4conti-art/trading-bot.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/4conti-art/trading-bot.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push --force
+Enumerating objects: 24, done.
+Counting objects: 100% (24/24), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (21/21), done.
+Writing objects: 100% (24/24), 3.22 KiB | 549.00 KiB/s, done.
+Total 24 (delta 7), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (7/7), done.
+To https://github.com/4conti-art/trading-bot.git
+ + 6e0a669...2b61406 main -> main (forced update)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "fix pandas series bug"
+[main 94bbe3f] fix pandas series bug
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push --force
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 436 bytes | 436.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/4conti-art/trading-bot.git
+   2b61406..94bbe3f  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "debug volatility"
+[main fe23fc6] debug volatility
+ 2 files changed, 1 insertion(+)
+ create mode 100644 chat 1.pdf
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push --force
+Enumerating objects: 31, done.
+Counting objects: 100% (31/31), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (28/28), done.
+Writing objects: 100% (31/31), 4.72 MiB | 2.12 MiB/s, done.
+Total 31 (delta 9), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (9/9), done.
+To https://github.com/4conti-art/trading-bot.git
+ + 16aa8e0...fe23fc6 main -> main (forced update)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "FINAL fix scalar values"
+[main 8022797] FINAL fix scalar values
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push --force
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 354 bytes | 354.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   fe23fc6..8022797  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "switch to alpha vantage"
+[main 8d6993d] switch to alpha vantage
+ 1 file changed, 32 insertions(+), 15 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push --force
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.09 KiB | 1.09 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/4conti-art/trading-bot.git
+   8022797..8d6993d  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "debug final values"
+[main 59b790d] debug final values
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push --force
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 353 bytes | 353.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   8d6993d..59b790d  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Everything up-to-date
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "debug logging"
+[main 50fb02c] debug logging
+ 2 files changed, 6845 insertions(+), 31 deletions(-)
+ create mode 100644 switch chat.txt
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 6, done.
+Counting objects: 100% (6/6), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 36.35 KiB | 4.04 MiB/s, done.
+Total 4 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   59b790d..50fb02c  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "fix series bug"
+[main b08e8bb] fix series bug
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 426 bytes | 426.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   50fb02c..b08e8bb  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "deep debug"
+[main 4b68691] deep debug
+ 1 file changed, 20 insertions(+), 9 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 527 bytes | 527.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   b08e8bb..4b68691  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "clean production version"
+[main 120b108] clean production version
+ 1 file changed, 9 insertions(+), 24 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 464 bytes | 464.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   4b68691..120b108  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "step 2 sp500 universe"
+[main e0c6d7b] step 2 sp500 universe
+ 1 file changed, 31 insertions(+), 12 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 732 bytes | 732.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   120b108..e0c6d7b  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "debug ticker count"
+[main 313e171] debug ticker count
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 334 bytes | 334.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   e0c6d7b..313e171  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'requirements.txt', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "add lxml dependency"
+[main 46bd4ae] add lxml dependency
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 302 bytes | 302.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/4conti-art/trading-bot.git
+   313e171..46bd4ae  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "fix 403 issue (no scraping)"
+[main 99d5cb1] fix 403 issue (no scraping)
+ 1 file changed, 9 insertions(+), 31 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 604 bytes | 604.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   46bd4ae..99d5cb1  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "step 3 parallel processing"
+[main 357c4b3] step 3 parallel processing
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 483 bytes | 483.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   99d5cb1..357c4b3  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "switch to alpha vantage"
+[main efa1a23] switch to alpha vantage
+ 1 file changed, 39 insertions(+), 19 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.16 KiB | 1.16 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/4conti-art/trading-bot.git
+   357c4b3..efa1a23  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "debug alpha vantage"
+[main f7d5ad1] debug alpha vantage
+ 1 file changed, 20 insertions(+), 7 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 544 bytes | 544.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   efa1a23..f7d5ad1  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "switch to background caching"
+[main fe63dcd] switch to background caching
+ 1 file changed, 52 insertions(+), 48 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 841 bytes | 841.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   f7d5ad1..fe63dcd  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "update main"
+[main a51c435] update main
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 513 bytes | 513.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   fe63dcd..a51c435  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "twelve data working version"
+[main e7c00c1] twelve data working version
+ 1 file changed, 26 insertions(+), 26 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 726 bytes | 726.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   a51c435..e7c00c1  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "expanded universe"
+[main cb4ee2e] expanded universe
+ 1 file changed, 19 insertions(+), 23 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 660 bytes | 660.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   e7c00c1..cb4ee2e  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>del Docs
+Could Not Find C:\Users\Fabrizio\Dropbox\PATENT\trading-bot\Docs
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>dir
+ Volume in drive C is 2TB
+ Volume Serial Number is 82F0-7F68
+
+ Directory of C:\Users\Fabrizio\Dropbox\PATENT\trading-bot
+
+04/06/2026  09:16 AM    <DIR>          .
+04/04/2026  09:48 AM    <DIR>          ..
+04/04/2026  02:13 PM                29 .gitignore
+04/05/2026  12:52 PM         8,734,332 chat 1.pdf
+04/04/2026  01:57 PM        64,564,304 Git-2.53.0.2-64-bit.exe
+04/05/2026  08:41 PM             2,685 main.py
+04/04/2026  10:49 AM        46,229,451 python-manager-26.0.msix
+04/05/2026  02:16 PM                43 requirements.txt
+04/06/2026  09:20 AM           232,012 switch chat.txt
+04/04/2026  11:54 AM    <DIR>          __pycache__
+               7 File(s)    119,762,856 bytes
+               3 Dir(s)  775,873,757,184 bytes free
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>del "Git-2.53.0.2-64-bit.exe"
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>del "python-manager-26.0.msix"
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>del "chat 1.pdf"
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>dir
+ Volume in drive C is 2TB
+ Volume Serial Number is 82F0-7F68
+
+ Directory of C:\Users\Fabrizio\Dropbox\PATENT\trading-bot
+
+04/06/2026  09:29 AM    <DIR>          .
+04/04/2026  09:48 AM    <DIR>          ..
+04/04/2026  02:13 PM                29 .gitignore
+04/05/2026  08:41 PM             2,685 main.py
+04/05/2026  02:16 PM                43 requirements.txt
+04/06/2026  09:20 AM           232,012 switch chat.txt
+04/04/2026  11:54 AM    <DIR>          __pycache__
+               4 File(s)        234,769 bytes
+               3 Dir(s)  775,992,672,256 bytes free
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "final clean working file"
+[main 80470f8] final clean working file
+ 3 files changed, 4638 insertions(+), 87 deletions(-)
+ delete mode 100644 chat 1.pdf
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 7, done.
+Counting objects: 100% (7/7), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 27.70 KiB | 3.08 MiB/s, done.
+Total 4 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   cb4ee2e..80470f8  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "fix rate limit + logging"
+[main 6530f1d] fix rate limit + logging
+ 1 file changed, 94 insertions(+), 46 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 1.46 KiB | 1.46 MiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/4conti-art/trading-bot.git
+   80470f8..6530f1d  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "fast refresh version"
+[main 34db259] fast refresh version
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 331 bytes | 331.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   6530f1d..34db259  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "expand to sp500"
+[main 4b50a06] expand to sp500
+ 1 file changed, 24 insertions(+), 21 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 713 bytes | 713.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   34db259..4b50a06  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "rotating universe version"
+[main 1e90773] rotating universe version
+ 1 file changed, 28 insertions(+), 21 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 756 bytes | 756.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   4b50a06..1e90773  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "safe rotating version (fix deploy timeout)"
+[main 6b561fb] safe rotating version (fix deploy timeout)
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 359 bytes | 179.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   1e90773..6b561fb  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "force first refresh fix"
+[main 8757683] force first refresh fix
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 378 bytes | 378.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   6b561fb..8757683  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "formatted JSON output"
+[main 838c830] formatted JSON output
+ 1 file changed, 5 insertions(+), 13 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 479 bytes | 479.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   8757683..838c830  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "final stable version"
+[main 00133b9] final stable version
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 487 bytes | 487.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   838c830..00133b9  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>

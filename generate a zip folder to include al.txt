@@ -1,0 +1,2 @@
+generate a zip folder to include all necessary info for me to prep a new chat on the status of our bot project, include all files in use, main and requirements and all you can think of.
+Make sue the new chat agent doesn't go back to YahooFinance like you did. include the whole shell text in attachment. It would be sad to regress and waste more time if we don't give a very specific prompt with all the needed info and assets.
