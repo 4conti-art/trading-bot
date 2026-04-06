@@ -1,11 +1,8 @@
 import requests
-import pandas as pd
-import numpy as np
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-import time
 
-print("RUNNING VERSION: FINNHUB DAILY TOP 5")
+print("RUNNING VERSION: FINNHUB FREE (QUOTE ONLY)")
 
 app = FastAPI()
 
@@ -22,69 +19,45 @@ def fetch_quote(ticker):
     try:
         r = requests.get(url, params=params, timeout=5)
         data = r.json()
-        if "c" not in data or "pc" not in data:
+
+        if "c" not in data or "pc" not in data or data["pc"] == 0:
             return None
+
         change = (data["c"] - data["pc"]) / data["pc"]
-        return {"ticker": ticker, "price": data["c"], "change": change}
+
+        return {
+            "ticker": ticker,
+            "price": data["c"],
+            "change": change
+        }
     except:
         return None
 
-def fetch_history(ticker):
-    url = "https://finnhub.io/api/v1/stock/candle"
-    now = int(time.time())
-    past = now - 60*60*24*30
-    params = {
-        "symbol": ticker,
-        "resolution": "D",
-        "from": past,
-        "to": now,
-        "token": API_KEY
-    }
-    try:
-        r = requests.get(url, params=params, timeout=10)
-        data = r.json()
-        if data.get("s") != "ok":
-            return None
-        df = pd.DataFrame({"Close": data["c"]})
-        return df
-    except:
-        return None
-
-def compute_score(df):
-    if df is None or len(df) < 6:
-        return None
-    close = df["Close"]
-    log_returns = np.log(close / close.shift(1))
-    momentum = (close.iloc[-1] / close.iloc[-6]) - 1
-    volatility = log_returns.std() * np.sqrt(252)
-    if volatility == 0 or np.isnan(volatility):
-        return None
-    return float(momentum / volatility)
 
 @app.get("/")
 def root():
     return {"status": "ok"}
 
+
 @app.get("/top")
 def top():
-    quotes = []
+    results = []
+
+    # Get all quotes
     for t in TICKERS:
         q = fetch_quote(t)
         if q:
-            quotes.append(q)
+            results.append(q)
 
-    quotes = sorted(quotes, key=lambda x: abs(x["change"]), reverse=True)[:5]
+    # If nothing came back, return debug info
+    if not results:
+        return JSONResponse(content={"error": "No data returned from Finnhub"})
 
-    results = []
-    for q in quotes:
-        df = fetch_history(q["ticker"])
-        score = compute_score(df)
-        if score:
-            results.append({
-                "ticker": q["ticker"],
-                "change": q["change"],
-                "score": score
-            })
+    # Pick top 5 movers
+    results = sorted(results, key=lambda x: abs(x["change"]), reverse=True)[:5]
 
-    results = sorted(results, key=lambda x: x["score"], reverse=True)
+    # Add simple "score" (same as change for now)
+    for r in results:
+        r["score"] = r["change"]
+
     return JSONResponse(content=results)
