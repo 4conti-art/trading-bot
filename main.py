@@ -5,7 +5,7 @@ import time
 from fastapi import FastAPI
 from threading import Thread
 
-print("RUNNING VERSION: TWELVE DATA FIXED")
+print("RUNNING VERSION: TWELVE DATA FIXED (FAST REFRESH)")
 
 app = FastAPI()
 
@@ -23,7 +23,7 @@ TICKERS = [
 ]
 
 CACHE = {"data": [], "last_update": 0}
-CACHE_TTL = 300
+CACHE_TTL = 30
 
 
 def fetch_data(ticker):
@@ -118,7 +118,7 @@ def start():
 
 @app.get("/")
 def root():
-    return {"message": "Expanded universe running"}
+    return {"message": "Expanded universe running (fast refresh)"}
 
 
 @app.get("/top")
