@@ -5,26 +5,28 @@ import time
 from fastapi import FastAPI
 from threading import Thread
 
-print("RUNNING VERSION: EXPANDED UNIVERSE (S&P 500)")
+print("RUNNING VERSION: ROTATING UNIVERSE")
 
 app = FastAPI()
 
 API_KEY = "de9c51d682374906a8de2c7f9e8dcb7b"
 
-# -----------------------------
-# GET S&P 500 TICKERS (cached once)
-# -----------------------------
-def get_sp500_tickers():
-    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-    tables = pd.read_html(url)
-    df = tables[0]
-    tickers = df["Symbol"].tolist()
-    return tickers
+TICKERS = [
+    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","TSLA","AMD","NFLX","ADBE",
+    "JPM","GS","BAC","WMT","COST","HD","MCD","NKE",
+    "XOM","CVX","XLE",
+    "GLD","SLV","USO","UNG",
+    "SPY","QQQ","DIA",
+    "TLT","IEF",
+    "XLK","XLF","XLV","XLI","XLY","XLP","XLB","XLU",
+    "ARKK","SOXX"
+]
 
-TICKERS = get_sp500_tickers()
+BATCH_SIZE = 8
+current_index = 0
 
 CACHE = {"data": [], "last_update": 0}
-CACHE_TTL = 60  # faster refresh for testing
+CACHE_TTL = 60
 
 
 def fetch_data(ticker):
@@ -79,31 +81,36 @@ def compute_momentum(df):
 
 
 def refresh_cache():
-    print("Refreshing S&P 500 universe...")
-    results = []
+    global current_index
 
-    for i, ticker in enumerate(TICKERS):
+    print("Refreshing rotating batch...")
+    results = CACHE["data"].copy()
+
+    batch = TICKERS[current_index:current_index + BATCH_SIZE]
+
+    for ticker in batch:
         df = fetch_data(ticker)
         result = compute_momentum(df)
 
+        print(f"{ticker}: {result}")
+
         if result:
+            results = [r for r in results if r["ticker"] != ticker]
             results.append({
                 "ticker": ticker,
                 **result
             })
 
-        # small delay (S&P 500 is large)
-        time.sleep(0.8)
+        time.sleep(1.2)
 
-        if i % 50 == 0:
-            print(f"Progress: {i}/{len(TICKERS)}")
+    current_index = (current_index + BATCH_SIZE) % len(TICKERS)
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
     CACHE["data"] = results[:10]
     CACHE["last_update"] = time.time()
 
-    print("Updated top 10:", CACHE["data"])
+    print("Updated:", CACHE["data"])
 
 
 def background():
@@ -121,7 +128,7 @@ def start():
 
 @app.get("/")
 def root():
-    return {"message": "S&P 500 bot running"}
+    return {"message": "Rotating universe bot running"}
 
 
 @app.get("/top")
