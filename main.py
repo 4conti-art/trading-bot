@@ -5,25 +5,26 @@ import time
 from fastapi import FastAPI
 from threading import Thread
 
-print("RUNNING VERSION: TWELVE DATA FIXED (FAST REFRESH)")
+print("RUNNING VERSION: EXPANDED UNIVERSE (S&P 500)")
 
 app = FastAPI()
 
 API_KEY = "de9c51d682374906a8de2c7f9e8dcb7b"
 
-TICKERS = [
-    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","TSLA","AMD","NFLX","ADBE",
-    "JPM","GS","BAC","WMT","COST","HD","MCD","NKE",
-    "XOM","CVX","XLE",
-    "GLD","SLV","USO","UNG",
-    "SPY","QQQ","DIA",
-    "TLT","IEF",
-    "XLK","XLF","XLV","XLI","XLY","XLP","XLB","XLU",
-    "ARKK","SOXX"
-]
+# -----------------------------
+# GET S&P 500 TICKERS (cached once)
+# -----------------------------
+def get_sp500_tickers():
+    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+    tables = pd.read_html(url)
+    df = tables[0]
+    tickers = df["Symbol"].tolist()
+    return tickers
+
+TICKERS = get_sp500_tickers()
 
 CACHE = {"data": [], "last_update": 0}
-CACHE_TTL = 30
+CACHE_TTL = 60  # faster refresh for testing
 
 
 def fetch_data(ticker):
@@ -40,7 +41,7 @@ def fetch_data(ticker):
         data = r.json()
 
         if "values" not in data:
-            print(f"{ticker}: bad response -> {data}")
+            print(f"{ticker}: bad response")
             return None
 
         df = pd.DataFrame(data["values"])
@@ -78,14 +79,12 @@ def compute_momentum(df):
 
 
 def refresh_cache():
-    print("Refreshing expanded universe...")
+    print("Refreshing S&P 500 universe...")
     results = []
 
-    for ticker in TICKERS:
+    for i, ticker in enumerate(TICKERS):
         df = fetch_data(ticker)
         result = compute_momentum(df)
-
-        print(f"{ticker}: {result}")
 
         if result:
             results.append({
@@ -93,14 +92,18 @@ def refresh_cache():
                 **result
             })
 
-        time.sleep(1.2)
+        # small delay (S&P 500 is large)
+        time.sleep(0.8)
+
+        if i % 50 == 0:
+            print(f"Progress: {i}/{len(TICKERS)}")
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-    CACHE["data"] = results[:5]
+    CACHE["data"] = results[:10]
     CACHE["last_update"] = time.time()
 
-    print("Updated:", CACHE["data"])
+    print("Updated top 10:", CACHE["data"])
 
 
 def background():
@@ -118,7 +121,7 @@ def start():
 
 @app.get("/")
 def root():
-    return {"message": "Expanded universe running (fast refresh)"}
+    return {"message": "S&P 500 bot running"}
 
 
 @app.get("/top")
