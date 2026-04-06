@@ -1493,4 +1493,121 @@ remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
 To https://github.com/4conti-art/trading-bot.git
    838c830..00133b9  main -> main
 
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'shell.txt', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "render stable final"
+[main 5395888] render stable final
+ 3 files changed, 1503 insertions(+), 25 deletions(-)
+ create mode 100644 generate a zip folder to include al.txt
+ create mode 100644 shell.txt
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 7, done.
+Counting objects: 100% (7/7), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (5/5), 6.58 KiB | 3.29 MiB/s, done.
+Total 5 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/4conti-art/trading-bot.git
+   00133b9..5395888  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "switch to finnhub (working)"
+[main 1ac4e25] switch to finnhub (working)
+ 1 file changed, 41 insertions(+), 23 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 723 bytes | 241.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   5395888..1ac4e25  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "switch to finnhub (working)"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Everything up-to-date
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>main.py
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "switch to finnhub (working)"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Everything up-to-date
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "finnhub keepalive final"
+[main 591b07d] finnhub keepalive final
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 484 bytes | 484.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   1ac4e25..591b07d  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "daily top 5 version"
+[main 65ca1b1] daily top 5 version
+ 1 file changed, 43 insertions(+), 93 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 867 bytes | 867.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   591b07d..65ca1b1  main -> main
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git add .
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git commit -m "finnhub free working version"
+[main 21f4c3f] finnhub free working version
+ 1 file changed, 24 insertions(+), 51 deletions(-)
+
+C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 662 bytes | 662.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/4conti-art/trading-bot.git
+   65ca1b1..21f4c3f  main -> main
+
 C:\Users\Fabrizio\Dropbox\PATENT\trading-bot>
