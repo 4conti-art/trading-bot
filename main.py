@@ -5,7 +5,7 @@ import time
 from fastapi import FastAPI
 from threading import Thread
 
-print("RUNNING VERSION: ROTATING SAFE")
+print("RUNNING VERSION: ROTATING FORCE START")
 
 app = FastAPI()
 
@@ -43,7 +43,7 @@ def fetch_data(ticker):
         data = r.json()
 
         if "values" not in data:
-            print(f"{ticker}: bad response")
+            print(f"{ticker}: bad response -> {data}")
             return None
 
         df = pd.DataFrame(data["values"])
@@ -114,7 +114,9 @@ def refresh_cache():
 
 
 def background():
-    time.sleep(10)  # delay startup work
+    time.sleep(5)
+    # FORCE FIRST RUN
+    refresh_cache()
     while True:
         if time.time() - CACHE["last_update"] > CACHE_TTL:
             refresh_cache()
@@ -128,7 +130,7 @@ def start():
 
 @app.get("/")
 def root():
-    return {"message": "Rotating universe bot running (safe startup)"}
+    return {"message": "Rotating universe bot running (force start)"}
 
 
 @app.get("/top")
