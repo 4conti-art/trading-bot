@@ -1,26 +1,69 @@
 import numpy as np
-import yfinance as yf
+import pandas as pd
+import requests
+import time
 from fastapi import FastAPI
+from threading import Thread
+
+print("RUNNING VERSION: TWELVE DATA FIXED")
 
 app = FastAPI()
 
-# -----------------------------
-# Momentum Function (FIXED)
-# -----------------------------
+API_KEY = "de9c51d682374906a8de2c7f9e8dcb7b"
+
+TICKERS = [
+    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","TSLA","AMD","NFLX","ADBE",
+    "JPM","GS","BAC","WMT","COST","HD","MCD","NKE",
+    "XOM","CVX","XLE",
+    "GLD","SLV","USO","UNG",
+    "SPY","QQQ","DIA",
+    "TLT","IEF",
+    "XLK","XLF","XLV","XLI","XLY","XLP","XLB","XLU",
+    "ARKK","SOXX"
+]
+
+CACHE = {"data": [], "last_update": 0}
+CACHE_TTL = 300
+
+
+def fetch_data(ticker):
+    url = "https://api.twelvedata.com/time_series"
+    params = {
+        "symbol": ticker,
+        "interval": "1day",
+        "outputsize": 30,
+        "apikey": API_KEY
+    }
+
+    try:
+        r = requests.get(url, params=params, timeout=10)
+        data = r.json()
+
+        if "values" not in data:
+            print(f"{ticker}: bad response -> {data}")
+            return None
+
+        df = pd.DataFrame(data["values"])
+        df["datetime"] = pd.to_datetime(df["datetime"])
+        df = df.sort_values("datetime")
+        df["Close"] = df["close"].astype(float)
+
+        return df
+
+    except Exception as e:
+        print(f"{ticker}: error {e}")
+        return None
+
+
 def compute_momentum(df):
     if df is None or df.empty or len(df) < 6:
         return None
 
-    df = df.copy()
+    close = df["Close"]
 
-    # Log returns
-    df["log_returns"] = np.log(df["Close"] / df["Close"].shift(1))
-
-    # 1-week momentum
-    momentum = (df["Close"].iloc[-1] / df["Close"].iloc[-6]) - 1
-
-    # Annualized volatility
-    volatility = df["log_returns"].std() * np.sqrt(252)
+    log_returns = np.log(close / close.shift(1))
+    momentum = (close.iloc[-1] / close.iloc[-6]) - 1
+    volatility = log_returns.std() * np.sqrt(252)
 
     if volatility == 0 or np.isnan(volatility):
         return None
@@ -33,46 +76,51 @@ def compute_momentum(df):
         "volatility": float(volatility),
     }
 
-# -----------------------------
-# Tickers
-# -----------------------------
-TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "AMD", "TSLA"]
 
-# -----------------------------
-# Analyze one ticker
-# -----------------------------
-def analyze_ticker(ticker):
-    try:
-        df = yf.download(ticker, period="10d", interval="1d", progress=False)
-
-        result = compute_momentum(df)
-        if result is None:
-            return None
-
-        return {
-            "ticker": ticker,
-            **result
-        }
-
-    except Exception:
-        return None
-
-# -----------------------------
-# API Endpoints
-# -----------------------------
-@app.get("/")
-def root():
-    return {"message": "Trading bot is running"}
-
-@app.get("/top")
-def get_top_stocks():
+def refresh_cache():
+    print("Refreshing expanded universe...")
     results = []
 
     for ticker in TICKERS:
-        data = analyze_ticker(ticker)
-        if data:
-            results.append(data)
+        df = fetch_data(ticker)
+        result = compute_momentum(df)
 
-    ranked = sorted(results, key=lambda x: x["score"], reverse=True)
+        print(f"{ticker}: {result}")
 
-    return ranked[:5]
+        if result:
+            results.append({
+                "ticker": ticker,
+                **result
+            })
+
+        time.sleep(1.2)
+
+    results = sorted(results, key=lambda x: x["score"], reverse=True)
+
+    CACHE["data"] = results[:5]
+    CACHE["last_update"] = time.time()
+
+    print("Updated:", CACHE["data"])
+
+
+def background():
+    time.sleep(5)
+    while True:
+        if time.time() - CACHE["last_update"] > CACHE_TTL:
+            refresh_cache()
+        time.sleep(5)
+
+
+@app.on_event("startup")
+def start():
+    Thread(target=background, daemon=True).start()
+
+
+@app.get("/")
+def root():
+    return {"message": "Expanded universe running"}
+
+
+@app.get("/top")
+def top():
+    return CACHE["data"]
