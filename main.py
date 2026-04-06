@@ -5,21 +5,25 @@ import time
 from fastapi import FastAPI
 from threading import Thread
 
-print("RUNNING VERSION: TWELVE DATA CLEAN")
+print("RUNNING VERSION: TWELVE DATA EXPANDED")
 
 app = FastAPI()
 
 API_KEY = "de9c51d682374906a8de2c7f9e8dcb7b"
 
-TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "GLD", "USO"]
+TICKERS = [
+    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","TSLA","AMD","NFLX","ADBE",
+    "JPM","GS","BAC","WMT","COST","HD","MCD","NKE",
+    "XOM","CVX","XLE",
+    "GLD","SLV","USO","UNG",
+    "SPY","QQQ","DIA",
+    "TLT","IEF",
+    "XLK","XLF","XLV","XLI","XLY","XLP","XLB","XLU",
+    "ARKK","SOXX"
+]
 
-CACHE = {
-    "data": [],
-    "last_update": 0
-}
-
-CACHE_TTL = 300  # 5 minutes
-
+CACHE = {"data": [], "last_update": 0}
+CACHE_TTL = 300
 
 def fetch_data(ticker):
     url = "https://api.twelvedata.com/time_series"
@@ -35,7 +39,7 @@ def fetch_data(ticker):
         data = r.json()
 
         if "values" not in data:
-            print(f"{ticker}: bad response {data}")
+            print(f"{ticker}: bad response")
             return None
 
         df = pd.DataFrame(data["values"])
@@ -48,7 +52,6 @@ def fetch_data(ticker):
     except Exception as e:
         print(f"{ticker}: error {e}")
         return None
-
 
 def compute_momentum(df):
     if df is None or df.empty or len(df) < 6:
@@ -71,9 +74,8 @@ def compute_momentum(df):
         "volatility": float(volatility),
     }
 
-
 def refresh_cache():
-    print("Refreshing cache...")
+    print("Refreshing expanded universe...")
     results = []
 
     for ticker in TICKERS:
@@ -86,35 +88,29 @@ def refresh_cache():
                 **result
             })
 
-        time.sleep(1)
+        time.sleep(0.8)
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
     CACHE["data"] = results[:5]
     CACHE["last_update"] = time.time()
 
-    print("Cache updated:", CACHE["data"])
-
+    print("Updated:", CACHE["data"])
 
 def background():
     time.sleep(5)
-
     while True:
-        now = time.time()
-        if now - CACHE["last_update"] > CACHE_TTL:
+        if time.time() - CACHE["last_update"] > CACHE_TTL:
             refresh_cache()
         time.sleep(5)
-
 
 @app.on_event("startup")
 def start():
     Thread(target=background, daemon=True).start()
 
-
 @app.get("/")
 def root():
-    return {"message": "Bot running (Twelve Data)"}
-
+    return {"message": "Expanded universe running"}
 
 @app.get("/top")
 def top():
