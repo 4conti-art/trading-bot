@@ -5,14 +5,13 @@ import time
 from fastapi import FastAPI
 from threading import Thread
 
-# ===== VERSION MARKER (for Render logs) =====
-print("RUNNING VERSION: BACKGROUND CACHE V1")
+print("RUNNING VERSION: TWELVE DATA CLEAN")
 
 app = FastAPI()
 
-API_KEY = "O81J337DJX2XO5YH"
+API_KEY = "de9c51d682374906a8de2c7f9e8dcb7b"
 
-TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META"]
+TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "GLD", "USO"]
 
 CACHE = {
     "data": [],
@@ -22,32 +21,32 @@ CACHE = {
 CACHE_TTL = 300  # 5 minutes
 
 
-def fetch_alpha_vantage(ticker):
-    url = "https://www.alphavantage.co/query"
+def fetch_data(ticker):
+    url = "https://api.twelvedata.com/time_series"
     params = {
-        "function": "TIME_SERIES_DAILY_ADJUSTED",
         "symbol": ticker,
-        "apikey": API_KEY,
-        "outputsize": "compact"
+        "interval": "1day",
+        "outputsize": 30,
+        "apikey": API_KEY
     }
 
     try:
-        response = requests.get(url, params=params, timeout=10)
-        data = response.json()
+        r = requests.get(url, params=params, timeout=10)
+        data = r.json()
 
-        if "Time Series (Daily)" not in data:
-            print(f"{ticker}: bad response keys={list(data.keys())}")
+        if "values" not in data:
+            print(f"{ticker}: bad response {data}")
             return None
 
-        df = pd.DataFrame.from_dict(data["Time Series (Daily)"], orient="index")
-        df.index = pd.to_datetime(df.index)
-        df = df.sort_index()
-        df["Close"] = df["4. close"].astype(float)
+        df = pd.DataFrame(data["values"])
+        df["datetime"] = pd.to_datetime(df["datetime"])
+        df = df.sort_values("datetime")
+        df["Close"] = df["close"].astype(float)
 
         return df
 
     except Exception as e:
-        print(f"{ticker}: fetch error {e}")
+        print(f"{ticker}: error {e}")
         return None
 
 
@@ -78,7 +77,7 @@ def refresh_cache():
     results = []
 
     for ticker in TICKERS:
-        df = fetch_alpha_vantage(ticker)
+        df = fetch_data(ticker)
         result = compute_momentum(df)
 
         if result:
@@ -87,7 +86,7 @@ def refresh_cache():
                 **result
             })
 
-        time.sleep(12)  # respect rate limit
+        time.sleep(1)
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
@@ -97,7 +96,9 @@ def refresh_cache():
     print("Cache updated:", CACHE["data"])
 
 
-def background_update():
+def background():
+    time.sleep(5)
+
     while True:
         now = time.time()
         if now - CACHE["last_update"] > CACHE_TTL:
@@ -106,16 +107,15 @@ def background_update():
 
 
 @app.on_event("startup")
-def start_background_thread():
-    thread = Thread(target=background_update, daemon=True)
-    thread.start()
+def start():
+    Thread(target=background, daemon=True).start()
 
 
 @app.get("/")
 def root():
-    return {"message": "Trading bot running"}
+    return {"message": "Bot running (Twelve Data)"}
 
 
 @app.get("/top")
-def get_top_stocks():
+def top():
     return CACHE["data"]
