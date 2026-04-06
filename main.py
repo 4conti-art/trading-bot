@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from threading import Thread
 
-print("RUNNING VERSION: FORMATTED OUTPUT")
+print("RUNNING VERSION: FINAL STABLE")
 
 app = FastAPI()
 
@@ -44,6 +44,7 @@ def fetch_data(ticker):
         data = r.json()
 
         if "values" not in data:
+            print(f"{ticker}: bad response -> {data}")
             return None
 
         df = pd.DataFrame(data["values"])
@@ -53,7 +54,8 @@ def fetch_data(ticker):
 
         return df
 
-    except Exception:
+    except Exception as e:
+        print(f"{ticker}: error {e}")
         return None
 
 
@@ -82,12 +84,16 @@ def compute_momentum(df):
 def refresh_cache():
     global current_index
 
+    print("Refreshing rotating batch...")
     results = CACHE["data"].copy()
+
     batch = TICKERS[current_index:current_index + BATCH_SIZE]
 
     for ticker in batch:
         df = fetch_data(ticker)
         result = compute_momentum(df)
+
+        print(f"{ticker}: {result}")
 
         if result:
             results = [r for r in results if r["ticker"] != ticker]
@@ -104,6 +110,8 @@ def refresh_cache():
 
     CACHE["data"] = results[:10]
     CACHE["last_update"] = time.time()
+
+    print("Updated:", CACHE["data"])
 
 
 def background():
@@ -122,7 +130,7 @@ def start():
 
 @app.get("/")
 def root():
-    return {"message": "Formatted JSON bot running"}
+    return {"message": "Final stable bot running"}
 
 
 @app.get("/top")
