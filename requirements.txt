@@ -1,6 +1,3 @@
 fastapi
 uvicorn
-yfinance
-numpy
-pandas
-lxml
+requests
