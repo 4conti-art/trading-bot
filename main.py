@@ -1,13 +1,11 @@
 import requests
 from fastapi import FastAPI
 import numpy as np
-import time
 
 app = FastAPI()
 
 API_KEY = "0LNLJIQPXN2DOGE9"
 
-# ✅ Expanded universe (stocks + ETFs + commodities under ~$200)
 TICKERS = [
     "AAPL","MSFT","NVDA","AMZN","META",
     "SPY","QQQ","IWM","GLD","SLV",
@@ -42,6 +40,9 @@ def fetch_series(ticker):
 
 
 def compute_score(prices):
+    if prices is None:
+        return None
+
     close = np.array(prices[-(252 * 4):])
 
     short = (close[-1] / close[-21]) - 1
@@ -70,13 +71,19 @@ def top():
 
     for t in TICKERS:
         prices = fetch_series(t)
+
+        if prices is None:
+            continue
+
         score = compute_score(prices)
 
-        if score is not None:
-            results.append({
-                "ticker": t,
-                "score": score
-            })
+        if score is None:
+            continue
+
+        results.append({
+            "ticker": t,
+            "score": score
+        })
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
