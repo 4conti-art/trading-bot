@@ -9,6 +9,7 @@ API_KEY = "d79t519r01qspme61vogd79t519r01qspme61vp0"
 
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 
+
 def fetch_series(ticker):
     url = "https://finnhub.io/api/v1/stock/candle"
 
@@ -25,25 +26,41 @@ def fetch_series(ticker):
 
     r = requests.get(url, params=params).json()
 
-    if "c" not in r:
+    # ✅ fallback if candle data fails
+    if "c" not in r or r.get("s") != "ok":
+        q = requests.get(
+            "https://finnhub.io/api/v1/quote",
+            params={"symbol": ticker, "token": API_KEY}
+        ).json()
+
+        if "c" in q and "pc" in q and q["pc"] != 0:
+            return [q["pc"], q["c"]]
+
         return None
 
     return r["c"]
 
+
 def compute_score(prices):
-    if not prices or len(prices) < 21:
+    if not prices or len(prices) < 2:
         return None
 
     close = np.array(prices)
+
+    # ✅ if we only have fallback (2 points)
+    if len(close) < 21:
+        return (close[-1] / close[0]) - 1
 
     short = (close[-1] / close[-6]) - 1
     long = (close[-1] / close[-21]) - 1
 
     return 0.6 * short + 0.4 * long
 
+
 @app.get("/")
 def root():
     return {"status": "running"}
+
 
 @app.get("/top")
 def top():
