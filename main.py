@@ -9,7 +9,7 @@ API_KEY = "0LNLJIQPXN2DOGE9"
 
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 
-TOP_N = 2  # ✅ number of positions to hold
+TOP_N = 2
 
 
 def fetch_series(ticker):
@@ -18,6 +18,7 @@ def fetch_series(ticker):
     params = {
         "function": "TIME_SERIES_DAILY",
         "symbol": ticker,
+        "outputsize": "full",
         "apikey": API_KEY
     }
 
@@ -29,21 +30,24 @@ def fetch_series(ticker):
     ts = r["Time Series (Daily)"]
     closes = [float(ts[date]["4. close"]) for date in sorted(ts.keys())]
 
-    if len(closes) < 30:
+    if len(closes) < 1000:
         return None
 
     return closes
 
 
 def compute_score(prices):
-    if not prices or len(prices) < 21:
+    if not prices or len(prices) < 252 * 4:
         return None
 
     close = np.array(prices)
+    close = close[-(252 * 4):]
 
-    short = (close[-1] / close[-6]) - 1
-    long = (close[-1] / close[-21]) - 1
-    momentum = 0.6 * short + 0.4 * long
+    short = (close[-1] / close[-21]) - 1
+    medium = (close[-1] / close[-63]) - 1
+    long = (close[-1] / close[-252]) - 1
+
+    momentum = 0.5 * short + 0.3 * medium + 0.2 * long
 
     log_returns = np.diff(np.log(close))
     volatility = np.std(log_returns) * np.sqrt(252)
@@ -73,14 +77,11 @@ def top():
                 "score": score
             })
 
-        # ✅ respect API rate limit
         if i < len(TICKERS) - 1:
             time.sleep(12)
 
-    # ✅ sort by score
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-    # ✅ apply position logic
     for idx, r in enumerate(results):
         if idx < TOP_N and r["score"] > 0:
             r["signal"] = "BUY"
