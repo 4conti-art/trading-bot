@@ -9,9 +9,7 @@ API_KEY = "0LNLJIQPXN2DOGE9"
 
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 
-# ✅ CALIBRATED thresholds (fixed)
-BUY_THRESHOLD = 0.05
-SELL_THRESHOLD = -0.05
+TOP_N = 2  # ✅ number of positions to hold
 
 
 def fetch_series(ticker):
@@ -29,7 +27,6 @@ def fetch_series(ticker):
         return None
 
     ts = r["Time Series (Daily)"]
-
     closes = [float(ts[date]["4. close"]) for date in sorted(ts.keys())]
 
     if len(closes) < 30:
@@ -44,12 +41,10 @@ def compute_score(prices):
 
     close = np.array(prices)
 
-    # ✅ momentum
     short = (close[-1] / close[-6]) - 1
     long = (close[-1] / close[-21]) - 1
     momentum = 0.6 * short + 0.4 * long
 
-    # ✅ volatility (annualized)
     log_returns = np.diff(np.log(close))
     volatility = np.std(log_returns) * np.sqrt(252)
 
@@ -57,19 +52,6 @@ def compute_score(prices):
         return None
 
     return momentum / volatility
-
-
-def generate_signal(score):
-    if score is None:
-        return "NO_DATA"
-
-    if score > BUY_THRESHOLD:
-        return "BUY"
-
-    if score < SELL_THRESHOLD:
-        return "SELL"
-
-    return "HOLD"
 
 
 @app.get("/")
@@ -84,17 +66,27 @@ def top():
     for i, t in enumerate(TICKERS):
         prices = fetch_series(t)
         score = compute_score(prices)
-        signal = generate_signal(score)
 
         if score is not None:
             results.append({
                 "ticker": t,
-                "score": score,
-                "signal": signal
+                "score": score
             })
 
-        # ✅ rate limit protection
+        # ✅ respect API rate limit
         if i < len(TICKERS) - 1:
             time.sleep(12)
 
-    return sorted(results, key=lambda x: x["score"], reverse=True)
+    # ✅ sort by score
+    results = sorted(results, key=lambda x: x["score"], reverse=True)
+
+    # ✅ apply position logic
+    for idx, r in enumerate(results):
+        if idx < TOP_N and r["score"] > 0:
+            r["signal"] = "BUY"
+        elif idx == len(results) - 1:
+            r["signal"] = "SELL"
+        else:
+            r["signal"] = "HOLD"
+
+    return results
