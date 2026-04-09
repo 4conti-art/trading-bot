@@ -1,18 +1,16 @@
 import requests
 from fastapi import FastAPI
 import numpy as np
+import time
 
 app = FastAPI()
 
 API_KEY = "0LNLJIQPXN2DOGE9"
 
-TICKERS = [
-    "AAPL","MSFT","NVDA","AMZN","META",
-    "SPY","QQQ","IWM","GLD","SLV",
-    "USO","UNG","TLT","XLE","XLF"
-]
+# ✅ reduced set to avoid API blocking
+TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 
-TOP_N = 3
+TOP_N = 2
 
 
 def fetch_series(ticker):
@@ -69,7 +67,7 @@ def root():
 def top():
     results = []
 
-    for t in TICKERS:
+    for i, t in enumerate(TICKERS):
         prices = fetch_series(t)
 
         if prices is None:
@@ -84,6 +82,8 @@ def top():
             "ticker": t,
             "score": score
         })
+
+        time.sleep(12)
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
