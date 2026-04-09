@@ -14,7 +14,7 @@ def fetch_series(ticker):
     url = "https://finnhub.io/api/v1/stock/candle"
 
     now = int(time.time())
-    past = now - 60*60*24*40
+    past = now - 60 * 60 * 24 * 90  # ✅ 90 days for proper momentum
 
     params = {
         "symbol": ticker,
@@ -26,37 +26,25 @@ def fetch_series(ticker):
 
     r = requests.get(url, params=params).json()
 
-    # ✅ fallback if candle data fails
-    if "c" not in r or r.get("s") != "ok":
-        q = requests.get(
-            "https://finnhub.io/api/v1/quote",
-            params={"symbol": ticker, "token": API_KEY}
-        ).json()
+    # ✅ ONLY accept real candle data
+    if "c" in r and r.get("s") == "ok" and len(r["c"]) > 25:
+        return r["c"]
 
-        if "c" in q and "pc" in q and q["pc"] != 0:
-            return [q["pc"], q["c"]]
-
-        return None
-
-    return r["c"]
+    return None
 
 
 def compute_score(prices):
-    if not prices or len(prices) < 2:
+    if not prices or len(prices) < 21:
         return None
 
     close = np.array(prices)
 
-    # ✅ fallback case (only 2 points)
-    if len(close) < 21:
-        return (close[-1] / close[0]) - 1
-
-    # ✅ returns
+    # ✅ momentum
     short = (close[-1] / close[-6]) - 1
     long = (close[-1] / close[-21]) - 1
     momentum = 0.6 * short + 0.4 * long
 
-    # ✅ volatility (log returns)
+    # ✅ volatility
     log_returns = np.diff(np.log(close))
     volatility = np.std(log_returns)
 
