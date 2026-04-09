@@ -1,111 +1,126 @@
+
+# MAIN TRADING BOT (TwelveData + FastAPI)
+
+import numpy as np
+import pandas as pd
 import requests
+import time
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from datetime import date, datetime
-import time
-
-print("RUNNING: LEAN TEST VERSION")
+from threading import Thread
 
 app = FastAPI()
 
-API_KEY = "d79t519r01qspme61vogd79t519r01qspme61vp0"
+API_KEY = "de9c51d682374906a8de2c7f9e8dcb7b"
 
-# Curated list of 10 big tickers
-TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META", "GOOGL", "TSLA", "JPM", "SPY", "QQQ"]
+TICKERS = [
+    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","TSLA","AMD","NFLX","ADBE",
+    "JPM","GS","BAC","WMT","COST","HD","MCD","NKE",
+    "XOM","CVX","XLE",
+    "GLD","SLV","USO","UNG",
+    "SPY","QQQ","DIA",
+    "TLT","IEF",
+    "XLK","XLF","XLV","XLI","XLY","XLP","XLB","XLU",
+    "ARKK","SOXX"
+]
 
-# --- In-memory daily cache ---
-_cache = {
-    "date": None,
-    "movers": None,
-    "report": None,
-    "recommend": None,
-}
+CACHE = {"data": [], "last_update": 0}
+CACHE_TTL = 300
 
 
-def fetch_quote(ticker):
-    url = "https://finnhub.io/api/v1/quote"
-    params = {"symbol": ticker, "token": API_KEY}
+def fetch_data(ticker):
+    url = "https://api.twelvedata.com/time_series"
+    params = {
+        "symbol": ticker,
+        "interval": "1day",
+        "outputsize": 30,
+        "apikey": API_KEY
+    }
+
     try:
-        r = requests.get(url, params=params, timeout=5)
+        r = requests.get(url, params=params, timeout=10)
         data = r.json()
-        if "c" not in data or "pc" not in data or data["pc"] == 0:
+
+        if "values" not in data:
             return None
-        change = (data["c"] - data["pc"]) / data["pc"]
-        return {"ticker": ticker, "price": data["c"], "change": change}
-    except Exception as e:
-        print(f"Error fetching {ticker}: {e}")
+
+        df = pd.DataFrame(data["values"])
+        df["datetime"] = pd.to_datetime(df["datetime"])
+        df = df.sort_values("datetime")
+        df["Close"] = df["close"].astype(float)
+
+        return df
+
+    except Exception:
         return None
 
 
-def get_top_movers():
-    results = []
-    for t in TICKERS:
-        q = fetch_quote(t)
-        if q:
-            results.append(q)
-        time.sleep(0.25)  # be gentle with rate limits
-    if not results:
+def compute_momentum(df):
+    if df is None or df.empty or len(df) < 6:
         return None
-    return sorted(results, key=lambda x: abs(x["change"]), reverse=True)[:5]
 
+    close = df["Close"]
 
-def generate_report(movers):
-    if not movers:
-        return "No data available today."
-    lines = [f"Daily Report — {date.today().isoformat()}", ""]
-    for m in movers:
-        direction = "UP" if m["change"] > 0 else "DOWN"
-        lines.append(f"  {m['ticker']}: ${m['price']:.2f}  {direction} {abs(m['change'])*100:.2f}%")
-    return "\n".join(lines)
+    log_returns = np.log(close / close.shift(1))
+    momentum = (close.iloc[-1] / close.iloc[-6]) - 1
+    volatility = log_returns.std() * np.sqrt(252)
 
-
-def generate_recommendation(movers):
-    if not movers:
+    if volatility == 0 or np.isnan(volatility):
         return None
-    top = movers[0]  # biggest mover of the day
-    action = "BUY" if top["change"] > 0 else "SELL"
+
+    score = momentum / volatility
+
     return {
-        "ticker": top["ticker"],
-        "action": action,
-        "price": top["price"],
-        "change_pct": round(abs(top["change"]) * 100, 2),
-        "reason": f"Top mover of the day: {action} {top['ticker']} at ${top['price']:.2f}",
+        "score": float(score),
+        "momentum": float(momentum),
+        "volatility": float(volatility),
     }
 
 
-# --- Routes ---
+def analyze_ticker(ticker):
+    df = fetch_data(ticker)
+    result = compute_momentum(df)
+
+    if result is None:
+        return None
+
+    return {
+        "ticker": ticker,
+        **result
+    }
+
+
+def update_cache():
+    while True:
+        results = []
+
+        for ticker in TICKERS:
+            data = analyze_ticker(ticker)
+            if data:
+                results.append(data)
+
+        results = sorted(results, key=lambda x: x["score"], reverse=True)[:5]
+
+        CACHE["data"] = results
+        CACHE["last_update"] = time.time()
+
+        time.sleep(CACHE_TTL)
+
+
+@app.on_event("startup")
+def start_background():
+    thread = Thread(target=update_cache, daemon=True)
+    thread.start()
+
 
 @app.get("/")
 def root():
-    return {"status": "ok", "version": "lean-test"}
+    return {"status": "running"}
 
 
-@app.get("/movers")
-def movers():
-    today = str(date.today())
-    if _cache["date"] != today or _cache["movers"] is None:
-        _cache["date"] = today
-        _cache["movers"] = get_top_movers()
-    return JSONResponse(content=_cache["movers"] or {"error": "No data"})
+@app.get("/top")
+def top():
+    if not CACHE["data"]:
+        return JSONResponse(content={"error": "No data yet"})
 
-
-@app.get("/report")
-def report():
-    today = str(date.today())
-    if _cache["date"] != today or _cache["report"] is None:
-        if _cache["movers"] is None or _cache["date"] != today:
-            _cache["movers"] = get_top_movers()
-            _cache["date"] = today
-        _cache["report"] = generate_report(_cache["movers"])
-    return JSONResponse(content={"report": _cache["report"]})
-
-
-@app.get("/recommend")
-def recommend():
-    today = str(date.today())
-    if _cache["date"] != today or _cache["recommend"] is None:
-        if _cache["movers"] is None or _cache["date"] != today:
-            _cache["movers"] = get_top_movers()
-            _cache["date"] = today
-        _cache["recommend"] = generate_recommendation(_cache["movers"])
-    return JSONResponse(content=_cache["recommend"] or {"error": "No data"})
+    return JSONResponse(content=CACHE["data"])
