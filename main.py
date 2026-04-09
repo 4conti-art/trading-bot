@@ -1,5 +1,5 @@
 
-# MAIN TRADING BOT (Improved Momentum)
+# MAIN TRADING BOT (Improved Momentum - FIXED DATA LENGTH)
 
 import numpy as np
 import pandas as pd
@@ -33,7 +33,7 @@ def fetch_data(ticker):
     params = {
         "symbol": ticker,
         "interval": "1day",
-        "outputsize": 30,
+        "outputsize": 60,
         "apikey": API_KEY
     }
 
