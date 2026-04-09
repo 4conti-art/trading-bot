@@ -47,14 +47,24 @@ def compute_score(prices):
 
     close = np.array(prices)
 
-    # ✅ if we only have fallback (2 points)
+    # ✅ fallback case (only 2 points)
     if len(close) < 21:
         return (close[-1] / close[0]) - 1
 
+    # ✅ returns
     short = (close[-1] / close[-6]) - 1
     long = (close[-1] / close[-21]) - 1
+    momentum = 0.6 * short + 0.4 * long
 
-    return 0.6 * short + 0.4 * long
+    # ✅ volatility (log returns)
+    log_returns = np.diff(np.log(close))
+    volatility = np.std(log_returns)
+
+    if volatility == 0 or np.isnan(volatility):
+        return None
+
+    # ✅ final score (Sharpe-like)
+    return momentum / volatility
 
 
 @app.get("/")
