@@ -7,7 +7,6 @@ app = FastAPI()
 
 API_KEY = "0LNLJIQPXN2DOGE9"
 
-# ✅ reduced set to avoid API blocking
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 
 TOP_N = 2
@@ -19,7 +18,7 @@ def fetch_series(ticker):
     params = {
         "function": "TIME_SERIES_DAILY",
         "symbol": ticker,
-        "outputsize": "full",
+        "outputsize": "compact",
         "apikey": API_KEY
     }
 
@@ -31,26 +30,26 @@ def fetch_series(ticker):
     ts = r["Time Series (Daily)"]
     closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
 
-    if len(closes) < 252 * 4:
+    if len(closes) < 50:
         return None
 
     return closes
 
 
 def compute_score(prices):
-    if prices is None:
+    if prices is None or len(prices) < 30:
         return None
 
-    close = np.array(prices[-(252 * 4):])
+    close = np.array(prices)
 
-    short = (close[-1] / close[-21]) - 1
-    medium = (close[-1] / close[-63]) - 1
-    long = (close[-1] / close[-252]) - 1
+    short = (close[-1] / close[-5]) - 1
+    medium = (close[-1] / close[-15]) - 1
+    long = (close[-1] / close[-30]) - 1
 
     momentum = 0.5 * short + 0.3 * medium + 0.2 * long
 
     log_returns = np.diff(np.log(close))
-    volatility = np.std(log_returns) * np.sqrt(252)
+    volatility = np.std(log_returns)
 
     if volatility == 0 or np.isnan(volatility):
         return None
