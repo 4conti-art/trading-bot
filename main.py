@@ -1,5 +1,5 @@
 
-# MAIN TRADING BOT (5 TICKERS - TEST SAFE)
+# MAIN TRADING BOT (5 TICKERS - WORKING VERSION)
 
 import numpy as np
 import pandas as pd
@@ -11,9 +11,10 @@ from threading import Thread
 
 app = FastAPI()
 
-API_KEY = "YOUR_API_KEY_HERE"
+# ✅ YOUR API KEY PRESERVED
+API_KEY = "d79t519r01qspme61vogd79t519r01qspme61vp0"
 
-# ✅ Only 5 tickers to avoid API limits
+# ✅ Only 5 tickers
 TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META"]
 
 CACHE = {"data": [], "last_update": 0}
