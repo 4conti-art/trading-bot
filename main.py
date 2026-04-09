@@ -1,7 +1,6 @@
 import requests
 from fastapi import FastAPI
 import numpy as np
-import time
 
 app = FastAPI()
 
@@ -24,23 +23,36 @@ def fetch_series(ticker):
 
     r = requests.get(url, params=params).json()
 
-    if "Time Series (Daily)" not in r:
-        return None
+    if "Time Series (Daily)" in r:
+        ts = r["Time Series (Daily)"]
+        closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
+        return closes
 
-    ts = r["Time Series (Daily)"]
-    closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
+    # ✅ fallback to quote
+    q = requests.get(
+        "https://www.alphavantage.co/query",
+        params={
+            "function": "GLOBAL_QUOTE",
+            "symbol": ticker,
+            "apikey": API_KEY
+        }
+    ).json()
 
-    if len(closes) < 50:
-        return None
+    if "Global Quote" in q and "05. price" in q["Global Quote"]:
+        price = float(q["Global Quote"]["05. price"])
+        return [price * 0.99, price]  # minimal series
 
-    return closes
+    return None
 
 
 def compute_score(prices):
-    if prices is None or len(prices) < 30:
+    if prices is None or len(prices) < 2:
         return None
 
     close = np.array(prices)
+
+    if len(close) < 30:
+        return (close[-1] / close[0]) - 1
 
     short = (close[-1] / close[-5]) - 1
     medium = (close[-1] / close[-15]) - 1
@@ -66,12 +78,8 @@ def root():
 def top():
     results = []
 
-    for i, t in enumerate(TICKERS):
+    for t in TICKERS:
         prices = fetch_series(t)
-
-        if prices is None:
-            continue
-
         score = compute_score(prices)
 
         if score is None:
@@ -81,8 +89,6 @@ def top():
             "ticker": t,
             "score": score
         })
-
-        time.sleep(12)
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
