@@ -1,36 +1,37 @@
 import requests
 from fastapi import FastAPI
 import numpy as np
-import time
 
 app = FastAPI()
 
-API_KEY = "d79t519r01qspme61vogd79t519r01qspme61vp0"
+API_KEY = "0LNLJIQPXN2DOGE9"
 
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 
 
 def fetch_series(ticker):
-    url = "https://finnhub.io/api/v1/stock/candle"
-
-    now = int(time.time())
-    past = now - 60 * 60 * 24 * 90  # ✅ 90 days for proper momentum
+    url = "https://www.alphavantage.co/query"
 
     params = {
+        "function": "TIME_SERIES_DAILY",
         "symbol": ticker,
-        "resolution": "D",
-        "from": past,
-        "to": now,
-        "token": API_KEY
+        "apikey": API_KEY
     }
 
     r = requests.get(url, params=params).json()
 
-    # ✅ ONLY accept real candle data
-    if "c" in r and r.get("s") == "ok" and len(r["c"]) > 25:
-        return r["c"]
+    if "Time Series (Daily)" not in r:
+        return None
 
-    return None
+    ts = r["Time Series (Daily)"]
+
+    # ✅ extract closing prices (most recent first)
+    closes = [float(ts[date]["4. close"]) for date in sorted(ts.keys())]
+
+    if len(closes) < 30:
+        return None
+
+    return closes
 
 
 def compute_score(prices):
@@ -51,7 +52,7 @@ def compute_score(prices):
     if volatility == 0 or np.isnan(volatility):
         return None
 
-    # ✅ final score (Sharpe-like)
+    # ✅ Sharpe-like score
     return momentum / volatility
 
 
