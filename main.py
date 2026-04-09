@@ -1,5 +1,5 @@
 
-# MAIN TRADING BOT (Improved Momentum - FIXED DATA LENGTH)
+# MAIN TRADING BOT (5 TICKERS - TEST SAFE)
 
 import numpy as np
 import pandas as pd
@@ -13,16 +13,8 @@ app = FastAPI()
 
 API_KEY = "YOUR_API_KEY_HERE"
 
-TICKERS = [
-    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","TSLA","AMD","NFLX","ADBE",
-    "JPM","GS","BAC","WMT","COST","HD","MCD","NKE",
-    "XOM","CVX","XLE",
-    "GLD","SLV","USO","UNG",
-    "SPY","QQQ","DIA",
-    "TLT","IEF",
-    "XLK","XLF","XLV","XLI","XLY","XLP","XLB","XLU",
-    "ARKK","SOXX"
-]
+# ✅ Only 5 tickers to avoid API limits
+TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META"]
 
 CACHE = {"data": [], "last_update": 0}
 CACHE_TTL = 300
@@ -103,7 +95,7 @@ def update_cache():
             if data:
                 results.append(data)
 
-        results = sorted(results, key=lambda x: x["score"], reverse=True)[:5]
+        results = sorted(results, key=lambda x: x["score"], reverse=True)
 
         CACHE["data"] = results
         CACHE["last_update"] = time.time()
