@@ -9,6 +9,10 @@ API_KEY = "0LNLJIQPXN2DOGE9"
 
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 
+# ✅ Strategy parameters
+BUY_THRESHOLD = 0.5
+SELL_THRESHOLD = -0.5
+
 
 def fetch_series(ticker):
     url = "https://www.alphavantage.co/query"
@@ -40,17 +44,32 @@ def compute_score(prices):
 
     close = np.array(prices)
 
+    # ✅ momentum
     short = (close[-1] / close[-6]) - 1
     long = (close[-1] / close[-21]) - 1
     momentum = 0.6 * short + 0.4 * long
 
+    # ✅ volatility (annualized)
     log_returns = np.diff(np.log(close))
-    volatility = np.std(log_returns)
+    volatility = np.std(log_returns) * np.sqrt(252)
 
     if volatility == 0 or np.isnan(volatility):
         return None
 
     return momentum / volatility
+
+
+def generate_signal(score):
+    if score is None:
+        return "NO_DATA"
+
+    if score > BUY_THRESHOLD:
+        return "BUY"
+
+    if score < SELL_THRESHOLD:
+        return "SELL"
+
+    return "HOLD"
 
 
 @app.get("/")
@@ -65,15 +84,19 @@ def top():
     for i, t in enumerate(TICKERS):
         prices = fetch_series(t)
         score = compute_score(prices)
+        signal = generate_signal(score)
 
         if score is not None:
             results.append({
                 "ticker": t,
-                "score": score
+                "score": score,
+                "signal": signal
             })
 
-        # ✅ RATE LIMIT HANDLING (Alpha Vantage: 5 calls/min)
+        # ✅ respect API rate limit
         if i < len(TICKERS) - 1:
-            time.sleep(12)  # 60 sec / 5 calls = 12 sec spacing
+            time.sleep(12)
 
-    return sorted(results, key=lambda x: x["score"], reverse=True)
+    results = sorted(results, key=lambda x: x["score"], reverse=True)
+
+    return results
