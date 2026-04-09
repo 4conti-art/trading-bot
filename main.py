@@ -9,9 +9,9 @@ API_KEY = "0LNLJIQPXN2DOGE9"
 
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 
-# ✅ Strategy parameters
-BUY_THRESHOLD = 0.5
-SELL_THRESHOLD = -0.5
+# ✅ CALIBRATED thresholds (fixed)
+BUY_THRESHOLD = 0.05
+SELL_THRESHOLD = -0.05
 
 
 def fetch_series(ticker):
@@ -93,10 +93,8 @@ def top():
                 "signal": signal
             })
 
-        # ✅ respect API rate limit
+        # ✅ rate limit protection
         if i < len(TICKERS) - 1:
             time.sleep(12)
 
-    results = sorted(results, key=lambda x: x["score"], reverse=True)
-
-    return results
+    return sorted(results, key=lambda x: x["score"], reverse=True)
