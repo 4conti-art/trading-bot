@@ -23,42 +23,28 @@ def fetch_series(ticker):
 
     r = requests.get(url, params=params).json()
 
-    if "Time Series (Daily)" in r:
-        ts = r["Time Series (Daily)"]
-        closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
-        return closes
+    if "Time Series (Daily)" not in r:
+        return None
 
-    # ✅ fallback to quote
-    q = requests.get(
-        "https://www.alphavantage.co/query",
-        params={
-            "function": "GLOBAL_QUOTE",
-            "symbol": ticker,
-            "apikey": API_KEY
-        }
-    ).json()
+    ts = r["Time Series (Daily)"]
+    closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
 
-    if "Global Quote" in q and "05. price" in q["Global Quote"]:
-        price = float(q["Global Quote"]["05. price"])
-        return [price * 0.99, price]  # minimal series
-
-    return None
+    return closes
 
 
 def compute_score(prices):
-    if prices is None or len(prices) < 2:
+    if prices is None:
+        return None
+
+    if len(prices) < 10:
         return None
 
     close = np.array(prices)
 
-    if len(close) < 30:
-        return (close[-1] / close[0]) - 1
+    short = (close[-1] / close[-3]) - 1
+    medium = (close[-1] / close[-7]) - 1
 
-    short = (close[-1] / close[-5]) - 1
-    medium = (close[-1] / close[-15]) - 1
-    long = (close[-1] / close[-30]) - 1
-
-    momentum = 0.5 * short + 0.3 * medium + 0.2 * long
+    momentum = 0.7 * short + 0.3 * medium
 
     log_returns = np.diff(np.log(close))
     volatility = np.std(log_returns)
@@ -80,6 +66,10 @@ def top():
 
     for t in TICKERS:
         prices = fetch_series(t)
+
+        if prices is None:
+            continue
+
         score = compute_score(prices)
 
         if score is None:
