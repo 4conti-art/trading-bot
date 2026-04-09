@@ -1,6 +1,7 @@
 import requests
 from fastapi import FastAPI
 import numpy as np
+import time
 
 app = FastAPI()
 
@@ -25,7 +26,6 @@ def fetch_series(ticker):
 
     ts = r["Time Series (Daily)"]
 
-    # ✅ extract closing prices (most recent first)
     closes = [float(ts[date]["4. close"]) for date in sorted(ts.keys())]
 
     if len(closes) < 30:
@@ -40,19 +40,16 @@ def compute_score(prices):
 
     close = np.array(prices)
 
-    # ✅ momentum
     short = (close[-1] / close[-6]) - 1
     long = (close[-1] / close[-21]) - 1
     momentum = 0.6 * short + 0.4 * long
 
-    # ✅ volatility
     log_returns = np.diff(np.log(close))
     volatility = np.std(log_returns)
 
     if volatility == 0 or np.isnan(volatility):
         return None
 
-    # ✅ Sharpe-like score
     return momentum / volatility
 
 
@@ -65,16 +62,18 @@ def root():
 def top():
     results = []
 
-    for t in TICKERS:
+    for i, t in enumerate(TICKERS):
         prices = fetch_series(t)
         score = compute_score(prices)
 
-        if score is None:
-            continue
+        if score is not None:
+            results.append({
+                "ticker": t,
+                "score": score
+            })
 
-        results.append({
-            "ticker": t,
-            "score": score
-        })
+        # ✅ RATE LIMIT HANDLING (Alpha Vantage: 5 calls/min)
+        if i < len(TICKERS) - 1:
+            time.sleep(12)  # 60 sec / 5 calls = 12 sec spacing
 
     return sorted(results, key=lambda x: x["score"], reverse=True)
