@@ -1,5 +1,5 @@
 
-# MAIN TRADING BOT (TwelveData + FastAPI)
+# MAIN TRADING BOT (Improved Momentum)
 
 import numpy as np
 import pandas as pd
@@ -11,7 +11,7 @@ from threading import Thread
 
 app = FastAPI()
 
-API_KEY = "de9c51d682374906a8de2c7f9e8dcb7b"
+API_KEY = "YOUR_API_KEY_HERE"
 
 TICKERS = [
     "AAPL","MSFT","NVDA","AMZN","META","GOOGL","TSLA","AMD","NFLX","ADBE",
@@ -56,23 +56,27 @@ def fetch_data(ticker):
 
 
 def compute_momentum(df):
-    if df is None or df.empty or len(df) < 6:
+    if df is None or df.empty or len(df) < 21:
         return None
 
     close = df["Close"]
 
     log_returns = np.log(close / close.shift(1))
-    momentum = (close.iloc[-1] / close.iloc[-6]) - 1
+
+    short_mom = (close.iloc[-1] / close.iloc[-6]) - 1
+    long_mom = (close.iloc[-1] / close.iloc[-21]) - 1
+
     volatility = log_returns.std() * np.sqrt(252)
 
     if volatility == 0 or np.isnan(volatility):
         return None
 
-    score = momentum / volatility
+    score = (0.6 * short_mom + 0.4 * long_mom) / volatility
 
     return {
         "score": float(score),
-        "momentum": float(momentum),
+        "short_momentum": float(short_mom),
+        "long_momentum": float(long_mom),
         "volatility": float(volatility),
     }
 
