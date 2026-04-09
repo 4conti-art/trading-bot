@@ -28,26 +28,28 @@ def fetch_series(ticker):
         return None
 
     ts = r["Time Series (Daily)"]
-    closes = [float(ts[date]["4. close"]) for date in sorted(ts.keys())]
 
-    if len(closes) < 1000:
+    closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
+
+    if len(closes) < 200:
         return None
 
     return closes
 
 
 def compute_score(prices):
-    if not prices or len(prices) < 252 * 4:
+    if not prices or len(prices) < 200:
         return None
 
     close = np.array(prices)
-    close = close[-(252 * 4):]
+
+    # ✅ use last ~1 year instead of 4 (fix empty issue)
+    close = close[-252:]
 
     short = (close[-1] / close[-21]) - 1
     medium = (close[-1] / close[-63]) - 1
-    long = (close[-1] / close[-252]) - 1
 
-    momentum = 0.5 * short + 0.3 * medium + 0.2 * long
+    momentum = 0.7 * short + 0.3 * medium
 
     log_returns = np.diff(np.log(close))
     volatility = np.std(log_returns) * np.sqrt(252)
