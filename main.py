@@ -10,7 +10,6 @@ TOP_N = 2
 
 DATA = []
 
-# ✅ deterministic price series (no external dependency)
 STATIC_DATA = {
     "AAPL": np.linspace(150, 180, 60),
     "MSFT": np.linspace(300, 280, 60),
@@ -61,6 +60,16 @@ def build_data():
         else:
             r["signal"] = "HOLD"
 
+    # ✅ NEW: position sizing
+    buy_scores = [r["score"] for r in results if r["signal"] == "BUY"]
+    total = sum(buy_scores)
+
+    for r in results:
+        if r["signal"] == "BUY" and total > 0:
+            r["weight"] = r["score"] / total
+        else:
+            r["weight"] = 0.0
+
     DATA = results
 
 
@@ -72,7 +81,7 @@ def background_job():
 
 @app.on_event("startup")
 def startup_event():
-    build_data()  # ✅ immediate population (no empty state)
+    build_data()
     thread = threading.Thread(target=background_job)
     thread.daemon = True
     thread.start()
