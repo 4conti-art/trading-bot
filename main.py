@@ -40,6 +40,7 @@ def fetch_yfinance(ticker):
     try:
         import yfinance as yf
         data = yf.download(ticker, period="3mo", interval="1d", progress=False)
+
         if not data.empty and "Close" in data:
             closes = data["Close"].dropna().tolist()
             if len(closes) >= 10:
