@@ -8,9 +8,12 @@ app = FastAPI()
 
 API_KEY = "0LNLJIQPXN2DOGE9"
 
-TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
+TICKERS = [
+    "AAPL","MSFT","NVDA","AMZN","META",
+    "SPY","QQQ","GLD","SLV","USO"
+]
 
-TOP_N = 2
+TOP_N = 3
 
 DATA = []
 
@@ -20,6 +23,11 @@ STATIC_DATA = {
     "NVDA": np.linspace(400, 460, 60),
     "AMZN": np.linspace(120, 170, 60),
     "META": np.linspace(250, 240, 60),
+    "SPY": np.linspace(400, 430, 60),
+    "QQQ": np.linspace(300, 350, 60),
+    "GLD": np.linspace(170, 175, 60),
+    "SLV": np.linspace(20, 23, 60),
+    "USO": np.linspace(60, 75, 60),
 }
 
 
