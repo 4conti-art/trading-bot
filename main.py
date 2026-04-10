@@ -69,7 +69,9 @@ def compute_score(prices):
     if volatility == 0 or np.isnan(volatility):
         return 0
 
-    return momentum / (volatility * 5)
+    score = momentum / (volatility * 5)
+
+    return max(min(score, 20), -20)
 
 
 def build_data():
