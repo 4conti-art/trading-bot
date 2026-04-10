@@ -7,6 +7,7 @@ app = FastAPI()
 
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 TOP_N = 2
+MAX_WEIGHT = 0.5  # ✅ risk cap
 
 DATA = []
 
@@ -42,9 +43,7 @@ def build_data():
     results = []
 
     for t in TICKERS:
-        prices = STATIC_DATA[t]
-        score = compute_score(prices)
-
+        score = compute_score(STATIC_DATA[t])
         results.append({
             "ticker": t,
             "score": float(score)
@@ -52,6 +51,7 @@ def build_data():
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
+    # ✅ signals
     for i, r in enumerate(results):
         if i < TOP_N:
             r["signal"] = "BUY"
@@ -60,15 +60,37 @@ def build_data():
         else:
             r["signal"] = "HOLD"
 
-    # ✅ NEW: position sizing
-    buy_scores = [r["score"] for r in results if r["signal"] == "BUY"]
-    total = sum(buy_scores)
+    # ✅ base weights
+    buy = [r for r in results if r["signal"] == "BUY"]
+    total = sum(r["score"] for r in buy)
 
     for r in results:
         if r["signal"] == "BUY" and total > 0:
             r["weight"] = r["score"] / total
         else:
             r["weight"] = 0.0
+
+    # ✅ risk cap + redistribution
+    excess = 0.0
+
+    for r in buy:
+        if r["weight"] > MAX_WEIGHT:
+            excess += r["weight"] - MAX_WEIGHT
+            r["weight"] = MAX_WEIGHT
+
+    remaining = [r for r in buy if r["weight"] < MAX_WEIGHT]
+
+    if remaining and excess > 0:
+        rem_total = sum(r["weight"] for r in remaining)
+        if rem_total > 0:
+            for r in remaining:
+                r["weight"] += excess * (r["weight"] / rem_total)
+
+    # ✅ normalize again
+    norm = sum(r["weight"] for r in buy)
+    if norm > 0:
+        for r in buy:
+            r["weight"] /= norm
 
     DATA = results
 
