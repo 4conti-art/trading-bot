@@ -8,31 +8,48 @@ app = FastAPI()
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 TOP_N = 2
 MAX_WEIGHT = 0.5
+N = 120
 
 DATA = []
 BACKTEST = []
 
-# longer series for simulation
-N = 120
+np.random.seed(42)
+
+# ✅ realistic price generation
+def generate_series(start, drift):
+    prices = [start]
+    for _ in range(N - 1):
+        noise = np.random.normal(0, 0.01)
+        prices.append(prices[-1] * (1 + drift + noise))
+    return np.array(prices)
+
 STATIC_DATA = {
-    "AAPL": np.linspace(150, 200, N),
-    "MSFT": np.linspace(300, 260, N),
-    "NVDA": np.linspace(400, 520, N),
-    "AMZN": np.linspace(120, 160, N),
-    "META": np.linspace(250, 220, N),
+    "AAPL": generate_series(150, 0.001),
+    "MSFT": generate_series(300, -0.0005),
+    "NVDA": generate_series(400, 0.002),
+    "AMZN": generate_series(120, 0.0015),
+    "META": generate_series(250, -0.001),
 }
 
 
 def compute_score(prices):
     close = np.array(prices)
+
     short = (close[-1] / close[-3]) - 1
     medium = (close[-1] / close[-7]) - 1
+
     momentum = 0.7 * short + 0.3 * medium
+
     log_returns = np.diff(np.log(close))
     vol = np.std(log_returns)
+
     if vol == 0 or np.isnan(vol):
         return 0
-    return momentum / (vol * 5)
+
+    raw = momentum / (vol * 5)
+
+    # ✅ clamp scores
+    return max(min(raw, 20), -20)
 
 
 def build_portfolio(t):
@@ -64,7 +81,7 @@ def build_portfolio(t):
         else:
             r["weight"] = 0.0
 
-    # cap + redistribute
+    # ✅ risk cap
     excess = 0.0
     for r in buy:
         if r["weight"] > MAX_WEIGHT:
@@ -72,6 +89,7 @@ def build_portfolio(t):
             r["weight"] = MAX_WEIGHT
 
     remaining = [r for r in buy if r["weight"] < MAX_WEIGHT]
+
     if remaining and excess > 0:
         rem_total = sum(r["weight"] for r in remaining)
         if rem_total > 0:
@@ -89,7 +107,7 @@ def build_portfolio(t):
 
 def build_data():
     global DATA
-    DATA = build_portfolio(len(STATIC_DATA["AAPL"]) - 1)
+    DATA = build_portfolio(N - 1)
 
 
 def run_backtest():
