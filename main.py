@@ -7,51 +7,45 @@ app = FastAPI()
 
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 TOP_N = 2
-MAX_WEIGHT = 0.5  # ✅ risk cap
+MAX_WEIGHT = 0.5
 
 DATA = []
+BACKTEST = []
 
+# longer series for simulation
+N = 120
 STATIC_DATA = {
-    "AAPL": np.linspace(150, 180, 60),
-    "MSFT": np.linspace(300, 280, 60),
-    "NVDA": np.linspace(400, 460, 60),
-    "AMZN": np.linspace(120, 170, 60),
-    "META": np.linspace(250, 240, 60),
+    "AAPL": np.linspace(150, 200, N),
+    "MSFT": np.linspace(300, 260, N),
+    "NVDA": np.linspace(400, 520, N),
+    "AMZN": np.linspace(120, 160, N),
+    "META": np.linspace(250, 220, N),
 }
 
 
 def compute_score(prices):
     close = np.array(prices)
-
     short = (close[-1] / close[-3]) - 1
     medium = (close[-1] / close[-7]) - 1
-
     momentum = 0.7 * short + 0.3 * medium
-
     log_returns = np.diff(np.log(close))
-    volatility = np.std(log_returns)
-
-    if volatility == 0 or np.isnan(volatility):
+    vol = np.std(log_returns)
+    if vol == 0 or np.isnan(vol):
         return 0
+    return momentum / (vol * 5)
 
-    return momentum / (volatility * 5)
 
-
-def build_data():
-    global DATA
-
+def build_portfolio(t):
     results = []
 
-    for t in TICKERS:
-        score = compute_score(STATIC_DATA[t])
-        results.append({
-            "ticker": t,
-            "score": float(score)
-        })
+    for k in TICKERS:
+        window = STATIC_DATA[k][t-10:t]
+        score = compute_score(window)
+        results.append({"ticker": k, "score": float(score)})
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-    # ✅ signals
+    # signals
     for i, r in enumerate(results):
         if i < TOP_N:
             r["signal"] = "BUY"
@@ -60,7 +54,7 @@ def build_data():
         else:
             r["signal"] = "HOLD"
 
-    # ✅ base weights
+    # weights
     buy = [r for r in results if r["signal"] == "BUY"]
     total = sum(r["score"] for r in buy)
 
@@ -70,40 +64,65 @@ def build_data():
         else:
             r["weight"] = 0.0
 
-    # ✅ risk cap + redistribution
+    # cap + redistribute
     excess = 0.0
-
     for r in buy:
         if r["weight"] > MAX_WEIGHT:
             excess += r["weight"] - MAX_WEIGHT
             r["weight"] = MAX_WEIGHT
 
     remaining = [r for r in buy if r["weight"] < MAX_WEIGHT]
-
     if remaining and excess > 0:
         rem_total = sum(r["weight"] for r in remaining)
         if rem_total > 0:
             for r in remaining:
                 r["weight"] += excess * (r["weight"] / rem_total)
 
-    # ✅ normalize again
+    # normalize
     norm = sum(r["weight"] for r in buy)
     if norm > 0:
         for r in buy:
             r["weight"] /= norm
 
-    DATA = results
+    return results
+
+
+def build_data():
+    global DATA
+    DATA = build_portfolio(len(STATIC_DATA["AAPL"]) - 1)
+
+
+def run_backtest():
+    global BACKTEST
+
+    equity = [1.0]
+
+    for t in range(10, N - 1):
+        portfolio = build_portfolio(t)
+
+        ret = 0.0
+        for r in portfolio:
+            if r["signal"] == "BUY":
+                p0 = STATIC_DATA[r["ticker"]][t]
+                p1 = STATIC_DATA[r["ticker"]][t + 1]
+                ret += r["weight"] * ((p1 / p0) - 1)
+
+        equity.append(equity[-1] * (1 + ret))
+
+    BACKTEST = equity
 
 
 def background_job():
     while True:
         build_data()
+        run_backtest()
         time.sleep(86400)
 
 
 @app.on_event("startup")
 def startup_event():
     build_data()
+    run_backtest()
     thread = threading.Thread(target=background_job)
     thread.daemon = True
     thread.start()
@@ -117,3 +136,8 @@ def root():
 @app.get("/top")
 def top():
     return DATA
+
+
+@app.get("/backtest")
+def backtest():
+    return BACKTEST
