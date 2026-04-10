@@ -31,11 +31,10 @@ def fetch_series(ticker, retries=2):
                 closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
                 if len(closes) >= 10:
                     return closes
-
         except:
             pass
 
-        time.sleep(5)  # retry delay
+        time.sleep(5)
 
     return None
 
@@ -78,9 +77,9 @@ def build_data():
             "score": float(score)
         })
 
-        time.sleep(12)  # respect rate limits
+        time.sleep(12)
 
-    # ✅ if we got NOTHING → keep previous DATA
+    # ✅ safe fallback (no recursion, no crash)
     if len(results) == 0:
         return
 
@@ -100,7 +99,7 @@ def build_data():
 def background_job():
     while True:
         build_data()
-        time.sleep(86400)  # daily refresh
+        time.sleep(86400)
 
 
 @app.on_event("startup")
