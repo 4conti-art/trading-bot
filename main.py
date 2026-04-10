@@ -14,7 +14,6 @@ TOP_N = 2
 
 DATA = []
 
-# ✅ distinct fallback trends per ticker
 STATIC_DATA = {
     "AAPL": np.linspace(150, 180, 60),
     "MSFT": np.linspace(300, 280, 60),
