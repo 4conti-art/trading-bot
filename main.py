@@ -1,20 +1,45 @@
+import requests
 from fastapi import FastAPI
 import numpy as np
 
 app = FastAPI()
 
+API_KEY = "0LNLJIQPXN2DOGE9"
+
 TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 
 TOP_N = 2
 
-# ✅ STATIC MOCK DATA (stable, no API dependency)
-DATA = {
+# ✅ fallback static data (always works)
+STATIC_DATA = {
     "AAPL": np.linspace(150, 180, 60),
     "MSFT": np.linspace(300, 290, 60),
     "NVDA": np.linspace(400, 450, 60),
     "AMZN": np.linspace(120, 160, 60),
     "META": np.linspace(250, 280, 60),
 }
+
+
+def fetch_series(ticker):
+    url = "https://www.alphavantage.co/query"
+
+    params = {
+        "function": "TIME_SERIES_DAILY",
+        "symbol": ticker,
+        "outputsize": "compact",
+        "apikey": API_KEY
+    }
+
+    r = requests.get(url, params=params).json()
+
+    if "Time Series (Daily)" in r:
+        ts = r["Time Series (Daily)"]
+        closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
+        if len(closes) > 20:
+            return closes
+
+    # ✅ fallback if API fails
+    return STATIC_DATA[ticker]
 
 
 def compute_score(prices):
@@ -44,7 +69,7 @@ def top():
     results = []
 
     for t in TICKERS:
-        prices = DATA[t]
+        prices = fetch_series(t)
         score = compute_score(prices)
 
         if score is None:
