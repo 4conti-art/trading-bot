@@ -14,27 +14,38 @@ TOP_N = 2
 DATA = []
 
 
-def fetch_series(ticker, retries=2):
+def fetch_alpha(ticker):
     url = "https://www.alphavantage.co/query"
 
-    for _ in range(retries):
-        try:
-            r = requests.get(url, params={
-                "function": "TIME_SERIES_DAILY",
-                "symbol": ticker,
-                "outputsize": "compact",
-                "apikey": API_KEY
-            }, timeout=10).json()
+    try:
+        r = requests.get(url, params={
+            "function": "TIME_SERIES_DAILY",
+            "symbol": ticker,
+            "outputsize": "compact",
+            "apikey": API_KEY
+        }, timeout=10).json()
 
-            if "Time Series (Daily)" in r:
-                ts = r["Time Series (Daily)"]
-                closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
-                if len(closes) >= 10:
-                    return closes
-        except:
-            pass
+        if "Time Series (Daily)" in r:
+            ts = r["Time Series (Daily)"]
+            closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
+            if len(closes) >= 10:
+                return closes
+    except:
+        pass
 
-        time.sleep(5)
+    return None
+
+
+def fetch_yfinance(ticker):
+    try:
+        import yfinance as yf
+        data = yf.download(ticker, period="3mo", interval="1d", progress=False)
+        if not data.empty and "Close" in data:
+            closes = data["Close"].dropna().tolist()
+            if len(closes) >= 10:
+                return closes
+    except:
+        pass
 
     return None
 
@@ -62,7 +73,10 @@ def build_data():
     results = []
 
     for t in TICKERS:
-        prices = fetch_series(t)
+        prices = fetch_alpha(t)
+
+        if prices is None:
+            prices = fetch_yfinance(t)
 
         if prices is None:
             continue
@@ -79,7 +93,6 @@ def build_data():
 
         time.sleep(12)
 
-    # ✅ safe fallback (no recursion, no crash)
     if len(results) == 0:
         return
 
