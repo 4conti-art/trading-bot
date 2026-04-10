@@ -10,14 +10,6 @@ TICKERS = ["AAPL","MSFT","NVDA","AMZN","META"]
 
 TOP_N = 2
 
-STATIC_DATA = {
-    "AAPL": np.linspace(150, 180, 60),
-    "MSFT": np.linspace(300, 290, 60),
-    "NVDA": np.linspace(400, 450, 60),
-    "AMZN": np.linspace(120, 160, 60),
-    "META": np.linspace(250, 280, 60),
-}
-
 
 def fetch_series(ticker):
     url = "https://www.alphavantage.co/query"
@@ -31,20 +23,23 @@ def fetch_series(ticker):
 
     r = requests.get(url, params=params).json()
 
-    if "Time Series (Daily)" in r:
-        ts = r["Time Series (Daily)"]
-        closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
-        if len(closes) >= 30:
-            return closes
+    if "Time Series (Daily)" not in r:
+        return None
 
-    return STATIC_DATA[ticker]
+    ts = r["Time Series (Daily)"]
+    closes = [float(ts[d]["4. close"]) for d in sorted(ts.keys())]
+
+    return closes
 
 
 def compute_score(prices):
+    if prices is None or len(prices) < 10:
+        return None
+
     close = np.array(prices)
 
-    short = (close[-1] / close[-5]) - 1
-    medium = (close[-1] / close[-15]) - 1
+    short = (close[-1] / close[-3]) - 1
+    medium = (close[-1] / close[-7]) - 1
 
     momentum = 0.7 * short + 0.3 * medium
 
@@ -52,9 +47,9 @@ def compute_score(prices):
     volatility = np.std(log_returns)
 
     if volatility == 0 or np.isnan(volatility):
-        return 0
+        return None
 
-    return momentum / (volatility * 10)
+    return momentum / (volatility * 5)
 
 
 @app.get("/")
@@ -70,10 +65,16 @@ def top():
         prices = fetch_series(t)
         score = compute_score(prices)
 
+        if score is None:
+            continue
+
         results.append({
             "ticker": t,
             "score": float(score)
         })
+
+    if len(results) == 0:
+        return [{"status": "no data"}]
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
