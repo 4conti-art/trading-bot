@@ -3,7 +3,7 @@ import numpy as np
 import threading
 import time
 
-# Optional import (safe)
+# Optional data source
 try:
     import yfinance as yf
     YF_AVAILABLE = True
@@ -13,22 +13,26 @@ except:
 app = FastAPI()
 
 TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META"]
-TOP_N = 2
 MAX_WEIGHT = 0.5
 
 DATA = []
+EQUITY = [1.0]
+
 
 # ----------------------------
-# ✅ CORE ENGINE (GENESIS 1)
+# ✅ MOMENTUM + TREND + VOL
 # ----------------------------
+def compute_score(close):
+    if len(close) < 61:
+        return 0
 
-def compute_score(prices):
-    close = np.array(prices)
+    close = np.array(close)
 
-    short = (close[-1] / close[-3]) - 1
-    medium = (close[-1] / close[-7]) - 1
+    short = (close[-1] / close[-6]) - 1
+    medium = (close[-1] / close[-21]) - 1
+    long = (close[-1] / close[-61]) - 1
 
-    momentum = 0.7 * short + 0.3 * medium
+    momentum = 0.5 * short + 0.3 * medium + 0.2 * long
 
     log_returns = np.diff(np.log(close))
     vol = np.std(log_returns)
@@ -36,30 +40,33 @@ def compute_score(prices):
     if vol == 0 or np.isnan(vol):
         return 0
 
+    # ✅ Trend filter
+    ma = np.mean(close[-50:])
+    if close[-1] < ma:
+        momentum *= 0.3
+
     score = momentum / (vol * 5)
 
-    # clamp for stability
-    return float(max(min(score, 20), -20))
+    if np.isnan(score) or np.isinf(score):
+        return 0
+
+    return float(score)
 
 
 # ----------------------------
-# ✅ FALLBACK DATA (GENESIS 2)
+# ✅ FALLBACK DATA
 # ----------------------------
-
 def generate_fallback():
     data = {}
-
     np.random.seed(42)
 
     for t in TICKERS:
         prices = [100]
-
-        for _ in range(60):
-            drift = 0.001
+        for _ in range(120):
+            drift = 0.0008
             noise = np.random.normal(0, 0.01)
             prices.append(prices[-1] * (1 + drift + noise))
-
-        data[t] = prices[-60:]
+        data[t] = prices[-120:]
 
     return data
 
@@ -67,7 +74,6 @@ def generate_fallback():
 # ----------------------------
 # ✅ REAL DATA (OPTIONAL)
 # ----------------------------
-
 def fetch_real_data():
     if not YF_AVAILABLE:
         return {}
@@ -76,43 +82,36 @@ def fetch_real_data():
 
     for t in TICKERS:
         try:
-            df = yf.download(t, period="6mo", interval="1d", progress=False)
+            df = yf.download(t, period="1y", interval="1d", progress=False)
 
             if df is None or df.empty:
                 continue
 
-            closes = df["Close"]
-            closes = closes.squeeze()
-            closes = closes.dropna().tolist()
+            closes = df["Close"].dropna().tolist()
 
-            if len(closes) >= 60:
-                data[t] = closes[-60:]
+            if len(closes) >= 120:
+                data[t] = closes[-120:]
 
         except Exception as e:
-            print(f"Fetch failed for {t}: {e}")
+            print(f"Fetch failed {t}: {e}")
 
     return data
 
-
-# ----------------------------
-# ✅ DATA LAYER (GENESIS 3)
-# ----------------------------
 
 def get_data():
     real = fetch_real_data()
 
     if len(real) == len(TICKERS):
-        print("✅ Using REAL data")
+        print("✅ REAL DATA")
         return real
 
-    print("⚠️ Using FALLBACK data")
+    print("⚠️ FALLBACK DATA")
     return generate_fallback()
 
 
 # ----------------------------
-# ✅ PORTFOLIO ENGINE (GENESIS 4)
+# ✅ PORTFOLIO ENGINE
 # ----------------------------
-
 def build_portfolio(market):
     results = []
 
@@ -122,27 +121,27 @@ def build_portfolio(market):
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-    # signals
-    for i, r in enumerate(results):
-        if i < TOP_N:
-            r["signal"] = "BUY"
-        elif i == len(results) - 1:
-            r["signal"] = "SELL"
-        else:
-            r["signal"] = "HOLD"
+    # ✅ Only positive scores
+    buy = [r for r in results if r["score"] > 0]
 
-    # weights
-    buy = [r for r in results if r["signal"] == "BUY"]
-    total = sum(r["score"] for r in buy)
+    if not buy:
+        return [{"ticker": r["ticker"], "signal": "CASH", "weight": 0} for r in results]
+
+    # ✅ Dynamic top-N
+    buy = buy[: min(5, len(buy))]
+
+    total_score = sum(r["score"] for r in buy)
 
     for r in results:
-        if r["signal"] == "BUY" and total > 0:
-            r["weight"] = r["score"] / total
+        if r in buy:
+            r["signal"] = "BUY"
+            r["weight"] = r["score"] / total_score if total_score > 0 else 0
         else:
-            r["weight"] = 0.0
+            r["signal"] = "HOLD"
+            r["weight"] = 0
 
-    # cap + redistribute
-    excess = 0.0
+    # ✅ Cap weights
+    excess = 0
     for r in buy:
         if r["weight"] > MAX_WEIGHT:
             excess += r["weight"] - MAX_WEIGHT
@@ -152,11 +151,10 @@ def build_portfolio(market):
 
     if remaining and excess > 0:
         rem_total = sum(r["weight"] for r in remaining)
-        if rem_total > 0:
-            for r in remaining:
-                r["weight"] += excess * (r["weight"] / rem_total)
+        for r in remaining:
+            r["weight"] += excess * (r["weight"] / rem_total)
 
-    # normalize
+    # ✅ Normalize
     norm = sum(r["weight"] for r in buy)
     if norm > 0:
         for r in buy:
@@ -166,23 +164,50 @@ def build_portfolio(market):
 
 
 # ----------------------------
-# ✅ PIPELINE (GENESIS 5)
+# ✅ DRAWDOWN CONTROL
 # ----------------------------
+def apply_drawdown_control(portfolio):
+    global EQUITY
 
+    if len(EQUITY) < 2:
+        return portfolio
+
+    peak = max(EQUITY)
+    current = EQUITY[-1]
+    dd = (peak - current) / peak
+
+    if dd > 0.10:
+        print("⚠️ DRAWDOWN PROTECTION ACTIVE")
+        return [{"ticker": r["ticker"], "signal": "CASH", "weight": 0} for r in portfolio]
+
+    return portfolio
+
+
+# ----------------------------
+# ✅ PIPELINE
+# ----------------------------
 def build_data():
-    global DATA
+    global DATA, EQUITY
+
     market = get_data()
-    DATA = build_portfolio(market)
+    portfolio = build_portfolio(market)
+    portfolio = apply_drawdown_control(portfolio)
+
+    # ✅ simulate equity (simple)
+    daily_return = sum(r["weight"] * 0.001 for r in portfolio if r["signal"] == "BUY")
+    EQUITY.append(EQUITY[-1] * (1 + daily_return))
+
+    DATA = portfolio
 
 
 def background_job():
     while True:
         build_data()
-        time.sleep(3600)
+        time.sleep(604800)  # ✅ weekly
 
 
 @app.on_event("startup")
-def startup_event():
+def startup():
     build_data()
 
     thread = threading.Thread(target=background_job)
