@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trading Bot Dashboard</title>
+</head>
+<body>
+    <h1>📊 Trading Bot</h1>
+
+    <h2>Portfolio Value</h2>
+    <div id="value"></div>
+
+    <h2>Cash</h2>
+    <div id="cash"></div>
+
+    <h2>Positions</h2>
+    <pre id="positions"></pre>
+
+    <h2>Signals</h2>
+    <pre id="signals"></pre>
+
+    <button onclick="reset()">Reset Portfolio</button>
+
+    <script>
+        async function load() {
+            const res = await fetch('/portfolio');
+            const data = await res.json();
+
+            document.getElementById("value").innerText = "$" + data.portfolio_value.toFixed(2);
+            document.getElementById("cash").innerText = "$" + data.cash.toFixed(2);
+            document.getElementById("positions").innerText = JSON.stringify(data.positions, null, 2);
+            document.getElementById("signals").innerText = JSON.stringify(data.signals, null, 2);
+        }
+
+        async function reset() {
+            await fetch('/reset', { method: 'POST' });
+            load();
+        }
+
+        load();
+    </script>
+</body>
+</html>

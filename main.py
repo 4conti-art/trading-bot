@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 import numpy as np
 import threading
 import time
@@ -15,12 +16,19 @@ app = FastAPI()
 TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META"]
 MAX_WEIGHT = 0.5
 
-DATA = []
+DATA = {}
 EQUITY = [1.0]
+
+# ✅ STARTING CAPITAL = 10K
+PORTFOLIO = {
+    "cash": 10000,
+    "positions": {},
+    "history": []
+}
 
 
 # ----------------------------
-# ✅ MARKET REGIME FILTER (NEW)
+# ✅ MARKET REGIME FILTER
 # ----------------------------
 def market_is_risk_on(spy_prices):
     if len(spy_prices) < 100:
@@ -31,12 +39,11 @@ def market_is_risk_on(spy_prices):
     ma50 = np.mean(close[-50:])
     ma200 = np.mean(close[-100:])
 
-    # risk-on only if strong trend
     return close[-1] > ma50 and ma50 > ma200
 
 
 # ----------------------------
-# ✅ MOMENTUM + TREND
+# ✅ MOMENTUM
 # ----------------------------
 def compute_score(close):
     if len(close) < 61:
@@ -56,7 +63,6 @@ def compute_score(close):
     if vol == 0 or np.isnan(vol):
         return 0
 
-    # trend filter
     ma50 = np.mean(close[-50:])
     if close[-1] < ma50:
         momentum *= 0.2
@@ -70,7 +76,7 @@ def compute_score(close):
 
 
 # ----------------------------
-# ✅ FALLBACK DATA
+# ✅ DATA
 # ----------------------------
 def generate_fallback():
     data = {}
@@ -87,9 +93,6 @@ def generate_fallback():
     return data
 
 
-# ----------------------------
-# ✅ REAL DATA
-# ----------------------------
 def fetch_real_data():
     if not YF_AVAILABLE:
         return {}
@@ -118,22 +121,18 @@ def get_data():
     real = fetch_real_data()
 
     if len(real) == len(TICKERS) + 1:
-        print("✅ REAL DATA")
         return real
 
-    print("⚠️ FALLBACK DATA")
     return generate_fallback()
 
 
 # ----------------------------
-# ✅ PORTFOLIO ENGINE (DEFENSIVE)
+# ✅ PORTFOLIO ENGINE
 # ----------------------------
 def build_portfolio(market):
     spy = market["SPY"]
 
-    # ✅ GLOBAL MARKET FILTER
     if not market_is_risk_on(spy):
-        print("⚠️ RISK OFF → CASH")
         return [{"ticker": t, "signal": "CASH", "weight": 0} for t in TICKERS]
 
     results = []
@@ -144,14 +143,11 @@ def build_portfolio(market):
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-    # ✅ ONLY STRONG POSITIVE SIGNALS
     buy = [r for r in results if r["score"] > 0.05]
 
     if not buy:
-        print("⚠️ NO STRONG SIGNALS → CASH")
         return [{"ticker": t, "signal": "CASH", "weight": 0} for t in TICKERS]
 
-    # ✅ LIMIT POSITIONS (DEFENSIVE)
     buy = buy[:3]
 
     total_score = sum(r["score"] for r in buy)
@@ -164,11 +160,9 @@ def build_portfolio(market):
             r["signal"] = "HOLD"
             r["weight"] = 0
 
-    # ✅ CAP WEIGHTS
     for r in buy:
         r["weight"] = min(r["weight"], MAX_WEIGHT)
 
-    # ✅ NORMALIZE
     norm = sum(r["weight"] for r in buy)
     if norm > 0:
         for r in buy:
@@ -177,9 +171,6 @@ def build_portfolio(market):
     return results
 
 
-# ----------------------------
-# ✅ DRAWDOWN PROTECTION (STRONGER)
-# ----------------------------
 def apply_drawdown_control(portfolio):
     global EQUITY
 
@@ -191,34 +182,81 @@ def apply_drawdown_control(portfolio):
     dd = (peak - current) / peak
 
     if dd > 0.08:
-        print("🚨 HARD RISK OFF (DD > 8%)")
         return [{"ticker": r["ticker"], "signal": "CASH", "weight": 0} for r in portfolio]
 
     return portfolio
 
 
 # ----------------------------
+# ✅ MOCK PORTFOLIO
+# ----------------------------
+def get_prices(market):
+    return {t: market[t][-1] for t in TICKERS}
+
+
+def rebalance_portfolio(portfolio, signals, prices):
+    total_value = portfolio["cash"] + sum(
+        shares * prices[t] for t, shares in portfolio["positions"].items()
+    )
+
+    new_positions = {}
+    cash = total_value
+
+    for r in signals:
+        if r["signal"] == "BUY" and r["weight"] > 0:
+            allocation = total_value * r["weight"]
+            price = prices[r["ticker"]]
+            shares = allocation / price
+
+            new_positions[r["ticker"]] = shares
+            cash -= shares * price
+
+    portfolio["positions"] = new_positions
+    portfolio["cash"] = cash
+
+    return portfolio
+
+
+def compute_portfolio_value(portfolio, prices):
+    value = portfolio["cash"]
+
+    for t, shares in portfolio["positions"].items():
+        value += shares * prices[t]
+
+    return value
+
+
+# ----------------------------
 # ✅ PIPELINE
 # ----------------------------
 def build_data():
-    global DATA, EQUITY
+    global DATA, EQUITY, PORTFOLIO
 
     market = get_data()
 
-    portfolio = build_portfolio(market)
-    portfolio = apply_drawdown_control(portfolio)
+    signals = build_portfolio(market)
+    signals = apply_drawdown_control(signals)
 
-    # simulate equity (conservative)
-    daily_return = sum(r["weight"] * 0.0005 for r in portfolio if r["signal"] == "BUY")
-    EQUITY.append(EQUITY[-1] * (1 + daily_return))
+    prices = get_prices(market)
 
-    DATA = portfolio
+    PORTFOLIO = rebalance_portfolio(PORTFOLIO, signals, prices)
+
+    value = compute_portfolio_value(PORTFOLIO, prices)
+
+    PORTFOLIO["history"].append(value)
+
+    DATA = {
+        "portfolio_value": value,
+        "cash": PORTFOLIO["cash"],
+        "positions": PORTFOLIO["positions"],
+        "signals": signals
+    }
 
 
 def background_job():
     while True:
         build_data()
-        time.sleep(604800)  # weekly
+        time.sleep(604800)
 
 
 @app.on_event("startup")
@@ -230,11 +268,30 @@ def startup():
     thread.start()
 
 
+# ----------------------------
+# ✅ API
+# ----------------------------
 @app.get("/")
 def root():
-    return {"status": "defensive bot running"}
+    return {"status": "bot running"}
 
 
-@app.get("/top")
-def top():
+@app.get("/portfolio")
+def portfolio():
     return DATA
+
+
+@app.post("/reset")
+def reset():
+    global PORTFOLIO
+    PORTFOLIO = {
+        "cash": 10000,
+        "positions": {},
+        "history": []
+    }
+    return {"status": "reset"}
+
+
+@app.get("/dashboard")
+def dashboard():
+    return FileResponse("index.html")
