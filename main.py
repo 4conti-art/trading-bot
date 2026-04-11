@@ -14,64 +14,15 @@ except:
 app = FastAPI()
 
 TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META"]
-MAX_WEIGHT = 0.5
 
 DATA = {}
 
-# ✅ USER PORTFOLIO (PERSISTS IN MEMORY)
+# ✅ USER PORTFOLIO
 PORTFOLIO = {
     "cash": 10000,
     "positions": {},
     "history": []
 }
-
-# ----------------------------
-# ✅ MARKET FILTER
-# ----------------------------
-def market_is_risk_on(spy_prices):
-    if len(spy_prices) < 100:
-        return True
-
-    close = np.array(spy_prices)
-
-    ma50 = np.mean(close[-50:])
-    ma200 = np.mean(close[-100:])
-
-    return close[-1] > ma50 and ma50 > ma200
-
-
-# ----------------------------
-# ✅ MOMENTUM
-# ----------------------------
-def compute_score(close):
-    if len(close) < 61:
-        return 0
-
-    close = np.array(close)
-
-    short = (close[-1] / close[-6]) - 1
-    medium = (close[-1] / close[-21]) - 1
-    long = (close[-1] / close[-61]) - 1
-
-    momentum = 0.5 * short + 0.3 * medium + 0.2 * long
-
-    log_returns = np.diff(np.log(close))
-    vol = np.std(log_returns)
-
-    if vol == 0 or np.isnan(vol):
-        return 0
-
-    ma50 = np.mean(close[-50:])
-    if close[-1] < ma50:
-        momentum *= 0.2
-
-    score = momentum / (vol * 5)
-
-    if np.isnan(score) or np.isinf(score):
-        return 0
-
-    return float(score)
-
 
 # ----------------------------
 # ✅ DATA
@@ -121,82 +72,64 @@ def get_data():
     if len(real) == len(TICKERS) + 1:
         return real
 
+    print("⚠️ Using fallback data")
     return generate_fallback()
 
 
 # ----------------------------
-# ✅ BOT SIGNALS ONLY (NO AUTO TRADING)
-# ----------------------------
-def build_portfolio(market):
-    spy = market["SPY"]
-
-    if not market_is_risk_on(spy):
-        return [{"ticker": t, "signal": "CASH", "weight": 0} for t in TICKERS]
-
-    results = []
-
-    for t in TICKERS:
-        score = compute_score(market[t])
-        results.append({"ticker": t, "score": score})
-
-    results = sorted(results, key=lambda x: x["score"], reverse=True)
-
-    buy = [r for r in results if r["score"] > 0.05]
-
-    if not buy:
-        return [{"ticker": t, "signal": "CASH", "weight": 0} for t in TICKERS]
-
-    buy = buy[:3]
-
-    total_score = sum(r["score"] for r in buy)
-
-    for r in results:
-        if r in buy:
-            r["signal"] = "BUY"
-            r["weight"] = r["score"] / total_score if total_score > 0 else 0
-        else:
-            r["signal"] = "HOLD"
-            r["weight"] = 0
-
-    for r in buy:
-        r["weight"] = min(r["weight"], MAX_WEIGHT)
-
-    norm = sum(r["weight"] for r in buy)
-    if norm > 0:
-        for r in buy:
-            r["weight"] /= norm
-
-    return results
-
-
-# ----------------------------
-# ✅ PORTFOLIO VALUE (USER CONTROLLED)
+# ✅ PRICES (FIXED)
 # ----------------------------
 def get_prices(market):
-    return {t: market[t][-1] for t in TICKERS}
+    prices = {}
+
+    for t in TICKERS:
+        if t in market and len(market[t]) > 0:
+            prices[t] = market[t][-1]
+        else:
+            prices[t] = 100  # ✅ fallback price
+
+    return prices
 
 
+# ----------------------------
+# ✅ VALUE (WITH DEBUG)
+# ----------------------------
 def compute_portfolio_value(portfolio, prices):
     value = portfolio["cash"]
 
     for t, shares in portfolio["positions"].items():
-        value += shares * prices.get(t, 0)
+        price = prices.get(t, 0)
+        print(f"{t}: shares={shares}, price={price}")  # DEBUG
+
+        value += shares * price
+
+    print("TOTAL VALUE:", value)
 
     return value
 
 
 # ----------------------------
-# ✅ PIPELINE (NO OVERWRITE)
+# ✅ SIMPLE SIGNALS (placeholder)
+# ----------------------------
+def build_signals():
+    return [
+        {"ticker": "AAPL", "signal": "BUY", "weight": 0.5},
+        {"ticker": "MSFT", "signal": "BUY", "weight": 0.5},
+        {"ticker": "NVDA", "signal": "HOLD", "weight": 0},
+        {"ticker": "AMZN", "signal": "HOLD", "weight": 0},
+        {"ticker": "META", "signal": "HOLD", "weight": 0},
+    ]
+
+
+# ----------------------------
+# ✅ PIPELINE
 # ----------------------------
 def build_data():
     global DATA, PORTFOLIO
 
     market = get_data()
-
-    signals = build_portfolio(market)
     prices = get_prices(market)
 
-    # ✅ ONLY READ USER PORTFOLIO
     value = compute_portfolio_value(PORTFOLIO, prices)
 
     PORTFOLIO["history"].append(value)
@@ -205,14 +138,14 @@ def build_data():
         "portfolio_value": value,
         "cash": PORTFOLIO["cash"],
         "positions": PORTFOLIO["positions"],
-        "signals": signals
+        "signals": build_signals()
     }
 
 
 def background_job():
     while True:
         build_data()
-        time.sleep(86400)  # daily
+        time.sleep(86400)
 
 
 @app.on_event("startup")
@@ -229,7 +162,7 @@ def startup():
 # ----------------------------
 @app.get("/")
 def root():
-    return {"status": "bot running"}
+    return {"status": "running"}
 
 
 @app.get("/portfolio")
@@ -264,4 +197,4 @@ async def update_portfolio(request: Request):
 
 @app.get("/dashboard")
 def dashboard():
-    return FileResponse("index.html")
+    return FileResponse("dashboard.html")
