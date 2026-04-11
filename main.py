@@ -20,7 +20,23 @@ EQUITY = [1.0]
 
 
 # ----------------------------
-# ✅ MOMENTUM + TREND + VOL
+# ✅ MARKET REGIME FILTER (NEW)
+# ----------------------------
+def market_is_risk_on(spy_prices):
+    if len(spy_prices) < 100:
+        return True
+
+    close = np.array(spy_prices)
+
+    ma50 = np.mean(close[-50:])
+    ma200 = np.mean(close[-100:])
+
+    # risk-on only if strong trend
+    return close[-1] > ma50 and ma50 > ma200
+
+
+# ----------------------------
+# ✅ MOMENTUM + TREND
 # ----------------------------
 def compute_score(close):
     if len(close) < 61:
@@ -40,10 +56,10 @@ def compute_score(close):
     if vol == 0 or np.isnan(vol):
         return 0
 
-    # ✅ Trend filter
-    ma = np.mean(close[-50:])
-    if close[-1] < ma:
-        momentum *= 0.3
+    # trend filter
+    ma50 = np.mean(close[-50:])
+    if close[-1] < ma50:
+        momentum *= 0.2
 
     score = momentum / (vol * 5)
 
@@ -60,19 +76,19 @@ def generate_fallback():
     data = {}
     np.random.seed(42)
 
-    for t in TICKERS:
+    for t in TICKERS + ["SPY"]:
         prices = [100]
-        for _ in range(120):
-            drift = 0.0008
+        for _ in range(150):
+            drift = 0.0005
             noise = np.random.normal(0, 0.01)
             prices.append(prices[-1] * (1 + drift + noise))
-        data[t] = prices[-120:]
+        data[t] = prices[-150:]
 
     return data
 
 
 # ----------------------------
-# ✅ REAL DATA (OPTIONAL)
+# ✅ REAL DATA
 # ----------------------------
 def fetch_real_data():
     if not YF_AVAILABLE:
@@ -80,7 +96,7 @@ def fetch_real_data():
 
     data = {}
 
-    for t in TICKERS:
+    for t in TICKERS + ["SPY"]:
         try:
             df = yf.download(t, period="1y", interval="1d", progress=False)
 
@@ -101,7 +117,7 @@ def fetch_real_data():
 def get_data():
     real = fetch_real_data()
 
-    if len(real) == len(TICKERS):
+    if len(real) == len(TICKERS) + 1:
         print("✅ REAL DATA")
         return real
 
@@ -110,25 +126,33 @@ def get_data():
 
 
 # ----------------------------
-# ✅ PORTFOLIO ENGINE
+# ✅ PORTFOLIO ENGINE (DEFENSIVE)
 # ----------------------------
 def build_portfolio(market):
+    spy = market["SPY"]
+
+    # ✅ GLOBAL MARKET FILTER
+    if not market_is_risk_on(spy):
+        print("⚠️ RISK OFF → CASH")
+        return [{"ticker": t, "signal": "CASH", "weight": 0} for t in TICKERS]
+
     results = []
 
-    for t in market:
+    for t in TICKERS:
         score = compute_score(market[t])
         results.append({"ticker": t, "score": score})
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-    # ✅ Only positive scores
-    buy = [r for r in results if r["score"] > 0]
+    # ✅ ONLY STRONG POSITIVE SIGNALS
+    buy = [r for r in results if r["score"] > 0.05]
 
     if not buy:
-        return [{"ticker": r["ticker"], "signal": "CASH", "weight": 0} for r in results]
+        print("⚠️ NO STRONG SIGNALS → CASH")
+        return [{"ticker": t, "signal": "CASH", "weight": 0} for t in TICKERS]
 
-    # ✅ Dynamic top-N
-    buy = buy[: min(5, len(buy))]
+    # ✅ LIMIT POSITIONS (DEFENSIVE)
+    buy = buy[:3]
 
     total_score = sum(r["score"] for r in buy)
 
@@ -140,21 +164,11 @@ def build_portfolio(market):
             r["signal"] = "HOLD"
             r["weight"] = 0
 
-    # ✅ Cap weights
-    excess = 0
+    # ✅ CAP WEIGHTS
     for r in buy:
-        if r["weight"] > MAX_WEIGHT:
-            excess += r["weight"] - MAX_WEIGHT
-            r["weight"] = MAX_WEIGHT
+        r["weight"] = min(r["weight"], MAX_WEIGHT)
 
-    remaining = [r for r in buy if r["weight"] < MAX_WEIGHT]
-
-    if remaining and excess > 0:
-        rem_total = sum(r["weight"] for r in remaining)
-        for r in remaining:
-            r["weight"] += excess * (r["weight"] / rem_total)
-
-    # ✅ Normalize
+    # ✅ NORMALIZE
     norm = sum(r["weight"] for r in buy)
     if norm > 0:
         for r in buy:
@@ -164,20 +178,20 @@ def build_portfolio(market):
 
 
 # ----------------------------
-# ✅ DRAWDOWN CONTROL
+# ✅ DRAWDOWN PROTECTION (STRONGER)
 # ----------------------------
 def apply_drawdown_control(portfolio):
     global EQUITY
 
-    if len(EQUITY) < 2:
+    if len(EQUITY) < 5:
         return portfolio
 
     peak = max(EQUITY)
     current = EQUITY[-1]
     dd = (peak - current) / peak
 
-    if dd > 0.10:
-        print("⚠️ DRAWDOWN PROTECTION ACTIVE")
+    if dd > 0.08:
+        print("🚨 HARD RISK OFF (DD > 8%)")
         return [{"ticker": r["ticker"], "signal": "CASH", "weight": 0} for r in portfolio]
 
     return portfolio
@@ -190,11 +204,12 @@ def build_data():
     global DATA, EQUITY
 
     market = get_data()
+
     portfolio = build_portfolio(market)
     portfolio = apply_drawdown_control(portfolio)
 
-    # ✅ simulate equity (simple)
-    daily_return = sum(r["weight"] * 0.001 for r in portfolio if r["signal"] == "BUY")
+    # simulate equity (conservative)
+    daily_return = sum(r["weight"] * 0.0005 for r in portfolio if r["signal"] == "BUY")
     EQUITY.append(EQUITY[-1] * (1 + daily_return))
 
     DATA = portfolio
@@ -203,7 +218,7 @@ def build_data():
 def background_job():
     while True:
         build_data()
-        time.sleep(604800)  # ✅ weekly
+        time.sleep(604800)  # weekly
 
 
 @app.on_event("startup")
@@ -217,7 +232,7 @@ def startup():
 
 @app.get("/")
 def root():
-    return {"status": "running"}
+    return {"status": "defensive bot running"}
 
 
 @app.get("/top")
