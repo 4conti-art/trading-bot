@@ -43,11 +43,6 @@
 </div>
 
 <div class="box">
-    <h2>Signals</h2>
-    <div id="signals"></div>
-</div>
-
-<div class="box">
     <h2>Update Portfolio</h2>
 
     Cash: <input id="cashInput"><br><br>
@@ -58,55 +53,47 @@
     AMZN: <input id="AMZN"><br>
     META: <input id="META"><br><br>
 
-    <button onclick="update()">Update</button>
+    <button onclick="save()">Save Portfolio</button>
 </div>
 
 <script>
 const tickers = ["AAPL","MSFT","NVDA","AMZN","META"];
-
-// ✅ SAME PRICE ASSUMPTION AS BACKEND
 const PRICE = 100;
 
-async function load() {
-    const res = await fetch('/portfolio');
-    const data = await res.json();
+// ✅ LOAD FROM LOCAL STORAGE
+function load() {
+    const saved = JSON.parse(localStorage.getItem("portfolio")) || {
+        cash: 10000,
+        positions: {}
+    };
 
-    document.getElementById("value").innerText =
-        "Value: $" + data.portfolio_value.toFixed(2);
+    let value = saved.cash;
 
     document.getElementById("cash").innerText =
-        "Cash: $" + data.cash.toFixed(2);
+        "Cash: $" + saved.cash.toFixed(2);
 
-    // ✅ POSITIONS WITH VALUE
     const posDiv = document.getElementById("positions");
     posDiv.innerHTML = "";
 
-    for (let t in data.positions) {
-        const shares = data.positions[t];
-        const value = shares * PRICE;
+    for (let t in saved.positions) {
+        const shares = saved.positions[t];
+        const v = shares * PRICE;
+
+        value += v;
 
         const row = document.createElement("div");
         row.className = "row";
-
-        row.innerText =
-            `${t}: ${shares} shares ($${value.toFixed(2)})`;
+        row.innerText = `${t}: ${shares} shares ($${v.toFixed(2)})`;
 
         posDiv.appendChild(row);
     }
 
-    // ✅ SIGNALS
-    const sigDiv = document.getElementById("signals");
-    sigDiv.innerHTML = "";
-
-    data.signals.forEach(s => {
-        const row = document.createElement("div");
-        row.className = "row";
-        row.innerText = `${s.ticker} → ${s.signal}`;
-        sigDiv.appendChild(row);
-    });
+    document.getElementById("value").innerText =
+        "Total Value: $" + value.toFixed(2);
 }
 
-async function update() {
+// ✅ SAVE TO LOCAL STORAGE
+function save() {
     const positions = {};
 
     tickers.forEach(t => {
@@ -116,13 +103,11 @@ async function update() {
 
     const cash = parseFloat(document.getElementById("cashInput").value) || 0;
 
-    await fetch('/update_portfolio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cash, positions })
-    });
+    const portfolio = { cash, positions };
 
-    alert("UPDATED ✅");
+    localStorage.setItem("portfolio", JSON.stringify(portfolio));
+
+    alert("✅ Saved locally");
     load();
 }
 
