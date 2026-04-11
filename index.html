@@ -11,10 +11,6 @@
             padding: 20px;
         }
 
-        h1 {
-            margin-bottom: 20px;
-        }
-
         .container {
             max-width: 900px;
             margin: auto;
@@ -57,10 +53,18 @@
             padding: 10px 15px;
             border-radius: 8px;
             cursor: pointer;
+            margin-top: 10px;
         }
 
         button:hover {
             background: #2563eb;
+        }
+
+        input {
+            margin: 5px;
+            padding: 6px;
+            border-radius: 6px;
+            border: none;
         }
     </style>
 </head>
@@ -93,9 +97,25 @@
 
     <button onclick="reset()">Reset Portfolio</button>
 
+    <!-- ✅ THIS IS WHAT YOU WERE MISSING -->
+    <div class="card">
+        <h2>Update Portfolio</h2>
+
+        <label>Cash:</label><br>
+        <input id="cashInput" type="number" placeholder="Enter cash"><br>
+
+        <h3>Positions</h3>
+        <div id="inputs"></div>
+
+        <button onclick="updatePortfolio()">Update Portfolio</button>
+    </div>
+
 </div>
 
 <script>
+const tickers = ["AAPL","MSFT","NVDA","AMZN","META"];
+
+// ✅ LOAD DATA
 async function load() {
     const res = await fetch('/portfolio');
     const data = await res.json();
@@ -106,7 +126,7 @@ async function load() {
     document.getElementById("cash").innerText =
         "$" + data.cash.toFixed(2);
 
-    // Positions
+    // positions
     const posDiv = document.getElementById("positions");
     posDiv.innerHTML = "";
     for (let t in data.positions) {
@@ -115,9 +135,10 @@ async function load() {
         posDiv.appendChild(div);
     }
 
-    // Signals
+    // signals
     const sigDiv = document.getElementById("signals");
     sigDiv.innerHTML = "";
+
     data.signals.forEach(s => {
         const div = document.createElement("div");
 
@@ -133,11 +154,52 @@ async function load() {
     });
 }
 
+// ✅ BUILD INPUT FIELDS
+function buildInputs() {
+    const container = document.getElementById("inputs");
+    container.innerHTML = "";
+
+    tickers.forEach(t => {
+        const div = document.createElement("div");
+
+        div.innerHTML = `
+            ${t}: <input id="${t}" type="number" step="0.01" placeholder="shares">
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+// ✅ UPDATE PORTFOLIO
+async function updatePortfolio() {
+    const positions = {};
+
+    tickers.forEach(t => {
+        const val = document.getElementById(t).value;
+        if (val && val > 0) {
+            positions[t] = parseFloat(val);
+        }
+    });
+
+    const cash = parseFloat(document.getElementById("cashInput").value) || 0;
+
+    await fetch('/update_portfolio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cash, positions })
+    });
+
+    load();
+}
+
+// ✅ RESET
 async function reset() {
     await fetch('/reset', { method: 'POST' });
     load();
 }
 
+// ✅ INIT
+buildInputs();
 load();
 </script>
 
