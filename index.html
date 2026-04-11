@@ -65,6 +65,7 @@
             padding: 6px;
             border-radius: 6px;
             border: none;
+            width: 120px;
         }
     </style>
 </head>
@@ -97,15 +98,20 @@
 
     <button onclick="reset()">Reset Portfolio</button>
 
-    <!-- ✅ THIS IS WHAT YOU WERE MISSING -->
+    <!-- ✅ INPUT SECTION -->
     <div class="card">
         <h2>Update Portfolio</h2>
 
         <label>Cash:</label><br>
-        <input id="cashInput" type="number" placeholder="Enter cash"><br>
+        <input id="cashInput" type="number"><br><br>
 
         <h3>Positions</h3>
-        <div id="inputs"></div>
+
+        <div>AAPL: <input id="AAPL" type="number"></div>
+        <div>MSFT: <input id="MSFT" type="number"></div>
+        <div>NVDA: <input id="NVDA" type="number"></div>
+        <div>AMZN: <input id="AMZN" type="number"></div>
+        <div>META: <input id="META" type="number"></div>
 
         <button onclick="updatePortfolio()">Update Portfolio</button>
     </div>
@@ -115,62 +121,47 @@
 <script>
 const tickers = ["AAPL","MSFT","NVDA","AMZN","META"];
 
-// ✅ LOAD DATA
 async function load() {
-    const res = await fetch('/portfolio');
-    const data = await res.json();
+    try {
+        const res = await fetch('/portfolio');
+        const data = await res.json();
 
-    document.getElementById("value").innerText =
-        "$" + data.portfolio_value.toFixed(2);
+        document.getElementById("value").innerText =
+            "$" + data.portfolio_value.toFixed(2);
 
-    document.getElementById("cash").innerText =
-        "$" + data.cash.toFixed(2);
+        document.getElementById("cash").innerText =
+            "$" + data.cash.toFixed(2);
 
-    // positions
-    const posDiv = document.getElementById("positions");
-    posDiv.innerHTML = "";
-    for (let t in data.positions) {
-        const div = document.createElement("div");
-        div.innerText = t + ": " + data.positions[t].toFixed(2) + " shares";
-        posDiv.appendChild(div);
+        const posDiv = document.getElementById("positions");
+        posDiv.innerHTML = "";
+        for (let t in data.positions) {
+            const div = document.createElement("div");
+            div.innerText = t + ": " + data.positions[t].toFixed(2) + " shares";
+            posDiv.appendChild(div);
+        }
+
+        const sigDiv = document.getElementById("signals");
+        sigDiv.innerHTML = "";
+
+        data.signals.forEach(s => {
+            const div = document.createElement("div");
+
+            let cls = "hold";
+            if (s.signal === "BUY") cls = "buy";
+            if (s.signal === "CASH") cls = "cash";
+
+            div.className = cls;
+            div.innerText =
+                `${s.ticker} → ${s.signal} (${(s.weight * 100).toFixed(1)}%)`;
+
+            sigDiv.appendChild(div);
+        });
+
+    } catch (err) {
+        console.error("LOAD ERROR:", err);
     }
-
-    // signals
-    const sigDiv = document.getElementById("signals");
-    sigDiv.innerHTML = "";
-
-    data.signals.forEach(s => {
-        const div = document.createElement("div");
-
-        let cls = "hold";
-        if (s.signal === "BUY") cls = "buy";
-        if (s.signal === "CASH") cls = "cash";
-
-        div.className = cls;
-        div.innerText =
-            `${s.ticker} → ${s.signal} (${(s.weight * 100).toFixed(1)}%)`;
-
-        sigDiv.appendChild(div);
-    });
 }
 
-// ✅ BUILD INPUT FIELDS
-function buildInputs() {
-    const container = document.getElementById("inputs");
-    container.innerHTML = "";
-
-    tickers.forEach(t => {
-        const div = document.createElement("div");
-
-        div.innerHTML = `
-            ${t}: <input id="${t}" type="number" step="0.01" placeholder="shares">
-        `;
-
-        container.appendChild(div);
-    });
-}
-
-// ✅ UPDATE PORTFOLIO
 async function updatePortfolio() {
     const positions = {};
 
@@ -183,23 +174,31 @@ async function updatePortfolio() {
 
     const cash = parseFloat(document.getElementById("cashInput").value) || 0;
 
-    await fetch('/update_portfolio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cash, positions })
-    });
+    try {
+        const res = await fetch('/update_portfolio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cash, positions })
+        });
 
-    load();
+        const data = await res.json();
+
+        console.log("UPDATED:", data);
+        alert("✅ Portfolio updated");
+
+        load();
+
+    } catch (err) {
+        console.error("UPDATE ERROR:", err);
+        alert("❌ Update failed");
+    }
 }
 
-// ✅ RESET
 async function reset() {
     await fetch('/reset', { method: 'POST' });
     load();
 }
 
-// ✅ INIT
-buildInputs();
 load();
 </script>
 
