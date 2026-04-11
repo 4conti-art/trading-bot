@@ -26,6 +26,9 @@
             border: none;
             cursor: pointer;
         }
+        .row {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -68,17 +71,27 @@ async function load() {
     document.getElementById("value").innerText = "Value: $" + data.portfolio_value.toFixed(2);
     document.getElementById("cash").innerText = "Cash: $" + data.cash.toFixed(2);
 
-    let pos = "";
-    for (let t in data.positions) {
-        pos += t + ": " + data.positions[t] + "\\n";
-    }
-    document.getElementById("positions").innerText = pos;
+    // ✅ FIXED POSITIONS DISPLAY
+    const posDiv = document.getElementById("positions");
+    posDiv.innerHTML = "";
 
-    let sig = "";
+    for (let t in data.positions) {
+        const row = document.createElement("div");
+        row.className = "row";
+        row.innerText = `${t}: ${data.positions[t]} shares`;
+        posDiv.appendChild(row);
+    }
+
+    // ✅ FIXED SIGNALS DISPLAY
+    const sigDiv = document.getElementById("signals");
+    sigDiv.innerHTML = "";
+
     data.signals.forEach(s => {
-        sig += s.ticker + " " + s.signal + "\\n";
+        const row = document.createElement("div");
+        row.className = "row";
+        row.innerText = `${s.ticker} → ${s.signal}`;
+        sigDiv.appendChild(row);
     });
-    document.getElementById("signals").innerText = sig;
 }
 
 async function update() {
