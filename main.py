@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 import numpy as np
 import threading
@@ -19,13 +19,12 @@ MAX_WEIGHT = 0.5
 DATA = {}
 EQUITY = [1.0]
 
-# ✅ STARTING CAPITAL = 10K
+# ✅ STARTING PORTFOLIO ($10K)
 PORTFOLIO = {
     "cash": 10000,
     "positions": {},
     "history": []
 }
-
 
 # ----------------------------
 # ✅ MARKET REGIME FILTER
@@ -127,7 +126,7 @@ def get_data():
 
 
 # ----------------------------
-# ✅ PORTFOLIO ENGINE
+# ✅ PORTFOLIO ENGINE (BOT)
 # ----------------------------
 def build_portfolio(market):
     spy = market["SPY"]
@@ -188,40 +187,17 @@ def apply_drawdown_control(portfolio):
 
 
 # ----------------------------
-# ✅ MOCK PORTFOLIO
+# ✅ USER PORTFOLIO (REAL INPUT)
 # ----------------------------
 def get_prices(market):
     return {t: market[t][-1] for t in TICKERS}
-
-
-def rebalance_portfolio(portfolio, signals, prices):
-    total_value = portfolio["cash"] + sum(
-        shares * prices[t] for t, shares in portfolio["positions"].items()
-    )
-
-    new_positions = {}
-    cash = total_value
-
-    for r in signals:
-        if r["signal"] == "BUY" and r["weight"] > 0:
-            allocation = total_value * r["weight"]
-            price = prices[r["ticker"]]
-            shares = allocation / price
-
-            new_positions[r["ticker"]] = shares
-            cash -= shares * price
-
-    portfolio["positions"] = new_positions
-    portfolio["cash"] = cash
-
-    return portfolio
 
 
 def compute_portfolio_value(portfolio, prices):
     value = portfolio["cash"]
 
     for t, shares in portfolio["positions"].items():
-        value += shares * prices[t]
+        value += shares * prices.get(t, 0)
 
     return value
 
@@ -230,7 +206,7 @@ def compute_portfolio_value(portfolio, prices):
 # ✅ PIPELINE
 # ----------------------------
 def build_data():
-    global DATA, EQUITY, PORTFOLIO
+    global DATA, PORTFOLIO
 
     market = get_data()
 
@@ -239,10 +215,7 @@ def build_data():
 
     prices = get_prices(market)
 
-    PORTFOLIO = rebalance_portfolio(PORTFOLIO, signals, prices)
-
     value = compute_portfolio_value(PORTFOLIO, prices)
-
     PORTFOLIO["history"].append(value)
 
     DATA = {
@@ -256,7 +229,7 @@ def build_data():
 def background_job():
     while True:
         build_data()
-        time.sleep(604800)
+        time.sleep(86400)  # ✅ daily update
 
 
 @app.on_event("startup")
@@ -290,6 +263,19 @@ def reset():
         "history": []
     }
     return {"status": "reset"}
+
+
+# ✅ ✅ USER CAN EDIT PORTFOLIO
+@app.post("/update_portfolio")
+async def update_portfolio(request: Request):
+    global PORTFOLIO
+
+    data = await request.json()
+
+    PORTFOLIO["cash"] = data.get("cash", PORTFOLIO["cash"])
+    PORTFOLIO["positions"] = data.get("positions", PORTFOLIO["positions"])
+
+    return {"status": "updated", "portfolio": PORTFOLIO}
 
 
 @app.get("/dashboard")
