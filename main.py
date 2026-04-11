@@ -1,8 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 import numpy as np
-import threading
-import time
 
 # Optional data source
 try:
@@ -17,7 +15,7 @@ TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META"]
 
 DATA = {}
 
-# ✅ USER PORTFOLIO
+# ✅ USER PORTFOLIO (PERSISTS WHILE APP RUNS)
 PORTFOLIO = {
     "cash": 10000,
     "positions": {},
@@ -77,7 +75,7 @@ def get_data():
 
 
 # ----------------------------
-# ✅ PRICES (FIXED)
+# ✅ PRICES
 # ----------------------------
 def get_prices(market):
     prices = {}
@@ -86,30 +84,29 @@ def get_prices(market):
         if t in market and len(market[t]) > 0:
             prices[t] = market[t][-1]
         else:
-            prices[t] = 100  # ✅ fallback price
+            prices[t] = 100  # fallback
 
     return prices
 
 
 # ----------------------------
-# ✅ VALUE (WITH DEBUG)
+# ✅ VALUE
 # ----------------------------
-def compute_portfolio_value(portfolio, prices):
-    value = portfolio["cash"]
+def compute_portfolio_value():
+    market = get_data()
+    prices = get_prices(market)
 
-    for t, shares in portfolio["positions"].items():
-        price = prices.get(t, 0)
-        print(f"{t}: shares={shares}, price={price}")  # DEBUG
+    value = PORTFOLIO["cash"]
 
+    for t, shares in PORTFOLIO["positions"].items():
+        price = prices.get(t, 100)
         value += shares * price
-
-    print("TOTAL VALUE:", value)
 
     return value
 
 
 # ----------------------------
-# ✅ SIMPLE SIGNALS (placeholder)
+# ✅ SIGNALS (STATIC FOR NOW)
 # ----------------------------
 def build_signals():
     return [
@@ -122,42 +119,6 @@ def build_signals():
 
 
 # ----------------------------
-# ✅ PIPELINE
-# ----------------------------
-def build_data():
-    global DATA, PORTFOLIO
-
-    market = get_data()
-    prices = get_prices(market)
-
-    value = compute_portfolio_value(PORTFOLIO, prices)
-
-    PORTFOLIO["history"].append(value)
-
-    DATA = {
-        "portfolio_value": value,
-        "cash": PORTFOLIO["cash"],
-        "positions": PORTFOLIO["positions"],
-        "signals": build_signals()
-    }
-
-
-def background_job():
-    while True:
-        build_data()
-        time.sleep(86400)
-
-
-@app.on_event("startup")
-def startup():
-    build_data()
-
-    thread = threading.Thread(target=background_job)
-    thread.daemon = True
-    thread.start()
-
-
-# ----------------------------
 # ✅ API
 # ----------------------------
 @app.get("/")
@@ -167,24 +128,18 @@ def root():
 
 @app.get("/portfolio")
 def portfolio():
-    return DATA
+    value = compute_portfolio_value()
 
-
-@app.post("/reset")
-def reset():
-    global PORTFOLIO
-    PORTFOLIO = {
-        "cash": 10000,
-        "positions": {},
-        "history": []
+    return {
+        "portfolio_value": value,
+        "cash": PORTFOLIO["cash"],
+        "positions": PORTFOLIO["positions"],
+        "signals": build_signals()
     }
-    return {"status": "reset"}
 
 
 @app.post("/update_portfolio")
 async def update_portfolio(request: Request):
-    global PORTFOLIO
-
     data = await request.json()
 
     PORTFOLIO["cash"] = data.get("cash", PORTFOLIO["cash"])
@@ -193,6 +148,15 @@ async def update_portfolio(request: Request):
     print("✅ UPDATED PORTFOLIO:", PORTFOLIO)
 
     return {"status": "updated"}
+
+
+@app.post("/reset")
+def reset():
+    PORTFOLIO["cash"] = 10000
+    PORTFOLIO["positions"] = {}
+    PORTFOLIO["history"] = []
+
+    return {"status": "reset"}
 
 
 @app.get("/dashboard")
