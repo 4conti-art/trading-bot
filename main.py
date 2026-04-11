@@ -17,9 +17,8 @@ TICKERS = ["AAPL", "MSFT", "NVDA", "AMZN", "META"]
 MAX_WEIGHT = 0.5
 
 DATA = {}
-EQUITY = [1.0]
 
-# ✅ STARTING PORTFOLIO ($10K)
+# ✅ USER PORTFOLIO (PERSISTS IN MEMORY)
 PORTFOLIO = {
     "cash": 10000,
     "positions": {},
@@ -27,7 +26,7 @@ PORTFOLIO = {
 }
 
 # ----------------------------
-# ✅ MARKET REGIME FILTER
+# ✅ MARKET FILTER
 # ----------------------------
 def market_is_risk_on(spy_prices):
     if len(spy_prices) < 100:
@@ -126,7 +125,7 @@ def get_data():
 
 
 # ----------------------------
-# ✅ PORTFOLIO ENGINE (BOT)
+# ✅ BOT SIGNALS ONLY (NO AUTO TRADING)
 # ----------------------------
 def build_portfolio(market):
     spy = market["SPY"]
@@ -170,24 +169,8 @@ def build_portfolio(market):
     return results
 
 
-def apply_drawdown_control(portfolio):
-    global EQUITY
-
-    if len(EQUITY) < 5:
-        return portfolio
-
-    peak = max(EQUITY)
-    current = EQUITY[-1]
-    dd = (peak - current) / peak
-
-    if dd > 0.08:
-        return [{"ticker": r["ticker"], "signal": "CASH", "weight": 0} for r in portfolio]
-
-    return portfolio
-
-
 # ----------------------------
-# ✅ USER PORTFOLIO (REAL INPUT)
+# ✅ PORTFOLIO VALUE (USER CONTROLLED)
 # ----------------------------
 def get_prices(market):
     return {t: market[t][-1] for t in TICKERS}
@@ -203,7 +186,7 @@ def compute_portfolio_value(portfolio, prices):
 
 
 # ----------------------------
-# ✅ PIPELINE
+# ✅ PIPELINE (NO OVERWRITE)
 # ----------------------------
 def build_data():
     global DATA, PORTFOLIO
@@ -211,11 +194,11 @@ def build_data():
     market = get_data()
 
     signals = build_portfolio(market)
-    signals = apply_drawdown_control(signals)
-
     prices = get_prices(market)
 
+    # ✅ ONLY READ USER PORTFOLIO
     value = compute_portfolio_value(PORTFOLIO, prices)
+
     PORTFOLIO["history"].append(value)
 
     DATA = {
@@ -229,7 +212,7 @@ def build_data():
 def background_job():
     while True:
         build_data()
-        time.sleep(86400)  # ✅ daily update
+        time.sleep(86400)  # daily
 
 
 @app.on_event("startup")
@@ -265,7 +248,6 @@ def reset():
     return {"status": "reset"}
 
 
-# ✅ ✅ USER CAN EDIT PORTFOLIO
 @app.post("/update_portfolio")
 async def update_portfolio(request: Request):
     global PORTFOLIO
@@ -275,7 +257,9 @@ async def update_portfolio(request: Request):
     PORTFOLIO["cash"] = data.get("cash", PORTFOLIO["cash"])
     PORTFOLIO["positions"] = data.get("positions", PORTFOLIO["positions"])
 
-    return {"status": "updated", "portfolio": PORTFOLIO}
+    print("✅ UPDATED PORTFOLIO:", PORTFOLIO)
+
+    return {"status": "updated"}
 
 
 @app.get("/dashboard")
