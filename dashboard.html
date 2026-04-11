@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trading Bot</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            padding: 20px;
+        }
+        .box {
+            background: #1e293b;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+        input {
+            margin: 5px;
+            padding: 5px;
+        }
+        button {
+            padding: 8px 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Trading Bot</h1>
+
+<div class="box">
+    <h2>Portfolio</h2>
+    <div id="value"></div>
+    <div id="cash"></div>
+    <div id="positions"></div>
+</div>
+
+<div class="box">
+    <h2>Signals</h2>
+    <div id="signals"></div>
+</div>
+
+<div class="box">
+    <h2>Update Portfolio</h2>
+
+    Cash: <input id="cashInput"><br><br>
+
+    AAPL: <input id="AAPL"><br>
+    MSFT: <input id="MSFT"><br>
+    NVDA: <input id="NVDA"><br>
+    AMZN: <input id="AMZN"><br>
+    META: <input id="META"><br><br>
+
+    <button onclick="update()">Update</button>
+</div>
+
+<script>
+const tickers = ["AAPL","MSFT","NVDA","AMZN","META"];
+
+async function load() {
+    const res = await fetch('/portfolio');
+    const data = await res.json();
+
+    document.getElementById("value").innerText = "Value: $" + data.portfolio_value.toFixed(2);
+    document.getElementById("cash").innerText = "Cash: $" + data.cash.toFixed(2);
+
+    let pos = "";
+    for (let t in data.positions) {
+        pos += t + ": " + data.positions[t] + "\\n";
+    }
+    document.getElementById("positions").innerText = pos;
+
+    let sig = "";
+    data.signals.forEach(s => {
+        sig += s.ticker + " " + s.signal + "\\n";
+    });
+    document.getElementById("signals").innerText = sig;
+}
+
+async function update() {
+    const positions = {};
+
+    tickers.forEach(t => {
+        const val = document.getElementById(t).value;
+        if (val) positions[t] = parseFloat(val);
+    });
+
+    const cash = parseFloat(document.getElementById("cashInput").value) || 0;
+
+    await fetch('/update_portfolio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cash, positions })
+    });
+
+    alert("UPDATED ✅");
+    load();
+}
+
+load();
+</script>
+
+</body>
+</html>
