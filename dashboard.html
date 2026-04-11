@@ -15,6 +15,9 @@
             margin-bottom: 15px;
             border-radius: 10px;
         }
+        .row {
+            margin-bottom: 6px;
+        }
         input {
             margin: 5px;
             padding: 5px;
@@ -25,9 +28,6 @@
             color: white;
             border: none;
             cursor: pointer;
-        }
-        .row {
-            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -64,25 +64,37 @@
 <script>
 const tickers = ["AAPL","MSFT","NVDA","AMZN","META"];
 
+// ✅ SAME PRICE ASSUMPTION AS BACKEND
+const PRICE = 100;
+
 async function load() {
     const res = await fetch('/portfolio');
     const data = await res.json();
 
-    document.getElementById("value").innerText = "Value: $" + data.portfolio_value.toFixed(2);
-    document.getElementById("cash").innerText = "Cash: $" + data.cash.toFixed(2);
+    document.getElementById("value").innerText =
+        "Value: $" + data.portfolio_value.toFixed(2);
 
-    // ✅ FIXED POSITIONS DISPLAY
+    document.getElementById("cash").innerText =
+        "Cash: $" + data.cash.toFixed(2);
+
+    // ✅ POSITIONS WITH VALUE
     const posDiv = document.getElementById("positions");
     posDiv.innerHTML = "";
 
     for (let t in data.positions) {
+        const shares = data.positions[t];
+        const value = shares * PRICE;
+
         const row = document.createElement("div");
         row.className = "row";
-        row.innerText = `${t}: ${data.positions[t]} shares`;
+
+        row.innerText =
+            `${t}: ${shares} shares ($${value.toFixed(2)})`;
+
         posDiv.appendChild(row);
     }
 
-    // ✅ FIXED SIGNALS DISPLAY
+    // ✅ SIGNALS
     const sigDiv = document.getElementById("signals");
     sigDiv.innerHTML = "";
 
