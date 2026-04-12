@@ -3,8 +3,6 @@ from fastapi.responses import FileResponse
 import json
 import os
 
-from data_pipeline import get_top_picks
-
 app = FastAPI()
 
 FILE = "portfolio.json"
@@ -38,32 +36,16 @@ def compute_value():
     return value
 
 # ----------------------------
-# ✅ SIGNALS (SAFE)
+# ✅ STATIC SIGNALS (TEMP SAFE MODE)
 # ----------------------------
 def get_signals():
-    try:
-        picks = get_top_picks(10)
-
-        # ✅ if pipeline failed → empty list
-        if not picks:
-            raise Exception("No data")
-
-        return [
-            {"ticker": p["symbol"], "score": p["score"]}
-            for p in picks
-        ]
-
-    except Exception as e:
-        print("⚠️ Using fallback signals:", e)
-
-        # ✅ ALWAYS RETURN SOMETHING
-        return [
-            {"ticker": "AAPL", "score": 1.0},
-            {"ticker": "MSFT", "score": 0.9},
-            {"ticker": "NVDA", "score": 0.8},
-            {"ticker": "GLD", "score": 0.7},
-            {"ticker": "DBC", "score": 0.6},
-        ]
+    return [
+        {"ticker": "AAPL", "score": 1.0},
+        {"ticker": "MSFT", "score": 0.9},
+        {"ticker": "NVDA", "score": 0.85},
+        {"ticker": "GLD", "score": 0.8},
+        {"ticker": "DBC", "score": 0.75},
+    ]
 
 # ----------------------------
 # ✅ BUILD DATA
