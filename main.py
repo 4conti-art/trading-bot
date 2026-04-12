@@ -36,7 +36,7 @@ def compute_value():
     return value
 
 # ----------------------------
-# ✅ STATIC SIGNALS (TEMP SAFE MODE)
+# ✅ STATIC SIGNALS (SAFE MODE)
 # ----------------------------
 def get_signals():
     return [
