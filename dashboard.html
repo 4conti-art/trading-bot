@@ -42,6 +42,12 @@
     <div id="positions"></div>
 </div>
 
+<!-- ✅ ADD BACK SIGNALS -->
+<div class="box">
+    <h2>Top Picks</h2>
+    <div id="signals"></div>
+</div>
+
 <div class="box">
     <h2>Update Portfolio</h2>
 
@@ -53,47 +59,58 @@
     AMZN: <input id="AMZN"><br>
     META: <input id="META"><br><br>
 
-    <button onclick="save()">Save Portfolio</button>
+    <button onclick="update()">Save Portfolio</button>
 </div>
 
 <script>
 const tickers = ["AAPL","MSFT","NVDA","AMZN","META"];
 const PRICE = 100;
 
-// ✅ LOAD FROM LOCAL STORAGE
-function load() {
-    const saved = JSON.parse(localStorage.getItem("portfolio")) || {
-        cash: 10000,
-        positions: {}
-    };
+async function load() {
+    const res = await fetch('/portfolio');
+    const data = await res.json();
 
-    let value = saved.cash;
+    // ✅ PORTFOLIO
+    document.getElementById("value").innerText =
+        "Total Value: $" + data.portfolio_value.toFixed(2);
 
     document.getElementById("cash").innerText =
-        "Cash: $" + saved.cash.toFixed(2);
+        "Cash: $" + data.cash.toFixed(2);
 
     const posDiv = document.getElementById("positions");
     posDiv.innerHTML = "";
 
-    for (let t in saved.positions) {
-        const shares = saved.positions[t];
-        const v = shares * PRICE;
-
-        value += v;
+    for (let t in data.positions) {
+        const shares = data.positions[t];
+        const value = shares * PRICE;
 
         const row = document.createElement("div");
         row.className = "row";
-        row.innerText = `${t}: ${shares} shares ($${v.toFixed(2)})`;
+        row.innerText = `${t}: ${shares} shares ($${value.toFixed(2)})`;
 
         posDiv.appendChild(row);
     }
 
-    document.getElementById("value").innerText =
-        "Total Value: $" + value.toFixed(2);
+    // ✅ SIGNALS (THIS WAS MISSING)
+    const sigDiv = document.getElementById("signals");
+    sigDiv.innerHTML = "";
+
+    if (data.signals && data.signals.length > 0) {
+        data.signals.forEach(s => {
+            const row = document.createElement("div");
+            row.className = "row";
+
+            row.innerText =
+                `${s.ticker} | score: ${s.score.toFixed(3)}`;
+
+            sigDiv.appendChild(row);
+        });
+    } else {
+        sigDiv.innerText = "No signals available";
+    }
 }
 
-// ✅ SAVE TO LOCAL STORAGE
-function save() {
+async function update() {
     const positions = {};
 
     tickers.forEach(t => {
@@ -103,11 +120,13 @@ function save() {
 
     const cash = parseFloat(document.getElementById("cashInput").value) || 0;
 
-    const portfolio = { cash, positions };
+    await fetch('/update_portfolio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cash, positions })
+    });
 
-    localStorage.setItem("portfolio", JSON.stringify(portfolio));
-
-    alert("✅ Saved locally");
+    alert("✅ Saved");
     load();
 }
 
