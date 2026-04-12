@@ -1,51 +1,40 @@
 import requests
-import pandas as pd
-from io import StringIO
+import json
+import time
 
-# ----------------------------
-# ✅ UNIVERSE
-# ----------------------------
+API_KEY = "MRYC1GBIBJ38BN0C"
+OUTPUT_FILE = "signals.json"
+
 UNIVERSE = [
-    "AAPL.US", "MSFT.US", "NVDA.US", "AMZN.US", "META.US",
-    "SPY.US", "QQQ.US", "IWM.US",
-    "GLD.US", "SLV.US", "USO.US", "UNG.US",
-    "DBC.US", "DBA.US",
-    "XLE.US", "XLF.US", "XLB.US",
+    "AAPL", "MSFT", "NVDA", "AMZN", "META",
+    "SPY", "QQQ", "GLD", "SLV", "DBC"
 ]
 
 # ----------------------------
-# ✅ FETCH (ROBUST)
+# ✅ FETCH DATA
 # ----------------------------
-def fetch_stooq(symbol):
-    url = f"https://stooq.com/q/d/l/?s={symbol.lower()}&i=d"
-
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+def fetch(symbol):
+    url = (
+        "https://www.alphavantage.co/query"
+        f"?function=TIME_SERIES_DAILY_ADJUSTED"
+        f"&symbol={symbol}"
+        f"&outputsize=compact"
+        f"&apikey={API_KEY}"
+    )
 
     try:
-        res = requests.get(url, headers=headers, timeout=10)
+        res = requests.get(url, timeout=10)
+        data = res.json()
 
-        if res.status_code != 200:
-            print(f"❌ HTTP {symbol}")
+        ts = data.get("Time Series (Daily)")
+        if not ts:
+            print(f"❌ No data {symbol}")
             return None
 
-        text = res.text.strip()
+        closes = [float(v["4. close"]) for v in ts.values()]
+        closes.reverse()  # oldest → newest
 
-        # ✅ Basic validation
-        if "Date,Open,High,Low,Close,Volume" not in text:
-            print(f"❌ Bad data {symbol}")
-            return None
-
-        df = pd.read_csv(StringIO(text))
-
-        if df.empty:
-            return None
-
-        df["Date"] = pd.to_datetime(df["Date"])
-        df = df.sort_values("Date")
-
-        return df
+        return closes
 
     except Exception as e:
         print(f"❌ Failed {symbol}: {e}")
@@ -53,80 +42,64 @@ def fetch_stooq(symbol):
 
 
 # ----------------------------
-# ✅ BUILD DATASET
-# ----------------------------
-def build_dataset():
-    data = {}
-
-    for symbol in UNIVERSE:
-        df = fetch_stooq(symbol)
-
-        if df is None or len(df) < 60:
-            continue
-
-        data[symbol] = df
-        print(f"✅ {symbol} loaded")
-
-    print(f"\n✅ FINAL DATASET: {len(data)} assets")
-    return data
-
-
-# ----------------------------
-# ✅ METRICS
-# ----------------------------
-def compute_metrics(df):
-    close = df["Close"]
-
-    mom5 = close.iloc[-1] / close.iloc[-5] - 1
-    mom20 = close.iloc[-1] / close.iloc[-20] - 1
-    mom60 = close.iloc[-1] / close.iloc[-60] - 1
-
-    returns = close.pct_change()
-    vol = returns.std() * (252 ** 0.5)
-
-    return mom5, mom20, mom60, vol, close.iloc[-1]
-
-
-# ----------------------------
 # ✅ SCORE
 # ----------------------------
-def score(mom5, mom20, mom60, vol):
+def compute_score(close):
+    if len(close) < 30:
+        return None
+
+    mom = (close[-1] / close[-20]) - 1
+
+    returns = [
+        (close[i] / close[i-1] - 1)
+        for i in range(1, len(close))
+    ]
+
+    vol = sum([(r ** 2) for r in returns]) / len(returns)
+    vol = vol ** 0.5
+
     if vol == 0:
-        return 0
+        return None
 
-    momentum = 0.5*mom5 + 0.3*mom20 + 0.2*mom60
-    return momentum / vol
+    return mom / vol
 
 
 # ----------------------------
-# ✅ TOP PICKS
+# ✅ RUN PIPELINE
 # ----------------------------
-def get_top_picks(n=10):
-    data = build_dataset()
+def run_pipeline():
     results = []
 
-    for symbol, df in data.items():
-        mom5, mom20, mom60, vol, price = compute_metrics(df)
-        s = score(mom5, mom20, mom60, vol)
+    for symbol in UNIVERSE:
+        close = fetch(symbol)
+
+        if close is None:
+            continue
+
+        score = compute_score(close)
+
+        if score is None:
+            continue
 
         results.append({
-            "symbol": symbol,
-            "score": s,
-            "price": price
+            "ticker": symbol,
+            "score": float(score)
         })
 
-    results = sorted(results, key=lambda x: x["score"], reverse=True)
+        print(f"✅ {symbol}")
 
-    return results[:n]
+        time.sleep(12)  # ✅ REQUIRED (API LIMIT)
+
+    results = sorted(results, key=lambda x: x["score"], reverse=True)[:10]
+
+    with open(OUTPUT_FILE, "w") as f:
+        json.dump(results, f)
+
+    print("\n✅ signals.json updated")
 
 
 # ----------------------------
 # ✅ RUN
 # ----------------------------
 if __name__ == "__main__":
-    picks = get_top_picks(10)
-
-    print("\n🔥 TOP PICKS:\n")
-
-    for p in picks:
-        print(f"{p['symbol']} | score={p['score']:.4f} | price={p['price']:.2f}")
+    run_pipeline()
