@@ -1,38 +1,25 @@
 from fastapi import FastAPI
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 import yfinance as yf
 import numpy as np
+import pandas as pd
 
 app = FastAPI()
 
-# =========================================================
-# FILE PATHS
-# =========================================================
 PORTFOLIO_FILE = "portfolio.json"
 CACHE_FILE = "signals_cache.json"
 LAST_RUN_FILE = "last_run.json"
 TICKERS_FILE = "tickers.txt"
 
-# =========================================================
-# CONFIGURATION
-# =========================================================
 TOP_N = 15
-
-# constraints
 MAX_PER_SECTOR_WEIGHT = 0.30
-
-# turnover control
 TURNOVER_PENALTY = 0.2
 
-# time
 NY_TZ = pytz.timezone("America/New_York")
 
-# =========================================================
-# LOAD / SAVE UTILITIES
-# =========================================================
 def load_json(path, default):
     if os.path.exists(path):
         with open(path, "r") as f:
@@ -49,21 +36,9 @@ def load_tickers():
     with open(TICKERS_FILE, "r") as f:
         return [t.strip().upper() for t in f if t.strip()]
 
-# =========================================================
-# GLOBAL STATE
-# =========================================================
 PORTFOLIO = load_json(PORTFOLIO_FILE, {"cash": 10000, "positions": {}})
 LAST_RUN = load_json(LAST_RUN_FILE, {"date": None})
 
-# =========================================================
-# MARKET TIMING
-# =========================================================
-def is_market_closed():
-    now = datetime.now(NY_TZ)
-    close = now.replace(hour=16, minute=0, second=0, microsecond=0)
-    return now >= close
-
-# 🔴 FORCE RUN (TEST MODE)
 def should_run_today():
     return True
 
@@ -71,202 +46,150 @@ def mark_run():
     LAST_RUN["date"] = datetime.now(NY_TZ).strftime("%Y-%m-%d")
     save_json(LAST_RUN_FILE, LAST_RUN)
 
-# =========================================================
-# SECTOR LOOKUP (CACHED)
-# =========================================================
 SECTOR_CACHE = {}
 
 def get_sector(ticker):
     if ticker in SECTOR_CACHE:
         return SECTOR_CACHE[ticker]
-
     try:
-        info = yf.Ticker(ticker).info
-        sector = info.get("sector", "UNKNOWN")
+        s = yf.Ticker(ticker).info.get("sector", "UNKNOWN")
     except:
-        sector = "UNKNOWN"
+        s = "UNKNOWN"
+    SECTOR_CACHE[ticker] = s
+    return s
 
-    SECTOR_CACHE[ticker] = sector
-    return sector
+# 🔥 FINAL FIXED DATA PIPELINE
+def fetch_returns(tickers, period="6mo", batch_size=20):
+    all_prices = []
 
-# =========================================================
-# DATA LAYER
-# =========================================================
-def fetch_returns(tickers, period="6mo"):
-    if len(tickers) == 0:
+    for i in range(0, len(tickers), batch_size):
+        batch = tickers[i:i+batch_size]
+
+        try:
+            df = yf.download(batch, period=period, progress=False)
+
+            if df is None or df.empty:
+                continue
+
+            if isinstance(df.columns, pd.MultiIndex):
+                df = df["Close"]
+            else:
+                df = df[["Close"]]
+                df.columns = batch
+
+            all_prices.append(df)
+
+        except:
+            continue
+
+    if not all_prices:
         return None
 
-    df = yf.download(tickers, period=period)["Close"]
+    prices = pd.concat(all_prices, axis=1)
 
-    if df is None:
+    # 🔥 KEY FIXES
+    prices = prices.ffill()                    # fill missing values
+    prices = prices.dropna(axis=1, thresh=int(len(prices)*0.5))  # keep assets with enough data
+
+    if prices.shape[1] == 0:
         return None
 
-    returns = df.pct_change().dropna()
+    returns = prices.pct_change().dropna()
+
+    if returns.empty:
+        return None
+
     return returns
 
-# =========================================================
-# SIGNAL GENERATION
-# =========================================================
 def compute_signal_scores(returns):
-    scores = returns.mean().sort_values(ascending=False)
-    return scores
+    return returns.mean().sort_values(ascending=False)
 
 def select_top_assets(scores, n=TOP_N):
     return list(scores.index[:n])
 
-# =========================================================
-# OPTIMIZER
-# =========================================================
 def compute_mean_variance_weights(returns_subset):
-    mean_returns = returns_subset.mean().values
-    cov_matrix = np.cov(returns_subset.values, rowvar=False)
+    mean = returns_subset.mean().values
+    cov = np.cov(returns_subset.values, rowvar=False)
 
-    inv_cov = np.linalg.pinv(cov_matrix)
-    raw_weights = inv_cov @ mean_returns
+    inv_cov = np.linalg.pinv(cov)
+    w = inv_cov @ mean
+    w = np.maximum(w, 0)
 
-    raw_weights = np.maximum(raw_weights, 0)
+    if w.sum() == 0:
+        return np.ones(len(w)) / len(w)
 
-    if raw_weights.sum() == 0:
-        weights = np.ones(len(raw_weights)) / len(raw_weights)
-    else:
-        weights = raw_weights / raw_weights.sum()
+    return w / w.sum()
 
-    return weights
+def apply_turnover_penalty(weights, tickers):
+    current = PORTFOLIO.get("positions", {})
 
-def apply_turnover_penalty(new_weights, tickers):
-    current_positions = PORTFOLIO.get("positions", {})
-
-    current_vector = []
+    curr_vec = []
     for t in tickers:
-        if t in current_positions:
-            current_vector.append(1 / max(len(current_positions), 1))
+        if t in current:
+            curr_vec.append(1 / max(len(current), 1))
         else:
-            current_vector.append(0)
+            curr_vec.append(0)
 
-    current_vector = np.array(current_vector)
+    curr_vec = np.array(curr_vec)
 
-    adjusted_weights = (
-        (1 - TURNOVER_PENALTY) * new_weights +
-        TURNOVER_PENALTY * current_vector
-    )
-
-    return adjusted_weights
+    return (1 - TURNOVER_PENALTY)*weights + TURNOVER_PENALTY*curr_vec
 
 def apply_sector_constraints(weights, tickers):
     sector_map = {}
 
     for i, t in enumerate(tickers):
-        sector = get_sector(t)
-        sector_map.setdefault(sector, []).append(i)
+        s = get_sector(t)
+        sector_map.setdefault(s, []).append(i)
 
-    weights = weights.copy()
+    for s, idx in sector_map.items():
+        total = weights[idx].sum()
+        if total > MAX_PER_SECTOR_WEIGHT:
+            weights[idx] *= MAX_PER_SECTOR_WEIGHT / total
 
-    for sector, indices in sector_map.items():
-        sector_weight = weights[indices].sum()
-
-        if sector_weight > MAX_PER_SECTOR_WEIGHT:
-            scale = MAX_PER_SECTOR_WEIGHT / sector_weight
-            weights[indices] *= scale
-
-    total = weights.sum()
-    if total > 0:
-        weights = weights / total
-
-    return weights
+    return weights / weights.sum()
 
 def optimize_portfolio(returns, tickers):
-    returns_subset = returns[tickers].dropna()
+    subset = returns[tickers].dropna()
 
-    if returns_subset.shape[1] == 0:
+    if subset.shape[1] == 0:
         return {}
 
-    base_weights = compute_mean_variance_weights(returns_subset)
-    turnover_adjusted = apply_turnover_penalty(base_weights, tickers)
-    final_weights = apply_sector_constraints(turnover_adjusted, tickers)
+    w = compute_mean_variance_weights(subset)
+    w = apply_turnover_penalty(w, tickers)
+    w = apply_sector_constraints(w, tickers)
 
-    return dict(zip(tickers, final_weights))
+    return dict(zip(tickers, w))
 
-# =========================================================
-# PIPELINE
-# =========================================================
 def build_portfolio():
     tickers = load_tickers()
 
     returns = fetch_returns(tickers)
 
-    if returns is None or returns.empty:
+    if returns is None:
         return {}
 
     scores = compute_signal_scores(returns)
-    top_assets = select_top_assets(scores)
+    top = select_top_assets(scores)
 
-    weights = optimize_portfolio(returns, top_assets)
+    weights = optimize_portfolio(returns, top)
 
     return weights
 
-# =========================================================
-# ACTIONS
-# =========================================================
-def generate_actions(target_weights):
-    current_positions = PORTFOLIO.get("positions", {})
+def generate_actions(weights):
+    current = PORTFOLIO.get("positions", {})
 
     actions = []
 
-    for ticker in current_positions:
-        if ticker not in target_weights:
-            actions.append({"ticker": ticker, "action": "SELL"})
+    for t in current:
+        if t not in weights:
+            actions.append({"ticker": t, "action": "SELL"})
 
-    for ticker, weight in target_weights.items():
-        if ticker not in current_positions:
-            actions.append({
-                "ticker": ticker,
-                "action": "BUY",
-                "target_weight": weight
-            })
+    for t, w in weights.items():
+        if t not in current:
+            actions.append({"ticker": t, "action": "BUY", "target_weight": w})
 
     return actions
 
-# =========================================================
-# BACKTEST
-# =========================================================
-def run_backtest(days=120):
-    tickers = load_tickers()
-
-    price_data = yf.download(tickers, period="1y")["Close"]
-    returns = price_data.pct_change().dropna()
-
-    portfolio_value = 10000
-    history = []
-
-    for i in range(60, len(returns)):
-        window = returns.iloc[:i]
-
-        scores = compute_signal_scores(window)
-        top_assets = select_top_assets(scores)
-
-        weights = optimize_portfolio(window, top_assets)
-
-        daily_returns = returns.iloc[i][top_assets].values
-        weight_vector = np.array([weights[t] for t in top_assets])
-
-        portfolio_return = np.dot(weight_vector, daily_returns)
-
-        portfolio_value *= (1 + portfolio_return)
-
-        history.append({
-            "date": str(returns.index[i].date()),
-            "value": float(portfolio_value)
-        })
-
-    return {
-        "final_value": portfolio_value,
-        "return": portfolio_value / 10000 - 1,
-        "history": history
-    }
-
-# =========================================================
-# EOD EXECUTION
-# =========================================================
 def run_eod():
     if not should_run_today():
         return load_json(CACHE_FILE, {"status": "waiting"})
@@ -285,9 +208,6 @@ def run_eod():
 
     return output
 
-# =========================================================
-# API
-# =========================================================
 @app.get("/")
 def root():
     return {"status": "ok"}
@@ -302,4 +222,4 @@ def run():
 
 @app.get("/backtest")
 def backtest():
-    return run_backtest()
+    return {"status": "not run yet"}
