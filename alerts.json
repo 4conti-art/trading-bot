@@ -1,0 +1,914 @@
+[
+  {
+    "time": "2026-04-15T11:02:17.176322",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:17.176347",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:17.176352",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:17.176357",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:17.991049",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:17.991068",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:17.991074",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:17.991078",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:18.642325",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:18.642343",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:18.642348",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:18.642351",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:19.357679",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:19.357698",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:19.357702",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:19.357706",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:20.098988",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:20.099009",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:20.099014",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:20.099018",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:20.779037",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:20.779056",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:20.779060",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:20.779064",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:22.012257",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:22.012276",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:22.012281",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:22.012285",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:24.168443",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:24.168463",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:24.168468",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:24.168472",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:26.083319",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:26.083339",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:26.083343",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:26.083347",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:29.112859",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:29.112876",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:29.112880",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:29.112884",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:29.900598",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:29.900620",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:29.900624",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:29.900628",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:31.841972",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:31.841990",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:31.841994",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:31.841997",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:34.057952",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:34.057973",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:34.057978",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:34.057982",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:36.172705",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:36.172723",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:36.172727",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:36.172731",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:40.778007",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:40.778025",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:40.778030",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:40.778034",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:42.169565",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:42.169583",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:42.169587",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:42.169591",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:42.821033",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:42.821052",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:42.821056",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:42.821059",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:44.858745",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:44.858763",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:44.858767",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:44.858771",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:46.821453",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:46.821470",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:46.821474",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:46.821478",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:49.231147",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:49.231168",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:49.231173",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:49.231177",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:52.026309",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:52.026396",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:52.026451",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:52.026462",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:53.003239",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:53.003257",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:53.003262",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:53.003265",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:54.889635",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:54.889655",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:54.889659",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:54.889663",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:56.834081",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:56.834102",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:56.834107",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:56.834110",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:02:58.772003",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:02:58.772028",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:02:58.772033",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:02:58.772038",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:01.561120",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:01.561140",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:01.561144",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:01.561147",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:03.726873",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:03.726893",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:03.726898",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:03.726901",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:04.831907",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:04.831928",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:04.831932",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:04.831936",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:06.887638",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:06.887657",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:06.887661",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:06.887665",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:08.801966",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:08.801983",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:08.801988",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:08.801991",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:11.101744",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:11.101763",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:11.101767",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:11.101771",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:13.797337",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:13.797355",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:13.797359",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:13.797363",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:15.328015",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:15.328037",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:15.328042",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:15.328046",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:16.923490",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:16.923508",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:16.923512",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:16.923516",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:18.893364",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:18.893382",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:18.893387",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:18.893391",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:21.021174",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:21.021192",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:21.021197",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:21.021200",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:23.455228",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:23.455246",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:23.455251",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:23.455255",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:25.553053",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:25.553091",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:25.553096",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:25.553100",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:27.412805",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:27.412823",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:27.412828",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:27.412831",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:29.016192",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:29.016212",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:29.016217",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:29.016221",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:30.875051",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:30.875070",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:30.875075",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:30.875079",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:33.103055",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:33.103073",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:33.103077",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:33.103080",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:03:35.471605",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:03:35.471623",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:03:35.471629",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:03:35.471633",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:04:15.262551",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:04:15.262574",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:04:15.262579",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:04:15.262583",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:05:15.281979",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:05:15.281997",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:05:15.282001",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:05:15.282005",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:06:15.353178",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:06:15.353196",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:06:15.353200",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:06:15.353204",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:07:15.588254",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:07:15.588273",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:07:15.588278",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:07:15.588282",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:08:15.443079",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:08:15.443096",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:08:15.443100",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:08:15.443104",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:09:15.232642",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:09:15.232662",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:09:15.232667",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:09:15.232671",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:10:15.223151",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:10:15.223169",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:10:15.223173",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:10:15.223177",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:11:15.521020",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:11:15.521044",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:11:15.521049",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:11:15.521053",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:12:15.306809",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:12:15.306827",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:12:15.306832",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:12:15.306837",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:13:15.332116",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:13:15.332133",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:13:15.332138",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:13:15.332142",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:14:15.151782",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:14:15.151802",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:14:15.151807",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:14:15.151810",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:15:15.399285",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:15:15.399303",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:15:15.399307",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:15:15.399310",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:16:15.281395",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:16:15.281414",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:16:15.281419",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:16:15.281422",
+    "msg": "SELL signal: SPY"
+  },
+  {
+    "time": "2026-04-15T11:17:15.492180",
+    "msg": "BUY signal: NVDA"
+  },
+  {
+    "time": "2026-04-15T11:17:15.492200",
+    "msg": "BUY signal: MSFT"
+  },
+  {
+    "time": "2026-04-15T11:17:15.492205",
+    "msg": "SELL signal: META"
+  },
+  {
+    "time": "2026-04-15T11:17:15.492209",
+    "msg": "SELL signal: SPY"
+  }
+]

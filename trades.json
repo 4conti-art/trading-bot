@@ -1,0 +1,1241 @@
+[
+  {
+    "time": "2026-04-12T14:50:33.523535",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 33.0,
+    "price": 100
+  },
+  {
+    "time": "2026-04-12T14:50:33.523535",
+    "ticker": "AAPL",
+    "action": "SELL",
+    "shares": 33.0,
+    "price": 100
+  },
+  {
+    "time": "2026-04-12T14:50:33.523535",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 33,
+    "price": 100
+  },
+  {
+    "time": "2026-04-12T14:50:33.523535",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 33,
+    "price": 100
+  },
+  {
+    "time": "2026-04-13T01:42:46.598224",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 33,
+    "price": 370.8699951171875
+  },
+  {
+    "time": "2026-04-13T01:42:46.598224",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 65,
+    "price": 188.6300048828125
+  },
+  {
+    "time": "2026-04-13T09:29:13.617902",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 238.3800048828125
+  },
+  {
+    "time": "2026-04-13T09:29:13.617902",
+    "ticker": "META",
+    "action": "BUY",
+    "shares": 5,
+    "price": 629.8599853515625
+  },
+  {
+    "time": "2026-04-13T09:29:13.617902",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 188.6300048828125
+  },
+  {
+    "time": "2026-04-13T09:30:20.639174",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 186.125
+  },
+  {
+    "time": "2026-04-13T09:30:20.639174",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 6,
+    "price": 609.7999877929688
+  },
+  {
+    "time": "2026-04-13T10:20:21.473100",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 6,
+    "price": 610.6599731445312
+  },
+  {
+    "time": "2026-04-13T10:20:21.473100",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 19,
+    "price": 188.08999633789062
+  },
+  {
+    "time": "2026-04-13T10:22:21.172364",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 19,
+    "price": 188.17120361328125
+  },
+  {
+    "time": "2026-04-13T10:22:21.172364",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 6,
+    "price": 611.2750244140625
+  },
+  {
+    "time": "2026-04-13T10:26:21.259132",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 6,
+    "price": 611.2100219726562
+  },
+  {
+    "time": "2026-04-13T10:26:21.259132",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 19,
+    "price": 188.3350067138672
+  },
+  {
+    "time": "2026-04-13T10:31:21.538239",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 19,
+    "price": 188.33999633789062
+  },
+  {
+    "time": "2026-04-13T10:31:21.538239",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 6,
+    "price": 611.4400024414062
+  },
+  {
+    "time": "2026-04-13T10:34:21.246380",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 6,
+    "price": 611.489990234375
+  },
+  {
+    "time": "2026-04-13T10:34:21.246380",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 19,
+    "price": 188.42990112304688
+  },
+  {
+    "time": "2026-04-13T11:36:21.225746",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 19,
+    "price": 188.4149932861328
+  },
+  {
+    "time": "2026-04-13T11:36:21.225746",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 6,
+    "price": 611.7000122070312
+  },
+  {
+    "time": "2026-04-13T11:37:21.247746",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 6,
+    "price": 612.1400146484375
+  },
+  {
+    "time": "2026-04-13T11:37:21.247746",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 19,
+    "price": 188.66000366210938
+  },
+  {
+    "time": "2026-04-13T11:38:21.141001",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 19,
+    "price": 188.86000061035156
+  },
+  {
+    "time": "2026-04-13T11:38:21.141001",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 6,
+    "price": 612.6099853515625
+  },
+  {
+    "time": "2026-04-13T11:51:21.187111",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 6,
+    "price": 611.8255004882812
+  },
+  {
+    "time": "2026-04-13T11:51:21.187111",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 19,
+    "price": 188.52499389648438
+  },
+  {
+    "time": "2026-04-13T11:52:21.365799",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 19,
+    "price": 188.44000244140625
+  },
+  {
+    "time": "2026-04-13T11:52:21.365799",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 6,
+    "price": 611.719970703125
+  },
+  {
+    "time": "2026-04-13T15:32:21.173435",
+    "ticker": "META",
+    "action": "SELL",
+    "shares": 5,
+    "price": 632.3900146484375
+  },
+  {
+    "time": "2026-04-13T15:32:21.173435",
+    "ticker": "SPY",
+    "action": "BUY",
+    "shares": 4,
+    "price": 684.1699829101562
+  },
+  {
+    "time": "2026-04-13T15:34:21.261461",
+    "ticker": "SPY",
+    "action": "SELL",
+    "shares": 4,
+    "price": 684.1199951171875
+  },
+  {
+    "time": "2026-04-13T15:34:21.261461",
+    "ticker": "META",
+    "action": "BUY",
+    "shares": 5,
+    "price": 632.6300048828125
+  },
+  {
+    "time": "2026-04-13T15:36:21.431721",
+    "ticker": "META",
+    "action": "SELL",
+    "shares": 5,
+    "price": 632.8400268554688
+  },
+  {
+    "time": "2026-04-13T15:36:21.431721",
+    "ticker": "SPY",
+    "action": "BUY",
+    "shares": 4,
+    "price": 684.3499755859375
+  },
+  {
+    "time": "2026-04-13T15:38:21.554488",
+    "ticker": "SPY",
+    "action": "SELL",
+    "shares": 4,
+    "price": 684.1600952148438
+  },
+  {
+    "time": "2026-04-13T15:38:21.554488",
+    "ticker": "META",
+    "action": "BUY",
+    "shares": 5,
+    "price": 632.9500122070312
+  },
+  {
+    "time": "2026-04-13T15:50:21.498010",
+    "ticker": "META",
+    "action": "SELL",
+    "shares": 5,
+    "price": 634.1699829101562
+  },
+  {
+    "time": "2026-04-13T15:50:21.498010",
+    "ticker": "SPY",
+    "action": "BUY",
+    "shares": 4,
+    "price": 684.9550170898438
+  },
+  {
+    "time": "2026-04-14T09:30:23.404880",
+    "ticker": "SPY",
+    "action": "SELL",
+    "shares": 4,
+    "price": 688.1300048828125
+  },
+  {
+    "time": "2026-04-14T09:30:23.404880",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 6,
+    "price": 621.1900024414062
+  },
+  {
+    "time": "2026-04-14T09:30:23.404880",
+    "ticker": "META",
+    "action": "BUY",
+    "shares": 5,
+    "price": 644.4000244140625
+  },
+  {
+    "time": "2026-04-14T09:30:23.404880",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 18,
+    "price": 191.5050048828125
+  },
+  {
+    "time": "2026-04-14T09:31:23.253401",
+    "ticker": "META",
+    "action": "SELL",
+    "shares": 5,
+    "price": 640.739990234375
+  },
+  {
+    "time": "2026-04-14T09:31:23.253401",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 388.3699951171875
+  },
+  {
+    "time": "2026-04-15T09:21:05.299150",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 18,
+    "price": 196.50999450683594
+  },
+  {
+    "time": "2026-04-15T09:21:05.299150",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 393.1099853515625
+  },
+  {
+    "time": "2026-04-15T09:21:05.299150",
+    "ticker": "META",
+    "action": "BUY",
+    "shares": 5,
+    "price": 662.489990234375
+  },
+  {
+    "time": "2026-04-15T09:21:05.299150",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 5,
+    "price": 628.5999755859375
+  },
+  {
+    "time": "2026-04-15T09:21:20.439309",
+    "ticker": "META",
+    "action": "SELL",
+    "shares": 5,
+    "price": 662.489990234375
+  },
+  {
+    "time": "2026-04-15T09:21:20.439309",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 5,
+    "price": 628.5999755859375
+  },
+  {
+    "time": "2026-04-15T09:21:20.439309",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 196.50999450683594
+  },
+  {
+    "time": "2026-04-15T09:21:20.439309",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 393.1099853515625
+  },
+  {
+    "time": "2026-04-15T09:21:58.543615",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 249.02000427246094
+  },
+  {
+    "time": "2026-04-15T09:21:58.543615",
+    "ticker": "SPY",
+    "action": "BUY",
+    "shares": 2,
+    "price": 694.4600219726562
+  },
+  {
+    "time": "2026-04-15T09:21:58.543615",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 3,
+    "price": 628.6
+  },
+  {
+    "time": "2026-04-15T09:21:59.624541",
+    "ticker": "SPY",
+    "action": "SELL",
+    "shares": 2,
+    "price": 694.4600219726562
+  },
+  {
+    "time": "2026-04-15T09:21:59.624541",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 3,
+    "price": 628.5999755859375
+  },
+  {
+    "time": "2026-04-15T09:21:59.624541",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 15,
+    "price": 249.02000427246094
+  },
+  {
+    "time": "2026-04-15T09:22:13.196982",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 15,
+    "price": 249.02
+  },
+  {
+    "time": "2026-04-15T09:22:13.196982",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 196.51
+  },
+  {
+    "time": "2026-04-15T09:22:13.196982",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 393.11
+  },
+  {
+    "time": "2026-04-15T09:22:13.660486",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 249.02000427246094
+  },
+  {
+    "time": "2026-04-15T09:22:13.660486",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 196.50999450683594
+  },
+  {
+    "time": "2026-04-15T09:22:13.660486",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 393.1099853515625
+  },
+  {
+    "time": "2026-04-15T09:22:14.885204",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 249.02
+  },
+  {
+    "time": "2026-04-15T09:22:14.885204",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 196.51
+  },
+  {
+    "time": "2026-04-15T09:22:14.885204",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 393.11
+  },
+  {
+    "time": "2026-04-15T09:22:15.519725",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 249.02000427246094
+  },
+  {
+    "time": "2026-04-15T09:22:15.519725",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 196.50999450683594
+  },
+  {
+    "time": "2026-04-15T09:22:15.519725",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 393.1099853515625
+  },
+  {
+    "time": "2026-04-15T09:22:19.479967",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 249.02
+  },
+  {
+    "time": "2026-04-15T09:22:19.479967",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 196.51
+  },
+  {
+    "time": "2026-04-15T09:22:19.479967",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 393.11
+  },
+  {
+    "time": "2026-04-15T09:22:19.479967",
+    "ticker": "META",
+    "action": "BUY",
+    "shares": 15,
+    "price": 662.49
+  },
+  {
+    "time": "2026-04-15T09:22:19.973495",
+    "ticker": "META",
+    "action": "SELL",
+    "shares": 15,
+    "price": 662.489990234375
+  },
+  {
+    "time": "2026-04-15T09:22:19.973495",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 249.02000427246094
+  },
+  {
+    "time": "2026-04-15T09:22:19.973495",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 196.50999450683594
+  },
+  {
+    "time": "2026-04-15T09:22:19.973495",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 393.1099853515625
+  },
+  {
+    "time": "2026-04-15T09:24:25.580214",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 249.02
+  },
+  {
+    "time": "2026-04-15T09:24:25.580214",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 196.51
+  },
+  {
+    "time": "2026-04-15T09:24:25.580214",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 393.11
+  },
+  {
+    "time": "2026-04-15T09:24:26.158842",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 249.02000427246094
+  },
+  {
+    "time": "2026-04-15T09:24:26.158842",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 196.50999450683594
+  },
+  {
+    "time": "2026-04-15T09:24:26.158842",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 393.1099853515625
+  },
+  {
+    "time": "2026-04-15T09:26:08.213498",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 249.02
+  },
+  {
+    "time": "2026-04-15T09:26:08.213498",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 196.51
+  },
+  {
+    "time": "2026-04-15T09:26:08.213498",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 393.11
+  },
+  {
+    "time": "2026-04-15T09:28:35.829857",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 249.02000427246094
+  },
+  {
+    "time": "2026-04-15T09:28:35.829857",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 196.50999450683594
+  },
+  {
+    "time": "2026-04-15T09:28:35.829857",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 393.1099853515625
+  },
+  {
+    "time": "2026-04-15T09:35:18.027553",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 399.7
+  },
+  {
+    "time": "2026-04-15T09:35:18.027553",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 5,
+    "price": 629.38
+  },
+  {
+    "time": "2026-04-15T09:35:55.900501",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 198.14
+  },
+  {
+    "time": "2026-04-15T09:35:55.900501",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 5,
+    "price": 629.06
+  },
+  {
+    "time": "2026-04-15T09:35:55.900501",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 248.28
+  },
+  {
+    "time": "2026-04-15T09:35:58.250328",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 5,
+    "price": 629.06
+  },
+  {
+    "time": "2026-04-15T09:35:58.250328",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 400.02
+  },
+  {
+    "time": "2026-04-15T09:35:58.250328",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 248.28
+  },
+  {
+    "time": "2026-04-15T09:36:15.110046",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 5,
+    "price": 629.06
+  },
+  {
+    "time": "2026-04-15T09:36:15.110046",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 19,
+    "price": 198.14
+  },
+  {
+    "time": "2026-04-15T09:36:22.168505",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 19,
+    "price": 198.14
+  },
+  {
+    "time": "2026-04-15T09:36:22.168505",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 400.02
+  },
+  {
+    "time": "2026-04-15T09:36:22.168505",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 248.28
+  },
+  {
+    "time": "2026-04-15T09:36:22.168505",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 16,
+    "price": 629.06
+  },
+  {
+    "time": "2026-04-15T09:36:29.023030",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 16,
+    "price": 629.06
+  },
+  {
+    "time": "2026-04-15T09:36:29.023030",
+    "ticker": "META",
+    "action": "BUY",
+    "shares": 5,
+    "price": 666.894775390625
+  },
+  {
+    "time": "2026-04-15T09:36:29.023030",
+    "ticker": "AAPL",
+    "action": "BUY",
+    "shares": 13,
+    "price": 259.64
+  },
+  {
+    "time": "2026-04-15T09:36:29.023030",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 248.28
+  },
+  {
+    "time": "2026-04-15T09:38:22.104875",
+    "ticker": "META",
+    "action": "SELL",
+    "shares": 5,
+    "price": 666.7999877929688
+  },
+  {
+    "time": "2026-04-15T09:38:22.104875",
+    "ticker": "AAPL",
+    "action": "SELL",
+    "shares": 13,
+    "price": 259.9200134277344
+  },
+  {
+    "time": "2026-04-15T09:38:22.104875",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 400.614990234375
+  },
+  {
+    "time": "2026-04-15T09:38:22.104875",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 18,
+    "price": 198.09910583496094
+  },
+  {
+    "time": "2026-04-15T09:38:45.334100",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 247.7899932861328
+  },
+  {
+    "time": "2026-04-15T09:38:52.186074",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 400.6650085449219
+  },
+  {
+    "time": "2026-04-15T09:38:52.186074",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 5,
+    "price": 629.15
+  },
+  {
+    "time": "2026-04-15T09:38:52.186074",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 247.7899932861328
+  },
+  {
+    "time": "2026-04-15T09:38:56.149514",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 18,
+    "price": 197.75999450683594
+  },
+  {
+    "time": "2026-04-15T09:38:56.149514",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 247.7550048828125
+  },
+  {
+    "time": "2026-04-15T09:39:40.100466",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 5,
+    "price": 629.69
+  },
+  {
+    "time": "2026-04-15T09:39:40.100466",
+    "ticker": "META",
+    "action": "BUY",
+    "shares": 15,
+    "price": 667.844970703125
+  },
+  {
+    "time": "2026-04-15T09:40:07.537999",
+    "ticker": "META",
+    "action": "SELL",
+    "shares": 15,
+    "price": 667.5250244140625
+  },
+  {
+    "time": "2026-04-15T09:40:07.537999",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 5,
+    "price": 629.69
+  },
+  {
+    "time": "2026-04-15T09:40:07.537999",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 197.3498992919922
+  },
+  {
+    "time": "2026-04-15T09:40:07.537999",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 247.80999755859375
+  },
+  {
+    "time": "2026-04-15T09:41:06.716972",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 197.3498992919922
+  },
+  {
+    "time": "2026-04-15T09:41:06.716972",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 247.92999267578125
+  },
+  {
+    "time": "2026-04-15T09:41:13.262520",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 18,
+    "price": 197.82000732421875
+  },
+  {
+    "time": "2026-04-15T09:41:13.262520",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 14,
+    "price": 247.66000366210938
+  },
+  {
+    "time": "2026-04-15T09:41:19.841155",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 18,
+    "price": 197.82000732421875
+  },
+  {
+    "time": "2026-04-15T09:41:19.841155",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 14,
+    "price": 247.66000366210938
+  },
+  {
+    "time": "2026-04-15T09:41:27.463729",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 5,
+    "price": 629.9
+  },
+  {
+    "time": "2026-04-15T09:41:44.141720",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 247.69500732421875
+  },
+  {
+    "time": "2026-04-15T09:41:44.141720",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 402.052490234375
+  },
+  {
+    "time": "2026-04-15T09:41:44.141720",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 197.97999572753906
+  },
+  {
+    "time": "2026-04-15T09:41:58.622991",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 197.82000732421875
+  },
+  {
+    "time": "2026-04-15T09:41:58.622991",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 6,
+    "price": 629.86
+  },
+  {
+    "time": "2026-04-15T09:42:14.896324",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 6,
+    "price": 629.9
+  },
+  {
+    "time": "2026-04-15T09:42:14.896324",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 19,
+    "price": 197.93499755859375
+  },
+  {
+    "time": "2026-04-15T09:42:22.274980",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 19,
+    "price": 197.67999267578125
+  },
+  {
+    "time": "2026-04-15T09:42:22.274980",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 402.6700134277344
+  },
+  {
+    "time": "2026-04-15T09:42:22.274980",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 247.83999633789062
+  },
+  {
+    "time": "2026-04-15T09:42:22.274980",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 8,
+    "price": 629.9
+  },
+  {
+    "time": "2026-04-15T09:42:22.274980",
+    "ticker": "SPY",
+    "action": "BUY",
+    "shares": 7,
+    "price": 696.114990234375
+  },
+  {
+    "time": "2026-04-15T09:42:25.345563",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 8,
+    "price": 629.9
+  },
+  {
+    "time": "2026-04-15T09:42:25.345563",
+    "ticker": "SPY",
+    "action": "SELL",
+    "shares": 7,
+    "price": 696.114990234375
+  },
+  {
+    "time": "2026-04-15T09:42:25.345563",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 247.83999633789062
+  },
+  {
+    "time": "2026-04-15T09:42:25.345563",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 402.6700134277344
+  },
+  {
+    "time": "2026-04-15T09:42:25.345563",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 197.67999267578125
+  },
+  {
+    "time": "2026-04-15T09:42:57.940541",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 402.6199951171875
+  },
+  {
+    "time": "2026-04-15T09:42:57.940541",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 5,
+    "price": 629.71
+  },
+  {
+    "time": "2026-04-15T09:43:01.030678",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 5,
+    "price": 629.71
+  },
+  {
+    "time": "2026-04-15T09:43:01.030678",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 9,
+    "price": 402.6199951171875
+  },
+  {
+    "time": "2026-04-15T09:43:19.632881",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 9,
+    "price": 402.6199951171875
+  },
+  {
+    "time": "2026-04-15T09:43:19.632881",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 197.58999633789062
+  },
+  {
+    "time": "2026-04-15T09:43:19.632881",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 247.72999572753906
+  },
+  {
+    "time": "2026-04-15T09:43:19.632881",
+    "ticker": "SPY",
+    "action": "BUY",
+    "shares": 14,
+    "price": 695.75
+  },
+  {
+    "time": "2026-04-15T09:43:34.576891",
+    "ticker": "SPY",
+    "action": "SELL",
+    "shares": 14,
+    "price": 695.5800170898438
+  },
+  {
+    "time": "2026-04-15T09:43:34.576891",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 8,
+    "price": 629.43
+  },
+  {
+    "time": "2026-04-15T09:43:34.576891",
+    "ticker": "AAPL",
+    "action": "BUY",
+    "shares": 20,
+    "price": 258.81201171875
+  },
+  {
+    "time": "2026-04-15T09:44:31.788926",
+    "ticker": "QQQ",
+    "action": "SELL",
+    "shares": 8,
+    "price": 629.1500244140625
+  },
+  {
+    "time": "2026-04-15T09:44:31.788926",
+    "ticker": "AAPL",
+    "action": "SELL",
+    "shares": 20,
+    "price": 258.760009765625
+  },
+  {
+    "time": "2026-04-15T09:44:31.788926",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 13,
+    "price": 247.47000122070312
+  },
+  {
+    "time": "2026-04-15T09:44:31.788926",
+    "ticker": "NVDA",
+    "action": "BUY",
+    "shares": 17,
+    "price": 197.6750030517578
+  },
+  {
+    "time": "2026-04-15T09:44:31.788926",
+    "ticker": "MSFT",
+    "action": "BUY",
+    "shares": 8,
+    "price": 402.0000915527344
+  },
+  {
+    "time": "2026-04-15T09:49:02.293321",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 13,
+    "price": 247.9499969482422
+  },
+  {
+    "time": "2026-04-15T09:49:02.293321",
+    "ticker": "AAPL",
+    "action": "BUY",
+    "shares": 14,
+    "price": 258.1400146484375
+  },
+  {
+    "time": "2026-04-15T09:53:11.809242",
+    "ticker": "AAPL",
+    "action": "SELL",
+    "shares": 14,
+    "price": 258.3699951171875
+  },
+  {
+    "time": "2026-04-15T09:53:11.809242",
+    "ticker": "AMZN",
+    "action": "BUY",
+    "shares": 15,
+    "price": 248.69000244140625
+  },
+  {
+    "time": "2026-04-15T10:26:40.812973",
+    "ticker": "AMZN",
+    "action": "SELL",
+    "shares": 15,
+    "price": 248.2233116253904
+  },
+  {
+    "time": "2026-04-15T10:26:40.812973",
+    "ticker": "QQQ",
+    "action": "BUY",
+    "shares": 5,
+    "price": 631.4831869355568
+  },
+  {
+    "time": "2026-04-15T10:27:41.485599",
+    "ticker": "NVDA",
+    "action": "SELL",
+    "shares": 17,
+    "price": 199.4919250207808
+  },
+  {
+    "time": "2026-04-15T10:27:41.485599",
+    "ticker": "MSFT",
+    "action": "SELL",
+    "shares": 8,
+    "price": 406.47269191238814
+  },
+  {
+    "time": "2026-04-15T10:27:41.485599",
+    "ticker": "META",
+    "action": "BUY",
+    "shares": 5,
+    "price": 675.04199337516
+  },
+  {
+    "time": "2026-04-15T10:27:41.485599",
+    "ticker": "SPY",
+    "action": "BUY",
+    "shares": 5,
+    "price": 696.79603029255
+  }
+]

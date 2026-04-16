@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Trading Bot</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial;
@@ -18,16 +19,16 @@
         .row {
             margin-bottom: 6px;
         }
-        input {
-            margin: 5px;
-            padding: 5px;
-        }
-        button {
-            padding: 8px 12px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            cursor: pointer;
+        .buy { color: #22c55e; }
+        .sell { color: #ef4444; }
+        .hold { color: #eab308; }
+
+        .pnl-positive { color: #22c55e; }
+        .pnl-negative { color: #ef4444; }
+
+        canvas {
+            background: white;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -35,36 +36,41 @@
 
 <h1>Trading Bot</h1>
 
+<!-- ✅ PORTFOLIO -->
 <div class="box">
     <h2>Portfolio</h2>
     <div id="value"></div>
     <div id="cash"></div>
+    <div id="pnl"></div>
     <div id="positions"></div>
 </div>
 
-<!-- ✅ ADD BACK SIGNALS -->
+<!-- ✅ CHART -->
+<div class="box">
+    <h2>Performance</h2>
+    <canvas id="chart" height="100"></canvas>
+</div>
+
+<!-- ✅ SIGNALS -->
 <div class="box">
     <h2>Top Picks</h2>
     <div id="signals"></div>
 </div>
 
+<!-- ✅ ACTIONS -->
 <div class="box">
-    <h2>Update Portfolio</h2>
+    <h2>Actions</h2>
+    <div id="actions"></div>
+</div>
 
-    Cash: <input id="cashInput"><br><br>
-
-    AAPL: <input id="AAPL"><br>
-    MSFT: <input id="MSFT"><br>
-    NVDA: <input id="NVDA"><br>
-    AMZN: <input id="AMZN"><br>
-    META: <input id="META"><br><br>
-
-    <button onclick="update()">Save Portfolio</button>
+<!-- ✅ TRADES -->
+<div class="box">
+    <h2>Trades</h2>
+    <div id="trades"></div>
 </div>
 
 <script>
-const tickers = ["AAPL","MSFT","NVDA","AMZN","META"];
-const PRICE = 100;
+let chart;
 
 async function load() {
     const res = await fetch('/portfolio');
@@ -77,60 +83,123 @@ async function load() {
     document.getElementById("cash").innerText =
         "Cash: $" + data.cash.toFixed(2);
 
+    // ✅ PnL WITH SIGN + COLOR
+    const pnlEl = document.getElementById("pnl");
+    const pnlValue = data.pnl;
+    const sign = pnlValue >= 0 ? "+" : "";
+
+    pnlEl.innerText = `PnL: ${sign}$${pnlValue.toFixed(2)}`;
+
+    pnlEl.classList.remove("pnl-positive", "pnl-negative");
+
+    if (pnlValue >= 0) {
+        pnlEl.classList.add("pnl-positive");
+    } else {
+        pnlEl.classList.add("pnl-negative");
+    }
+
     const posDiv = document.getElementById("positions");
     posDiv.innerHTML = "";
 
     for (let t in data.positions) {
-        const shares = data.positions[t];
-        const value = shares * PRICE;
-
         const row = document.createElement("div");
         row.className = "row";
-        row.innerText = `${t}: ${shares} shares ($${value.toFixed(2)})`;
-
+        row.innerText = `${t}: ${data.positions[t]} shares`;
         posDiv.appendChild(row);
     }
 
-    // ✅ SIGNALS (THIS WAS MISSING)
+    // ✅ SIGNALS
     const sigDiv = document.getElementById("signals");
     sigDiv.innerHTML = "";
 
-    if (data.signals && data.signals.length > 0) {
-        data.signals.forEach(s => {
+    data.signals.forEach(s => {
+        const row = document.createElement("div");
+        row.className = "row";
+        row.innerText = `${s.ticker} | score: ${s.score.toFixed(3)}`;
+        sigDiv.appendChild(row);
+    });
+
+    // ✅ ACTIONS
+    const actDiv = document.getElementById("actions");
+    actDiv.innerHTML = "";
+
+    data.actions.forEach(a => {
+        const row = document.createElement("div");
+        row.className = "row";
+
+        let cls = "";
+        if (a.action === "BUY") cls = "buy";
+        if (a.action === "SELL") cls = "sell";
+        if (a.action === "HOLD") cls = "hold";
+
+        row.innerHTML = `<span class="${cls}">${a.action}</span> ${a.ticker}`;
+        actDiv.appendChild(row);
+    });
+
+    // ✅ TRADES
+    const tradesDiv = document.getElementById("trades");
+    tradesDiv.innerHTML = "";
+
+    if (data.trades && data.trades.length > 0) {
+        data.trades.forEach(t => {
             const row = document.createElement("div");
             row.className = "row";
-
             row.innerText =
-                `${s.ticker} | score: ${s.score.toFixed(3)}`;
-
-            sigDiv.appendChild(row);
+                `${t.action} ${t.ticker} (${t.shares} @ $${t.price})`;
+            tradesDiv.appendChild(row);
         });
     } else {
-        sigDiv.innerText = "No signals available";
+        tradesDiv.innerText = "No trades yet";
+    }
+
+    // ✅ CHART
+    if (data.history) {
+        const labels = data.history.map(h => h.time.slice(11,19));
+        const values = data.history.map(h => h.value);
+
+        if (chart) {
+            chart.destroy();
+        }
+
+        const ctx = document.getElementById('chart').getContext('2d');
+
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Portfolio Value',
+                    data: values,
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34,197,94,0.2)',
+                    tension: 0.3
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: { color: 'black' }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: 'black' }
+                    },
+                    y: {
+                        ticks: { color: 'black' }
+                    }
+                }
+            }
+        });
     }
 }
 
-async function update() {
-    const positions = {};
-
-    tickers.forEach(t => {
-        const val = document.getElementById(t).value;
-        if (val) positions[t] = parseFloat(val);
-    });
-
-    const cash = parseFloat(document.getElementById("cashInput").value) || 0;
-
-    await fetch('/update_portfolio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cash, positions })
-    });
-
-    alert("✅ Saved");
-    load();
-}
-
+// ✅ INITIAL LOAD
 load();
+
+// ✅ AUTO REFRESH
+setInterval(load, 2000);
+
 </script>
 
 </body>

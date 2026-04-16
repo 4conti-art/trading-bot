@@ -1,0 +1,10 @@
+[
+  { "ticker": "MSFT", "score": 2.0 },
+  { "ticker": "AMZN", "score": 1.9 },
+  { "ticker": "META", "score": 1.8 },
+  { "ticker": "NVDA", "score": 1.2 },
+  { "ticker": "AAPL", "score": 1.0 },
+  { "ticker": "SPY",  "score": 0.8 },
+  { "ticker": "QQQ",  "score": 0.7 },
+  { "ticker": "GLD",  "score": 0.6 }
+]

@@ -1,0 +1,517 @@
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+import json
+import os
+import uvicorn
+from datetime import datetime, timedelta
+import pytz
+import yfinance as yf
+import numpy as np
+
+app = FastAPI()
+
+PORTFOLIO_FILE = "portfolio.json"
+HISTORY_FILE = "history.json"
+LAST_RUN_FILE = "last_run.json"
+CACHE_FILE = "signals_cache.json"
+
+TICKERS_FILE = "tickers.txt"
+
+MIN_PRICE = 5
+MAX_PRICE = 200
+MIN_VOLUME = 1_000_000
+
+NY_TZ = pytz.timezone("America/New_York")
+MAX_PER_SECTOR = 2
+CORR_THRESHOLD = 0.85
+
+HOLD_THRESHOLD = 0.85
+REPLACE_BUFFER = 1.15
+
+TRANSACTION_COST = 0.001
+
+# ----------------------------
+# LOAD / SAVE
+# ----------------------------
+def load_json(file, default):
+    if os.path.exists(file):
+        with open(file, "r") as f:
+            return json.load(f)
+    return default
+
+def save_json(file, data):
+    with open(file, "w") as f:
+        json.dump(data, f, indent=2)
+
+def load_tickers():
+    if not os.path.exists(TICKERS_FILE):
+        return []
+    with open(TICKERS_FILE, "r") as f:
+        return [line.strip().upper() for line in f if line.strip()]
+
+PORTFOLIO = load_json(PORTFOLIO_FILE, {"cash": 10000, "positions": {}})
+HISTORY = load_json(HISTORY_FILE, [])
+LAST_RUN = load_json(LAST_RUN_FILE, {"date": None})
+
+# ----------------------------
+# REGIME
+# ----------------------------
+def detect_regime():
+    try:
+        df = yf.Ticker("SPY").history(period="6mo")
+        close = df["Close"]
+
+        short = close.iloc[-1] / close.iloc[-20] - 1
+        long = close.iloc[-1] / close.iloc[0] - 1
+
+        if short > 0 and long > 0:
+            return "bull"
+        elif short < 0 and long < 0:
+            return "bear"
+        else:
+            return "neutral"
+    except:
+        return "neutral"
+
+# ----------------------------
+# MARKET CLOSE
+# ----------------------------
+def is_market_closed():
+    now = datetime.now(NY_TZ)
+    close = now.replace(hour=16, minute=0, second=0, microsecond=0)
+    return now >= close
+
+def should_run_today():
+    today = datetime.now(NY_TZ).strftime("%Y-%m-%d")
+    return LAST_RUN.get("date") != today and is_market_closed()
+
+def mark_run():
+    LAST_RUN["date"] = datetime.now(NY_TZ).strftime("%Y-%m-%d")
+    save_json(LAST_RUN_FILE, LAST_RUN)
+
+# ----------------------------
+# FILTER
+# ----------------------------
+def filter_universe(tickers):
+    out = []
+    for t in tickers:
+        try:
+            df = yf.Ticker(t).history(period="5d")
+            if df.empty:
+                continue
+            price = float(df["Close"].iloc[-1])
+            vol = float(df["Volume"].iloc[-1])
+            if MIN_PRICE <= price <= MAX_PRICE and vol >= MIN_VOLUME:
+                out.append(t)
+        except:
+            continue
+    return out
+
+# ----------------------------
+# SECTOR
+# ----------------------------
+SECTOR_CACHE = {}
+
+def get_sector(t):
+    if t in SECTOR_CACHE:
+        return SECTOR_CACHE[t]
+    try:
+        s = yf.Ticker(t).info.get("sector", "UNKNOWN")
+        SECTOR_CACHE[t] = s
+        return s
+    except:
+        return "UNKNOWN"
+
+# ----------------------------
+# SIGNAL
+# ----------------------------
+def compute_score_and_vol(ticker, regime):
+    try:
+        df = yf.Ticker(ticker).history(period="6mo")
+        close = df["Close"]
+
+        short = close.iloc[-1] / close.iloc[-5] - 1
+        medium = close.iloc[-1] / close.iloc[-20] - 1
+        long = close.iloc[-1] / close.iloc[-60] - 1
+
+        momentum = 0.5*short + 0.3*medium + 0.2*long
+
+        high = close.iloc[-20:].max()
+        drawdown = close.iloc[-1] / high - 1
+
+        if regime == "bull":
+            hybrid = momentum + 0.2 * drawdown
+        elif regime == "bear":
+            hybrid = 0.5 * momentum + 0.5 * drawdown
+        else:
+            hybrid = momentum + 0.3 * drawdown
+
+        returns = np.log(close / close.shift(1))
+        vol = returns.std() * np.sqrt(252)
+
+        if vol == 0 or np.isnan(vol):
+            return None, None
+
+        return float(hybrid / vol), float(vol)
+
+    except:
+        return None, None
+
+# ----------------------------
+# CORRELATION
+# ----------------------------
+def compute_corr(tickers):
+    data = {}
+    for t in tickers:
+        try:
+            df = yf.Ticker(t).history(period="3mo")
+            data[t] = df["Close"]
+        except:
+            continue
+
+    if not data:
+        return [], None
+
+    prices = np.column_stack(list(data.values()))
+    returns = np.diff(np.log(prices), axis=0)
+    corr = np.corrcoef(returns.T)
+
+    return list(data.keys()), corr
+
+# ----------------------------
+# SIGNAL PIPELINE
+# ----------------------------
+def generate_signals(universe, regime):
+    raw = []
+
+    for t in universe:
+        score, vol = compute_score_and_vol(t, regime)
+        if score is not None:
+            raw.append({
+                "ticker": t,
+                "score": score,
+                "vol": vol,
+                "sector": get_sector(t)
+            })
+
+    raw.sort(key=lambda x: x["score"], reverse=True)
+
+    sector_filtered = []
+    sector_count = {}
+
+    for s in raw:
+        sec = s["sector"]
+        if sector_count.get(sec, 0) < MAX_PER_SECTOR:
+            sector_filtered.append(s)
+            sector_count[sec] = sector_count.get(sec, 0) + 1
+        if len(sector_filtered) >= 20:
+            break
+
+    tickers, corr = compute_corr([s["ticker"] for s in sector_filtered])
+
+    final = []
+    for s in sector_filtered:
+        t = s["ticker"]
+        idx = tickers.index(t) if t in tickers else None
+
+        ok = True
+        for f in final:
+            t2 = f["ticker"]
+            if t2 in tickers and idx is not None:
+                j = tickers.index(t2)
+                if corr[idx][j] > CORR_THRESHOLD:
+                    ok = False
+                    break
+
+        if ok:
+            final.append(s)
+
+        if len(final) >= 10:
+            break
+
+    if not final and raw:
+        final = raw[:5]
+
+    return final
+
+def build_signals(universe, regime):
+    return generate_signals(universe, regime)
+
+# ----------------------------
+# MEMORY
+# ----------------------------
+def apply_portfolio_memory(signals):
+    if not signals:
+        return signals
+
+    scores = np.array([s["score"] for s in signals])
+    threshold = scores.max() * HOLD_THRESHOLD
+
+    final = []
+
+    for t in PORTFOLIO["positions"]:
+        for s in signals:
+            if s["ticker"] == t and s["score"] >= threshold:
+                final.append(s)
+
+    for s in signals:
+        if s not in final and len(final) < 10:
+            final.append(s)
+
+    return final
+
+# ----------------------------
+# WEIGHTS
+# ----------------------------
+def compute_weights(signals):
+    vols = np.array([s["vol"] for s in signals])
+    inv = 1 / vols
+    weights = inv / inv.sum()
+
+    for i, s in enumerate(signals):
+        s["weight"] = float(weights[i])
+
+    return signals
+
+# ============================
+# ✅ UPDATED ACTION ENGINE (STABILITY FIX)
+# ============================
+def build_actions(signals, positions):
+    current = set(positions.keys())
+
+    # top 5 = strong buys
+    top5 = signals[:5]
+    top10 = signals[:10]
+
+    max_score = max([s["score"] for s in signals]) if signals else 0
+    threshold = max_score * HOLD_THRESHOLD
+
+    actions = []
+
+    # BUY / HOLD logic
+    for s in top5:
+        t = s["ticker"]
+        if t not in current:
+            actions.append({"ticker": t, "action": "BUY", "weight": s["weight"]})
+        else:
+            actions.append({"ticker": t, "action": "HOLD", "weight": s["weight"]})
+
+    # ✅ STABILIZED SELL LOGIC
+    for t in current:
+        s_match = next((s for s in signals if s["ticker"] == t), None)
+
+        if s_match:
+            # keep if still decent
+            if (t in [x["ticker"] for x in top10]) or (s_match["score"] >= threshold):
+                continue
+
+        # otherwise sell
+        actions.append({"ticker": t, "action": "SELL"})
+
+    return actions
+
+# ----------------------------
+# VALUE
+# ----------------------------
+def compute_value():
+    total = PORTFOLIO["cash"]
+    for t, shares in PORTFOLIO["positions"].items():
+        try:
+            df = yf.Ticker(t).history(period="5d")
+            total += shares * float(df["Close"].iloc[-1])
+        except:
+            continue
+    return total
+
+# ----------------------------
+# HISTORY
+# ----------------------------
+def update_history(value):
+    today = datetime.now(NY_TZ).strftime("%Y-%m-%d")
+    if HISTORY and HISTORY[-1].get("date") == today:
+        return
+    HISTORY.append({"date": today, "value": value})
+    save_json(HISTORY_FILE, HISTORY)
+
+# ----------------------------
+# METRICS
+# ----------------------------
+def compute_metrics():
+    if len(HISTORY) < 5:
+        return {}
+
+    vals = np.array([h["value"] for h in HISTORY])
+    rets = np.diff(vals) / vals[:-1]
+
+    vol = np.std(rets) * np.sqrt(252)
+    sharpe = (np.mean(rets)*252/vol) if vol > 0 else 0
+
+    peak = np.maximum.accumulate(vals)
+    dd = (vals - peak)/peak
+
+    return {
+        "return": float(vals[-1]/vals[0]-1),
+        "volatility": float(vol),
+        "sharpe": float(sharpe),
+        "max_drawdown": float(np.min(dd))
+    }
+
+# ----------------------------
+# GRAPH
+# ----------------------------
+def format_history():
+    return [{"time": h["date"], "value": h["value"]} for h in HISTORY[-50:]]
+
+# ----------------------------
+# BACKTEST (unchanged from step 2)
+# ----------------------------
+def run_backtest(days=120):
+    tickers = load_tickers()
+    end = datetime.now()
+    start = end - timedelta(days=days)
+
+    data = {}
+    for t in tickers:
+        try:
+            df = yf.Ticker(t).history(start=start, end=end)
+            if len(df) > 60:
+                data[t] = df
+        except:
+            continue
+
+    if not data:
+        return {}
+
+    dates = sorted(list(next(iter(data.values())).index))
+
+    value = 10000
+    history = []
+    prev_weights = {}
+
+    for i in range(60, len(dates)-1):
+        today = dates[i]
+        tomorrow = dates[i+1]
+
+        signals = []
+
+        for t in data:
+            df_slice = data[t].loc[:today]
+            if len(df_slice) < 60:
+                continue
+
+            close = df_slice["Close"]
+
+            short = close.iloc[-1] / close.iloc[-5] - 1
+            medium = close.iloc[-1] / close.iloc[-20] - 1
+            long = close.iloc[-1] / close.iloc[-60] - 1
+
+            momentum = 0.5*short + 0.3*medium + 0.2*long
+
+            high = close.iloc[-20:].max()
+            drawdown = close.iloc[-1] / high - 1
+
+            hybrid = momentum + 0.3 * drawdown
+
+            returns = np.log(close / close.shift(1))
+            vol = returns.std() * np.sqrt(252)
+
+            if vol == 0 or np.isnan(vol):
+                continue
+
+            score = hybrid / vol
+            signals.append((t, score, vol))
+
+        signals.sort(key=lambda x: x[1], reverse=True)
+        top = signals[:5]
+
+        if not top:
+            continue
+
+        vols = np.array([x[2] for x in top])
+        inv = 1 / vols
+        weights = inv / inv.sum()
+
+        turnover = 0
+        new_weights = {}
+
+        for i2, (t, _, _) in enumerate(top):
+            new_weights[t] = weights[i2]
+            turnover += abs(weights[i2] - prev_weights.get(t, 0))
+
+        value *= (1 - turnover * TRANSACTION_COST)
+
+        portfolio_return = 0
+        for i2, (t, _, _) in enumerate(top):
+            p_today = data[t].loc[today]["Close"]
+            p_next = data[t].loc[tomorrow]["Close"]
+            r = (p_next / p_today) - 1
+            portfolio_return += weights[i2] * r
+
+        value *= (1 + portfolio_return)
+        prev_weights = new_weights
+
+        history.append(value)
+
+    values = np.array(history)
+    spy = yf.Ticker("SPY").history(start=start, end=end)["Close"]
+
+    return {
+        "final": float(values[-1]),
+        "return": float(values[-1]/values[0]-1),
+        "spy_return": float(spy.iloc[-1]/spy.iloc[0]-1),
+        "alpha": float((values[-1]/values[0]-1) - (spy.iloc[-1]/spy.iloc[0]-1)),
+        "history": [{"time": i, "value": float(v)} for i,v in enumerate(values)]
+    }
+
+# ----------------------------
+# MAIN
+# ----------------------------
+def build_data():
+    regime = detect_regime()
+
+    if should_run_today():
+        tickers = load_tickers()
+        filtered = filter_universe(tickers)
+
+        signals = build_signals(filtered, regime)
+        signals = apply_portfolio_memory(signals)
+        signals = compute_weights(signals)
+
+        save_json(CACHE_FILE, signals)
+
+        value = compute_value()
+        update_history(value)
+        mark_run()
+    else:
+        signals = load_json(CACHE_FILE, [])
+
+    return {
+        "date": datetime.now(NY_TZ).strftime("%Y-%m-%d"),
+        "regime": regime,
+        "portfolio_value": compute_value(),
+        "signals": signals,
+        "actions": build_actions(signals, PORTFOLIO["positions"]),
+        "metrics": compute_metrics(),
+        "history": format_history()
+    }
+
+# ----------------------------
+# API
+# ----------------------------
+@app.get("/portfolio")
+def get_portfolio():
+    return build_data()
+
+@app.get("/backtest")
+def backtest():
+    return run_backtest()
+
+@app.get("/dashboard")
+def dashboard():
+    return FileResponse("dashboard.html", headers={"Refresh": "5"})
+
+# ----------------------------
+# RUN
+# ----------------------------
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
