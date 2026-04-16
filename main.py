@@ -17,6 +17,7 @@ TICKERS_FILE = "tickers.txt"
 TOP_N = 15
 MAX_PER_SECTOR_WEIGHT = 0.30
 TURNOVER_PENALTY = 0.2
+MIN_WEIGHT_THRESHOLD = 0.01  # 🔥 ignore tiny/zero weights
 
 NY_TZ = pytz.timezone("America/New_York")
 
@@ -39,8 +40,15 @@ def load_tickers():
 PORTFOLIO = load_json(PORTFOLIO_FILE, {"cash": 10000, "positions": {}})
 LAST_RUN = load_json(LAST_RUN_FILE, {"date": None})
 
+# ✅ RESTORED EOD LOGIC
+def is_market_closed():
+    now = datetime.now(NY_TZ)
+    close = now.replace(hour=16, minute=0, second=0, microsecond=0)
+    return now >= close
+
 def should_run_today():
-    return True
+    today = datetime.now(NY_TZ).strftime("%Y-%m-%d")
+    return LAST_RUN.get("date") != today and is_market_closed()
 
 def mark_run():
     LAST_RUN["date"] = datetime.now(NY_TZ).strftime("%Y-%m-%d")
@@ -58,7 +66,7 @@ def get_sector(ticker):
     SECTOR_CACHE[ticker] = s
     return s
 
-# 🔥 FINAL FIXED DATA PIPELINE
+# 🔥 ROBUST DATA PIPELINE
 def fetch_returns(tickers, period="6mo", batch_size=20):
     all_prices = []
 
@@ -87,9 +95,8 @@ def fetch_returns(tickers, period="6mo", batch_size=20):
 
     prices = pd.concat(all_prices, axis=1)
 
-    # 🔥 KEY FIXES
-    prices = prices.ffill()                    # fill missing values
-    prices = prices.dropna(axis=1, thresh=int(len(prices)*0.5))  # keep assets with enough data
+    prices = prices.ffill()
+    prices = prices.dropna(axis=1, thresh=int(len(prices)*0.5))
 
     if prices.shape[1] == 0:
         return None
@@ -175,18 +182,25 @@ def build_portfolio():
 
     return weights
 
+# 🔥 CLEAN ACTIONS (no zero-weight buys)
 def generate_actions(weights):
     current = PORTFOLIO.get("positions", {})
 
     actions = []
 
+    # SELL positions not in target OR too small
     for t in current:
-        if t not in weights:
+        if t not in weights or weights.get(t, 0) < MIN_WEIGHT_THRESHOLD:
             actions.append({"ticker": t, "action": "SELL"})
 
+    # BUY only meaningful weights
     for t, w in weights.items():
-        if t not in current:
-            actions.append({"ticker": t, "action": "BUY", "target_weight": w})
+        if w >= MIN_WEIGHT_THRESHOLD and t not in current:
+            actions.append({
+                "ticker": t,
+                "action": "BUY",
+                "target_weight": w
+            })
 
     return actions
 
