@@ -63,9 +63,9 @@ def is_market_closed():
     close = now.replace(hour=16, minute=0, second=0, microsecond=0)
     return now >= close
 
+# 🔴 FORCE RUN (TEST MODE)
 def should_run_today():
-    today = datetime.now(NY_TZ).strftime("%Y-%m-%d")
-    return LAST_RUN.get("date") != today and is_market_closed()
+    return True
 
 def mark_run():
     LAST_RUN["date"] = datetime.now(NY_TZ).strftime("%Y-%m-%d")
@@ -93,53 +93,37 @@ def get_sector(ticker):
 # DATA LAYER
 # =========================================================
 def fetch_returns(tickers, period="6mo"):
-    """
-    Fetch price data and convert to returns
-    """
     if len(tickers) == 0:
         return None
 
     df = yf.download(tickers, period=period)["Close"]
 
-    if isinstance(df, float) or df is None:
+    if df is None:
         return None
 
     returns = df.pct_change().dropna()
-
     return returns
 
 # =========================================================
 # SIGNAL GENERATION
 # =========================================================
 def compute_signal_scores(returns):
-    """
-    Simple momentum proxy: mean return
-    """
     scores = returns.mean().sort_values(ascending=False)
     return scores
 
 def select_top_assets(scores, n=TOP_N):
-    """
-    Select top N assets by score
-    """
-    top_assets = list(scores.index[:n])
-    return top_assets
+    return list(scores.index[:n])
 
 # =========================================================
-# PORTFOLIO OPTIMIZER (INSTITUTIONAL STYLE)
+# OPTIMIZER
 # =========================================================
 def compute_mean_variance_weights(returns_subset):
-    """
-    Core mean-variance solution (max Sharpe style)
-    """
     mean_returns = returns_subset.mean().values
     cov_matrix = np.cov(returns_subset.values, rowvar=False)
 
     inv_cov = np.linalg.pinv(cov_matrix)
-
     raw_weights = inv_cov @ mean_returns
 
-    # enforce long-only
     raw_weights = np.maximum(raw_weights, 0)
 
     if raw_weights.sum() == 0:
@@ -150,9 +134,6 @@ def compute_mean_variance_weights(returns_subset):
     return weights
 
 def apply_turnover_penalty(new_weights, tickers):
-    """
-    Blend with current portfolio to reduce turnover
-    """
     current_positions = PORTFOLIO.get("positions", {})
 
     current_vector = []
@@ -172,12 +153,8 @@ def apply_turnover_penalty(new_weights, tickers):
     return adjusted_weights
 
 def apply_sector_constraints(weights, tickers):
-    """
-    Enforce sector caps
-    """
     sector_map = {}
 
-    # group indices by sector
     for i, t in enumerate(tickers):
         sector = get_sector(t)
         sector_map.setdefault(sector, []).append(i)
@@ -191,7 +168,6 @@ def apply_sector_constraints(weights, tickers):
             scale = MAX_PER_SECTOR_WEIGHT / sector_weight
             weights[indices] *= scale
 
-    # renormalize
     total = weights.sum()
     if total > 0:
         weights = weights / total
@@ -199,28 +175,19 @@ def apply_sector_constraints(weights, tickers):
     return weights
 
 def optimize_portfolio(returns, tickers):
-    """
-    Full optimization pipeline
-    """
-
     returns_subset = returns[tickers].dropna()
 
     if returns_subset.shape[1] == 0:
         return {}
 
-    # 1. base optimizer
     base_weights = compute_mean_variance_weights(returns_subset)
-
-    # 2. turnover control
     turnover_adjusted = apply_turnover_penalty(base_weights, tickers)
-
-    # 3. sector constraints
     final_weights = apply_sector_constraints(turnover_adjusted, tickers)
 
     return dict(zip(tickers, final_weights))
 
 # =========================================================
-# FULL PIPELINE
+# PIPELINE
 # =========================================================
 def build_portfolio():
     tickers = load_tickers()
@@ -230,34 +197,25 @@ def build_portfolio():
     if returns is None or returns.empty:
         return {}
 
-    # step 1: compute signals
     scores = compute_signal_scores(returns)
-
-    # step 2: select top assets
     top_assets = select_top_assets(scores)
 
-    # step 3: optimize weights
     weights = optimize_portfolio(returns, top_assets)
 
     return weights
 
 # =========================================================
-# ACTION GENERATION
+# ACTIONS
 # =========================================================
 def generate_actions(target_weights):
     current_positions = PORTFOLIO.get("positions", {})
 
     actions = []
 
-    # sells
     for ticker in current_positions:
         if ticker not in target_weights:
-            actions.append({
-                "ticker": ticker,
-                "action": "SELL"
-            })
+            actions.append({"ticker": ticker, "action": "SELL"})
 
-    # buys
     for ticker, weight in target_weights.items():
         if ticker not in current_positions:
             actions.append({
@@ -269,7 +227,7 @@ def generate_actions(target_weights):
     return actions
 
 # =========================================================
-# BACKTEST (ALIGNED WITH LIVE LOGIC)
+# BACKTEST
 # =========================================================
 def run_backtest(days=120):
     tickers = load_tickers()
@@ -314,7 +272,6 @@ def run_eod():
         return load_json(CACHE_FILE, {"status": "waiting"})
 
     weights = build_portfolio()
-
     actions = generate_actions(weights)
 
     output = {
