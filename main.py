@@ -17,7 +17,12 @@ TICKERS_FILE = "tickers.txt"
 TOP_N = 15
 MAX_PER_SECTOR_WEIGHT = 0.30
 TURNOVER_PENALTY = 0.2
-MIN_WEIGHT_THRESHOLD = 0.01  # 🔥 ignore tiny/zero weights
+MIN_WEIGHT_THRESHOLD = 0.01
+
+# 🔥 NEW RISK SETTINGS
+MAX_SINGLE_POSITION = 0.15      # max 15% per asset
+TARGET_VOL = 0.20               # target annual volatility (20%)
+MIN_CASH = 0.05                # always keep 5% cash
 
 NY_TZ = pytz.timezone("America/New_York")
 
@@ -40,7 +45,6 @@ def load_tickers():
 PORTFOLIO = load_json(PORTFOLIO_FILE, {"cash": 10000, "positions": {}})
 LAST_RUN = load_json(LAST_RUN_FILE, {"date": None})
 
-# ✅ RESTORED EOD LOGIC
 def is_market_closed():
     now = datetime.now(NY_TZ)
     close = now.replace(hour=16, minute=0, second=0, microsecond=0)
@@ -66,7 +70,6 @@ def get_sector(ticker):
     SECTOR_CACHE[ticker] = s
     return s
 
-# 🔥 ROBUST DATA PIPELINE
 def fetch_returns(tickers, period="6mo", batch_size=20):
     all_prices = []
 
@@ -127,6 +130,24 @@ def compute_mean_variance_weights(returns_subset):
 
     return w / w.sum()
 
+# 🔥 NEW: VOLATILITY SCALING
+def apply_volatility_target(weights, returns_subset):
+    cov = np.cov(returns_subset.values, rowvar=False)
+    port_vol = np.sqrt(weights.T @ cov @ weights) * np.sqrt(252)
+
+    if port_vol == 0:
+        return weights
+
+    scale = TARGET_VOL / port_vol
+    weights = weights * scale
+
+    return weights
+
+# 🔥 NEW: POSITION CAP
+def apply_position_caps(weights):
+    weights = np.minimum(weights, MAX_SINGLE_POSITION)
+    return weights / weights.sum()
+
 def apply_turnover_penalty(weights, tickers):
     current = PORTFOLIO.get("positions", {})
 
@@ -162,6 +183,11 @@ def optimize_portfolio(returns, tickers):
         return {}
 
     w = compute_mean_variance_weights(subset)
+
+    # 🔥 APPLY RISK LAYER
+    w = apply_volatility_target(w, subset)
+    w = apply_position_caps(w)
+
     w = apply_turnover_penalty(w, tickers)
     w = apply_sector_constraints(w, tickers)
 
@@ -180,20 +206,21 @@ def build_portfolio():
 
     weights = optimize_portfolio(returns, top)
 
+    # 🔥 KEEP CASH BUFFER
+    total = sum(weights.values())
+    weights = {k: v * (1 - MIN_CASH) for k, v in weights.items()}
+
     return weights
 
-# 🔥 CLEAN ACTIONS (no zero-weight buys)
 def generate_actions(weights):
     current = PORTFOLIO.get("positions", {})
 
     actions = []
 
-    # SELL positions not in target OR too small
     for t in current:
         if t not in weights or weights.get(t, 0) < MIN_WEIGHT_THRESHOLD:
             actions.append({"ticker": t, "action": "SELL"})
 
-    # BUY only meaningful weights
     for t, w in weights.items():
         if w >= MIN_WEIGHT_THRESHOLD and t not in current:
             actions.append({
