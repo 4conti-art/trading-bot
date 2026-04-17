@@ -19,7 +19,6 @@ MAX_PER_SECTOR_WEIGHT = 0.30
 TURNOVER_PENALTY = 0.2
 MIN_WEIGHT_THRESHOLD = 0.01
 
-# RISK SETTINGS
 MAX_SINGLE_POSITION = 0.15
 TARGET_VOL = 0.20
 MIN_CASH = 0.05
@@ -45,7 +44,7 @@ def load_tickers():
 PORTFOLIO = load_json(PORTFOLIO_FILE, {"cash": 10000, "positions": {}})
 LAST_RUN = load_json(LAST_RUN_FILE, {"date": None})
 
-# 🔥 FORCE RUN (temporary test)
+# 🔥 force run (testing)
 def should_run_today():
     return True
 
@@ -65,7 +64,7 @@ def get_sector(ticker):
     SECTOR_CACHE[ticker] = s
     return s
 
-def fetch_returns(tickers, period="6mo", batch_size=20):
+def fetch_returns(tickers, period="2y", batch_size=20):
     all_prices = []
 
     for i in range(0, len(tickers), batch_size):
@@ -92,17 +91,10 @@ def fetch_returns(tickers, period="6mo", batch_size=20):
         return None
 
     prices = pd.concat(all_prices, axis=1)
-
     prices = prices.ffill()
     prices = prices.dropna(axis=1, thresh=int(len(prices)*0.5))
 
-    if prices.shape[1] == 0:
-        return None
-
     returns = prices.pct_change().dropna()
-
-    if returns.empty:
-        return None
 
     return returns
 
@@ -132,40 +124,17 @@ def apply_volatility_target(weights, returns_subset):
     if port_vol == 0:
         return weights
 
-    scale = TARGET_VOL / port_vol
-    return weights * scale
+    return weights * (TARGET_VOL / port_vol)
 
 def apply_position_caps(weights):
     weights = np.minimum(weights, MAX_SINGLE_POSITION)
     return weights / weights.sum()
 
 def apply_turnover_penalty(weights, tickers):
-    current = PORTFOLIO.get("positions", {})
-
-    curr_vec = []
-    for t in tickers:
-        if t in current:
-            curr_vec.append(1 / max(len(current), 1))
-        else:
-            curr_vec.append(0)
-
-    curr_vec = np.array(curr_vec)
-
-    return (1 - TURNOVER_PENALTY)*weights + TURNOVER_PENALTY*curr_vec
+    return weights  # ignore in backtest for now
 
 def apply_sector_constraints(weights, tickers):
-    sector_map = {}
-
-    for i, t in enumerate(tickers):
-        s = get_sector(t)
-        sector_map.setdefault(s, []).append(i)
-
-    for s, idx in sector_map.items():
-        total = weights[idx].sum()
-        if total > MAX_PER_SECTOR_WEIGHT:
-            weights[idx] *= MAX_PER_SECTOR_WEIGHT / total
-
-    return weights / weights.sum()
+    return weights
 
 def optimize_portfolio(returns, tickers):
     subset = returns[tickers].dropna()
@@ -176,72 +145,64 @@ def optimize_portfolio(returns, tickers):
     w = compute_mean_variance_weights(subset)
     w = apply_volatility_target(w, subset)
     w = apply_position_caps(w)
-    w = apply_turnover_penalty(w, tickers)
-    w = apply_sector_constraints(w, tickers)
 
     return dict(zip(tickers, w))
 
-def build_portfolio():
-    tickers = load_tickers()
+def build_portfolio(returns):
+    scores = compute_signal_scores(returns)
+    top = select_top_assets(scores)
+    weights = optimize_portfolio(returns, top)
+    weights = {k: v * (1 - MIN_CASH) for k, v in weights.items()}
+    return weights
 
+# 🔥 BACKTEST ENGINE
+def run_backtest():
+    tickers = load_tickers()
     returns = fetch_returns(tickers)
 
     if returns is None:
-        return {}
+        return {"error": "no data"}
 
-    scores = compute_signal_scores(returns)
-    top = select_top_assets(scores)
+    portfolio_value = 10000
+    history = []
 
-    weights = optimize_portfolio(returns, top)
+    for i in range(60, len(returns)):
+        window = returns.iloc[:i]
 
-    weights = {k: v * (1 - MIN_CASH) for k, v in weights.items()}
+        weights = build_portfolio(window)
 
-    return weights
+        if not weights:
+            continue
 
-def generate_actions(weights):
-    current = PORTFOLIO.get("positions", {})
+        daily_ret = returns.iloc[i][list(weights.keys())]
+        w = np.array(list(weights.values()))
 
-    actions = []
+        portfolio_return = np.dot(w, daily_ret)
 
-    for t in current:
-        if t not in weights or weights.get(t, 0) < MIN_WEIGHT_THRESHOLD:
-            actions.append({"ticker": t, "action": "SELL"})
+        portfolio_value *= (1 + portfolio_return)
 
-    for t, w in weights.items():
-        if w >= MIN_WEIGHT_THRESHOLD and t not in current:
-            actions.append({
-                "ticker": t,
-                "action": "BUY",
-                "target_weight": w
-            })
+        history.append({
+            "date": str(returns.index[i].date()),
+            "value": float(portfolio_value)
+        })
 
-    return actions
-
-def run_eod():
-    if not should_run_today():
-        return load_json(CACHE_FILE, {"status": "waiting"})
-
-    weights = build_portfolio()
-    actions = generate_actions(weights)
-
-    output = {
-        "date": datetime.now(NY_TZ).strftime("%Y-%m-%d"),
-        "target_portfolio": weights,
-        "actions": actions
+    return {
+        "final_value": portfolio_value,
+        "return": portfolio_value / 10000 - 1,
+        "history": history[-10:]
     }
 
-    save_json(CACHE_FILE, output)
-    mark_run()
+def run_eod():
+    weights = build_portfolio(fetch_returns(load_tickers()))
 
-    return output
+    return {
+        "date": datetime.now(NY_TZ).strftime("%Y-%m-%d"),
+        "target_portfolio": weights
+    }
 
 @app.get("/")
 def root():
     return {"status": "ok"}
-
-@app.get("/signals")
-def signals():
-    return load_json(CACHE_FILE, {"status": "no data"})
 
 @app.get("/run")
 def run():
@@ -249,4 +210,4 @@ def run():
 
 @app.get("/backtest")
 def backtest():
-    return {"status": "not run yet"}
+    return run_backtest()
