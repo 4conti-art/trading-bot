@@ -9,60 +9,23 @@ import pandas as pd
 
 app = FastAPI()
 
-PORTFOLIO_FILE = "portfolio.json"
-CACHE_FILE = "signals_cache.json"
-LAST_RUN_FILE = "last_run.json"
 TICKERS_FILE = "tickers.txt"
 
 TOP_N = 15
-MAX_PER_SECTOR_WEIGHT = 0.30
-TURNOVER_PENALTY = 0.2
-MIN_WEIGHT_THRESHOLD = 0.01
-
 MAX_SINGLE_POSITION = 0.15
 TARGET_VOL = 0.20
 MIN_CASH = 0.05
 
+# 🔥 NEW: trading cost (0.1%)
+TRANSACTION_COST = 0.001
+
 NY_TZ = pytz.timezone("America/New_York")
-
-def load_json(path, default):
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            return json.load(f)
-    return default
-
-def save_json(path, data):
-    with open(path, "w") as f:
-        json.dump(data, f, indent=2)
 
 def load_tickers():
     if not os.path.exists(TICKERS_FILE):
         return []
     with open(TICKERS_FILE, "r") as f:
         return [t.strip().upper() for t in f if t.strip()]
-
-PORTFOLIO = load_json(PORTFOLIO_FILE, {"cash": 10000, "positions": {}})
-LAST_RUN = load_json(LAST_RUN_FILE, {"date": None})
-
-# 🔥 force run (testing)
-def should_run_today():
-    return True
-
-def mark_run():
-    LAST_RUN["date"] = datetime.now(NY_TZ).strftime("%Y-%m-%d")
-    save_json(LAST_RUN_FILE, LAST_RUN)
-
-SECTOR_CACHE = {}
-
-def get_sector(ticker):
-    if ticker in SECTOR_CACHE:
-        return SECTOR_CACHE[ticker]
-    try:
-        s = yf.Ticker(ticker).info.get("sector", "UNKNOWN")
-    except:
-        s = "UNKNOWN"
-    SECTOR_CACHE[ticker] = s
-    return s
 
 def fetch_returns(tickers, period="2y", batch_size=20):
     all_prices = []
@@ -94,17 +57,15 @@ def fetch_returns(tickers, period="2y", batch_size=20):
     prices = prices.ffill()
     prices = prices.dropna(axis=1, thresh=int(len(prices)*0.5))
 
-    returns = prices.pct_change().dropna()
-
-    return returns
+    return prices.pct_change().dropna()
 
 def compute_signal_scores(returns):
     return returns.mean().sort_values(ascending=False)
 
-def select_top_assets(scores, n=TOP_N):
-    return list(scores.index[:n])
+def select_top_assets(scores):
+    return list(scores.index[:TOP_N])
 
-def compute_mean_variance_weights(returns_subset):
+def compute_weights(returns_subset):
     mean = returns_subset.mean().values
     cov = np.cov(returns_subset.values, rowvar=False)
 
@@ -113,49 +74,35 @@ def compute_mean_variance_weights(returns_subset):
     w = np.maximum(w, 0)
 
     if w.sum() == 0:
-        return np.ones(len(w)) / len(w)
+        w = np.ones(len(w)) / len(w)
+    else:
+        w = w / w.sum()
 
-    return w / w.sum()
+    # volatility target
+    port_vol = np.sqrt(w.T @ cov @ w) * np.sqrt(252)
+    if port_vol > 0:
+        w *= TARGET_VOL / port_vol
 
-def apply_volatility_target(weights, returns_subset):
-    cov = np.cov(returns_subset.values, rowvar=False)
-    port_vol = np.sqrt(weights.T @ cov @ weights) * np.sqrt(252)
+    # cap positions
+    w = np.minimum(w, MAX_SINGLE_POSITION)
+    w = w / w.sum()
 
-    if port_vol == 0:
-        return weights
-
-    return weights * (TARGET_VOL / port_vol)
-
-def apply_position_caps(weights):
-    weights = np.minimum(weights, MAX_SINGLE_POSITION)
-    return weights / weights.sum()
-
-def apply_turnover_penalty(weights, tickers):
-    return weights  # ignore in backtest for now
-
-def apply_sector_constraints(weights, tickers):
-    return weights
-
-def optimize_portfolio(returns, tickers):
-    subset = returns[tickers].dropna()
-
-    if subset.shape[1] == 0:
-        return {}
-
-    w = compute_mean_variance_weights(subset)
-    w = apply_volatility_target(w, subset)
-    w = apply_position_caps(w)
-
-    return dict(zip(tickers, w))
+    return w
 
 def build_portfolio(returns):
     scores = compute_signal_scores(returns)
     top = select_top_assets(scores)
-    weights = optimize_portfolio(returns, top)
-    weights = {k: v * (1 - MIN_CASH) for k, v in weights.items()}
-    return weights
 
-# 🔥 BACKTEST ENGINE
+    subset = returns[top].dropna()
+    if subset.shape[1] == 0:
+        return {}
+
+    w = compute_weights(subset)
+    w = w * (1 - MIN_CASH)
+
+    return dict(zip(top, w))
+
+# 🔥 IMPROVED BACKTEST
 def run_backtest():
     tickers = load_tickers()
     returns = fetch_returns(tickers)
@@ -164,49 +111,59 @@ def run_backtest():
         return {"error": "no data"}
 
     portfolio_value = 10000
+    prev_weights = None
+
+    peak = portfolio_value
+    max_drawdown = 0
+
     history = []
 
     for i in range(60, len(returns)):
         window = returns.iloc[:i]
 
-        weights = build_portfolio(window)
-
-        if not weights:
+        weights_dict = build_portfolio(window)
+        if not weights_dict:
             continue
 
-        daily_ret = returns.iloc[i][list(weights.keys())]
-        w = np.array(list(weights.values()))
+        tickers_now = list(weights_dict.keys())
+        weights = np.array(list(weights_dict.values()))
 
-        portfolio_return = np.dot(w, daily_ret)
+        # 🔥 TURNOVER COST
+        if prev_weights is not None:
+            turnover = np.sum(np.abs(weights - prev_weights))
+            cost = turnover * TRANSACTION_COST
+        else:
+            cost = 0
 
-        portfolio_value *= (1 + portfolio_return)
+        daily_ret = returns.iloc[i][tickers_now].values
+        port_ret = np.dot(weights, daily_ret)
+
+        portfolio_value *= (1 + port_ret - cost)
+
+        prev_weights = weights
+
+        # 🔥 DRAWDOWN
+        peak = max(peak, portfolio_value)
+        drawdown = (portfolio_value - peak) / peak
+        max_drawdown = min(max_drawdown, drawdown)
 
         history.append({
             "date": str(returns.index[i].date()),
             "value": float(portfolio_value)
         })
 
+    total_return = portfolio_value / 10000 - 1
+
     return {
         "final_value": portfolio_value,
-        "return": portfolio_value / 10000 - 1,
+        "return": total_return,
+        "max_drawdown": max_drawdown,
         "history": history[-10:]
-    }
-
-def run_eod():
-    weights = build_portfolio(fetch_returns(load_tickers()))
-
-    return {
-        "date": datetime.now(NY_TZ).strftime("%Y-%m-%d"),
-        "target_portfolio": weights
     }
 
 @app.get("/")
 def root():
     return {"status": "ok"}
-
-@app.get("/run")
-def run():
-    return run_eod()
 
 @app.get("/backtest")
 def backtest():
