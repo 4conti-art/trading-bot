@@ -15,6 +15,7 @@ MIN_CASH = 0.05
 
 TRANSACTION_COST = 0.001
 VOL_PENALTY = 0.5
+MAX_CORR = 0.75
 
 def load_tickers():
     if not os.path.exists(TICKERS_FILE):
@@ -74,8 +75,35 @@ def compute_signal_scores(prices):
 
     return score.sort_values(ascending=False)
 
-def select_top_assets(scores):
-    return list(scores.index[:TOP_N])
+# 🔥 NEW: correlation-aware selection
+def select_top_assets(scores, prices):
+    selected = []
+    returns = prices.pct_change().dropna()
+
+    for ticker in scores.index:
+        if len(selected) >= TOP_N:
+            break
+
+        if not selected:
+            selected.append(ticker)
+            continue
+
+        corr_ok = True
+
+        for s in selected:
+            if ticker not in returns or s not in returns:
+                continue
+
+            corr = returns[ticker].corr(returns[s])
+
+            if corr is not None and corr > MAX_CORR:
+                corr_ok = False
+                break
+
+        if corr_ok:
+            selected.append(ticker)
+
+    return selected
 
 def compute_weights(price_subset):
     returns = price_subset.pct_change().dropna()
@@ -107,7 +135,7 @@ def build_portfolio(prices):
     if scores.empty:
         return {}
 
-    top = select_top_assets(scores)
+    top = select_top_assets(scores, prices)
 
     subset = prices[top].dropna()
     if subset.shape[1] == 0:
@@ -135,7 +163,6 @@ def run_backtest():
 
     history = []
 
-    # 🔥 FIX: loop on RETURNS length
     for i in range(200, len(returns)):
         price_window = prices.iloc[:i]
 
