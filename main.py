@@ -21,7 +21,7 @@ def load_tickers():
     with open(TICKERS_FILE, "r") as f:
         return [t.strip().upper() for t in f if t.strip()]
 
-def fetch_returns(tickers, period="2y", batch_size=20):
+def fetch_prices(tickers, period="2y", batch_size=20):
     all_prices = []
 
     for i in range(0, len(tickers), batch_size):
@@ -53,11 +53,8 @@ def fetch_returns(tickers, period="2y", batch_size=20):
 
     return prices
 
-# 🔥 NEW SIGNAL (momentum)
+# 🔥 SIGNAL (momentum)
 def compute_signal_scores(prices):
-    returns = prices.pct_change()
-
-    # skip last 5 days
     shifted = prices.shift(5)
 
     mom_3m = shifted.pct_change(63)
@@ -70,8 +67,8 @@ def compute_signal_scores(prices):
 def select_top_assets(scores):
     return list(scores.index[:TOP_N])
 
-def compute_weights(returns_subset):
-    returns = returns_subset.pct_change().dropna()
+def compute_weights(price_subset):
+    returns = price_subset.pct_change().dropna()
 
     mean = returns.mean().values
     cov = np.cov(returns.values, rowvar=False)
@@ -109,10 +106,12 @@ def build_portfolio(prices):
 
 def run_backtest():
     tickers = load_tickers()
-    prices = fetch_returns(tickers)
+    prices = fetch_prices(tickers)
 
     if prices is None:
         return {"error": "no data"}
+
+    returns = prices.pct_change().dropna()
 
     portfolio_value = 10000
     prev_weights = None
@@ -122,17 +121,16 @@ def run_backtest():
 
     history = []
 
-    for i in range(200, len(prices)):
-        window = prices.iloc[:i]
+    for i in range(200, len(returns)):
+        price_window = prices.iloc[:i]
+        weights_dict = build_portfolio(price_window)
 
-        weights_dict = build_portfolio(window)
         if not weights_dict:
             continue
 
         tickers_now = list(weights_dict.keys())
         weights = np.array(list(weights_dict.values()))
 
-        # transaction cost
         if prev_weights is not None:
             prev_vec = np.array([prev_weights.get(t, 0) for t in tickers_now])
             turnover = np.sum(np.abs(weights - prev_vec))
@@ -140,9 +138,7 @@ def run_backtest():
         else:
             cost = 0
 
-        daily_ret = prices.iloc[i][tickers_now].pct_change()
-        daily_ret = daily_ret.fillna(0).values
-
+        daily_ret = returns.iloc[i][tickers_now].values
         port_ret = np.dot(weights, daily_ret)
 
         portfolio_value *= (1 + port_ret - cost)
@@ -154,7 +150,7 @@ def run_backtest():
         max_drawdown = min(max_drawdown, drawdown)
 
         history.append({
-            "date": str(prices.index[i].date()),
+            "date": str(returns.index[i].date()),
             "value": float(portfolio_value)
         })
 
