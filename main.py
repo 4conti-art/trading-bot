@@ -15,6 +15,9 @@ MIN_CASH = 0.05
 
 TRANSACTION_COST = 0.001
 
+# 🔥 NEW: volatility penalty strength
+VOL_PENALTY = 0.5
+
 def load_tickers():
     if not os.path.exists(TICKERS_FILE):
         return []
@@ -53,14 +56,24 @@ def fetch_prices(tickers, period="2y", batch_size=20):
 
     return prices
 
-# 🔥 SIGNAL (momentum)
+# 🔥 IMPROVED SIGNAL
 def compute_signal_scores(prices):
+    returns = prices.pct_change()
+
     shifted = prices.shift(5)
 
     mom_3m = shifted.pct_change(63)
     mom_6m = shifted.pct_change(126)
 
-    score = 0.5 * mom_3m.iloc[-1] + 0.5 * mom_6m.iloc[-1]
+    momentum = 0.5 * mom_3m.iloc[-1] + 0.5 * mom_6m.iloc[-1]
+
+    # 🔥 volatility (annualized)
+    vol = returns.rolling(63).std().iloc[-1] * np.sqrt(252)
+
+    # 🔥 penalized score
+    score = momentum - VOL_PENALTY * vol
+
+    score = score.dropna()
 
     return score.sort_values(ascending=False)
 
@@ -121,7 +134,7 @@ def run_backtest():
 
     history = []
 
-    for i in range(200, len(returns)):
+    for i in range(200, len(prices)):
         price_window = prices.iloc[:i]
         weights_dict = build_portfolio(price_window)
 
@@ -150,7 +163,7 @@ def run_backtest():
         max_drawdown = min(max_drawdown, drawdown)
 
         history.append({
-            "date": str(returns.index[i].date()),
+            "date": str(prices.index[i].date()),
             "value": float(portfolio_value)
         })
 
