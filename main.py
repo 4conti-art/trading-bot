@@ -67,18 +67,17 @@ def compute_signal_scores(prices):
 
     vol = returns.rolling(63).std().iloc[-1] * np.sqrt(252)
 
-    # 🔥 TREND FILTER
+    # 🔥 SOFT TREND FILTER
     ma50 = prices.rolling(50).mean().iloc[-1]
     ma100 = prices.rolling(100).mean().iloc[-1]
     price_now = prices.iloc[-1]
 
-    trend_mask = (price_now > ma50) & (price_now > ma100)
+    trend_mask = (price_now > ma50) | (price_now > ma100)
 
     df = pd.concat([momentum, vol, trend_mask], axis=1)
     df.columns = ["momentum", "vol", "trend"]
     df = df.dropna()
 
-    # keep only trending assets
     df = df[df["trend"] == True]
 
     if df.empty:
