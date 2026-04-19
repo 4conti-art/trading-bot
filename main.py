@@ -14,8 +14,6 @@ TARGET_VOL = 0.20
 MIN_CASH = 0.05
 
 TRANSACTION_COST = 0.001
-
-# 🔥 NEW: volatility penalty strength
 VOL_PENALTY = 0.5
 
 def load_tickers():
@@ -56,7 +54,7 @@ def fetch_prices(tickers, period="2y", batch_size=20):
 
     return prices
 
-# 🔥 IMPROVED SIGNAL
+# 🔥 FIXED SIGNAL
 def compute_signal_scores(prices):
     returns = prices.pct_change()
 
@@ -67,13 +65,14 @@ def compute_signal_scores(prices):
 
     momentum = 0.5 * mom_3m.iloc[-1] + 0.5 * mom_6m.iloc[-1]
 
-    # 🔥 volatility (annualized)
     vol = returns.rolling(63).std().iloc[-1] * np.sqrt(252)
 
-    # 🔥 penalized score
-    score = momentum - VOL_PENALTY * vol
+    # 🔥 align & clean
+    df = pd.concat([momentum, vol], axis=1)
+    df.columns = ["momentum", "vol"]
+    df = df.dropna()
 
-    score = score.dropna()
+    score = df["momentum"] - VOL_PENALTY * df["vol"]
 
     return score.sort_values(ascending=False)
 
@@ -106,6 +105,10 @@ def compute_weights(price_subset):
 
 def build_portfolio(prices):
     scores = compute_signal_scores(prices)
+
+    if scores.empty:
+        return {}
+
     top = select_top_assets(scores)
 
     subset = prices[top].dropna()
