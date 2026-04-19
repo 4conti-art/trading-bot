@@ -54,7 +54,6 @@ def fetch_prices(tickers, period="2y", batch_size=20):
 
     return prices
 
-# 🔥 FIXED SIGNAL
 def compute_signal_scores(prices):
     returns = prices.pct_change()
 
@@ -67,7 +66,6 @@ def compute_signal_scores(prices):
 
     vol = returns.rolling(63).std().iloc[-1] * np.sqrt(252)
 
-    # 🔥 align & clean
     df = pd.concat([momentum, vol], axis=1)
     df.columns = ["momentum", "vol"]
     df = df.dropna()
@@ -137,8 +135,10 @@ def run_backtest():
 
     history = []
 
-    for i in range(200, len(prices)):
+    # 🔥 FIX: loop on RETURNS length
+    for i in range(200, len(returns)):
         price_window = prices.iloc[:i]
+
         weights_dict = build_portfolio(price_window)
 
         if not weights_dict:
@@ -166,7 +166,7 @@ def run_backtest():
         max_drawdown = min(max_drawdown, drawdown)
 
         history.append({
-            "date": str(prices.index[i].date()),
+            "date": str(returns.index[i].date()),
             "value": float(portfolio_value)
         })
 
