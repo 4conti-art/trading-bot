@@ -67,15 +67,27 @@ def compute_signal_scores(prices):
 
     vol = returns.rolling(63).std().iloc[-1] * np.sqrt(252)
 
-    df = pd.concat([momentum, vol], axis=1)
-    df.columns = ["momentum", "vol"]
+    # 🔥 TREND FILTER
+    ma50 = prices.rolling(50).mean().iloc[-1]
+    ma100 = prices.rolling(100).mean().iloc[-1]
+    price_now = prices.iloc[-1]
+
+    trend_mask = (price_now > ma50) & (price_now > ma100)
+
+    df = pd.concat([momentum, vol, trend_mask], axis=1)
+    df.columns = ["momentum", "vol", "trend"]
     df = df.dropna()
+
+    # keep only trending assets
+    df = df[df["trend"] == True]
+
+    if df.empty:
+        return pd.Series()
 
     score = df["momentum"] - VOL_PENALTY * df["vol"]
 
     return score.sort_values(ascending=False)
 
-# 🔥 NEW: correlation-aware selection
 def select_top_assets(scores, prices):
     selected = []
     returns = prices.pct_change().dropna()
@@ -136,6 +148,9 @@ def build_portfolio(prices):
         return {}
 
     top = select_top_assets(scores, prices)
+
+    if not top:
+        return {}
 
     subset = prices[top].dropna()
     if subset.shape[1] == 0:
