@@ -1,8 +1,5 @@
 from fastapi import FastAPI
-import json
 import os
-from datetime import datetime
-import pytz
 import yfinance as yf
 import numpy as np
 import pandas as pd
@@ -16,10 +13,7 @@ MAX_SINGLE_POSITION = 0.15
 TARGET_VOL = 0.20
 MIN_CASH = 0.05
 
-# 🔥 NEW: trading cost (0.1%)
 TRANSACTION_COST = 0.001
-
-NY_TZ = pytz.timezone("America/New_York")
 
 def load_tickers():
     if not os.path.exists(TICKERS_FILE):
@@ -57,17 +51,30 @@ def fetch_returns(tickers, period="2y", batch_size=20):
     prices = prices.ffill()
     prices = prices.dropna(axis=1, thresh=int(len(prices)*0.5))
 
-    return prices.pct_change().dropna()
+    return prices
 
-def compute_signal_scores(returns):
-    return returns.mean().sort_values(ascending=False)
+# 🔥 NEW SIGNAL (momentum)
+def compute_signal_scores(prices):
+    returns = prices.pct_change()
+
+    # skip last 5 days
+    shifted = prices.shift(5)
+
+    mom_3m = shifted.pct_change(63)
+    mom_6m = shifted.pct_change(126)
+
+    score = 0.5 * mom_3m.iloc[-1] + 0.5 * mom_6m.iloc[-1]
+
+    return score.sort_values(ascending=False)
 
 def select_top_assets(scores):
     return list(scores.index[:TOP_N])
 
 def compute_weights(returns_subset):
-    mean = returns_subset.mean().values
-    cov = np.cov(returns_subset.values, rowvar=False)
+    returns = returns_subset.pct_change().dropna()
+
+    mean = returns.mean().values
+    cov = np.cov(returns.values, rowvar=False)
 
     inv_cov = np.linalg.pinv(cov)
     w = inv_cov @ mean
@@ -78,22 +85,20 @@ def compute_weights(returns_subset):
     else:
         w = w / w.sum()
 
-    # volatility target
     port_vol = np.sqrt(w.T @ cov @ w) * np.sqrt(252)
     if port_vol > 0:
         w *= TARGET_VOL / port_vol
 
-    # cap positions
     w = np.minimum(w, MAX_SINGLE_POSITION)
     w = w / w.sum()
 
     return w
 
-def build_portfolio(returns):
-    scores = compute_signal_scores(returns)
+def build_portfolio(prices):
+    scores = compute_signal_scores(prices)
     top = select_top_assets(scores)
 
-    subset = returns[top].dropna()
+    subset = prices[top].dropna()
     if subset.shape[1] == 0:
         return {}
 
@@ -102,12 +107,11 @@ def build_portfolio(returns):
 
     return dict(zip(top, w))
 
-# 🔥 IMPROVED BACKTEST
 def run_backtest():
     tickers = load_tickers()
-    returns = fetch_returns(tickers)
+    prices = fetch_returns(tickers)
 
-    if returns is None:
+    if prices is None:
         return {"error": "no data"}
 
     portfolio_value = 10000
@@ -118,8 +122,8 @@ def run_backtest():
 
     history = []
 
-    for i in range(60, len(returns)):
-        window = returns.iloc[:i]
+    for i in range(200, len(prices)):
+        window = prices.iloc[:i]
 
         weights_dict = build_portfolio(window)
         if not weights_dict:
@@ -128,27 +132,29 @@ def run_backtest():
         tickers_now = list(weights_dict.keys())
         weights = np.array(list(weights_dict.values()))
 
-        # 🔥 TURNOVER COST
+        # transaction cost
         if prev_weights is not None:
-            turnover = np.sum(np.abs(weights - prev_weights))
+            prev_vec = np.array([prev_weights.get(t, 0) for t in tickers_now])
+            turnover = np.sum(np.abs(weights - prev_vec))
             cost = turnover * TRANSACTION_COST
         else:
             cost = 0
 
-        daily_ret = returns.iloc[i][tickers_now].values
+        daily_ret = prices.iloc[i][tickers_now].pct_change()
+        daily_ret = daily_ret.fillna(0).values
+
         port_ret = np.dot(weights, daily_ret)
 
         portfolio_value *= (1 + port_ret - cost)
 
-        prev_weights = weights
+        prev_weights = weights_dict
 
-        # 🔥 DRAWDOWN
         peak = max(peak, portfolio_value)
         drawdown = (portfolio_value - peak) / peak
         max_drawdown = min(max_drawdown, drawdown)
 
         history.append({
-            "date": str(returns.index[i].date()),
+            "date": str(prices.index[i].date()),
             "value": float(portfolio_value)
         })
 
