@@ -2,8 +2,6 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI
 import yfinance as yf
-import json
-import os
 
 app = FastAPI()
 
@@ -41,56 +39,19 @@ def compute_signal(prices):
     return signal
 
 # -----------------------------
-# PORTFOLIO (UPDATED)
-# -----------------------------
-def construct_portfolio(signal, returns):
-    latest = signal.iloc[-1]
-
-    ranked = latest.dropna().sort_values(ascending=False)
-    selected = ranked.index[:10]
-
-    if len(selected) == 0:
-        return pd.Series(dtype=float)
-
-    sub_returns = returns[selected].fillna(0)
-
-    cov = sub_returns.cov()
-    cov += np.eye(len(cov)) * 1e-5
-
-    inv_cov = np.linalg.pinv(cov.values)
-
-    ones = np.ones(len(selected))
-    weights = inv_cov @ ones
-
-    # ✅ NEW: sanitize weights
-    if np.isnan(weights).any() or abs(weights.sum()) < 1e-8:
-        weights = np.ones(len(selected)) / len(selected)
-    else:
-        weights = weights / weights.sum()
-
-    weights = pd.Series(weights, index=selected)
-
-    return weights
-
-# -----------------------------
-# BACKTEST
+# BACKTEST (DEBUG VERSION)
 # -----------------------------
 def backtest(prices):
     returns = prices.pct_change().dropna()
-    signal = compute_signal(prices)
 
     portfolio_returns = []
 
     for i in range(252, len(prices) - 1):
-        window_prices = prices.iloc[:i]
         window_returns = returns.iloc[:i]
 
-        sig = compute_signal(window_prices)
-        weights = construct_portfolio(sig, window_returns)
-
-        if len(weights) == 0:
-            portfolio_returns.append(0)
-            continue
+        # ✅ DEBUG: force equal weights
+        cols = window_returns.columns[:10]
+        weights = pd.Series(1 / len(cols), index=cols)
 
         next_ret = returns.iloc[i + 1].reindex(weights.index).fillna(0)
 
