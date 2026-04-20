@@ -31,7 +31,6 @@ def compute_signal(prices):
 
     momentum = (mom_3m + mom_6m) / 2
 
-    # Cross-sectional z-score
     momentum_z = momentum.sub(momentum.mean(axis=1), axis=0)
     momentum_z = momentum_z.div(momentum.std(axis=1), axis=0)
 
@@ -42,38 +41,12 @@ def compute_signal(prices):
     return signal
 
 # -----------------------------
-# FILTERS
-# -----------------------------
-def apply_trend_filter(prices):
-    ma50 = prices.rolling(50).mean()
-    ma100 = prices.rolling(100).mean()
-
-    cond = (prices > ma50) | (prices > ma100)
-    return cond
-
-def correlation_filter(returns, max_corr=0.75):
-    corr = returns.corr()
-    keep = []
-
-    for col in corr.columns:
-        if all(abs(corr[col][k]) < max_corr for k in keep):
-            keep.append(col)
-
-    return keep
-
-# -----------------------------
 # PORTFOLIO (UPDATED)
 # -----------------------------
 def construct_portfolio(signal, returns):
     latest = signal.iloc[-1]
-    prev = signal.iloc[-2]
 
-    persistent = latest.notna() & prev.notna()
-
-    filtered_signal = latest[persistent]
-
-    ranked = filtered_signal.sort_values(ascending=False)
-
+    ranked = latest.dropna().sort_values(ascending=False)
     selected = ranked.index[:10]
 
     if len(selected) == 0:
@@ -82,15 +55,18 @@ def construct_portfolio(signal, returns):
     sub_returns = returns[selected].fillna(0)
 
     cov = sub_returns.cov()
-
-    # ✅ NEW: diagonal regularization
     cov += np.eye(len(cov)) * 1e-5
 
     inv_cov = np.linalg.pinv(cov.values)
 
     ones = np.ones(len(selected))
     weights = inv_cov @ ones
-    weights /= weights.sum()
+
+    # ✅ NEW: sanitize weights
+    if np.isnan(weights).any() or abs(weights.sum()) < 1e-8:
+        weights = np.ones(len(selected)) / len(selected)
+    else:
+        weights = weights / weights.sum()
 
     weights = pd.Series(weights, index=selected)
 
