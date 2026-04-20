@@ -181,10 +181,6 @@ def run_backtest():
 
         weights_dict = build_portfolio(price_window)
 
-        # ✅ FIX: hold previous portfolio instead of skipping
-        if not weights_dict:
-            weights_dict = prev_weights
-
         if not weights_dict:
             continue
 
@@ -198,7 +194,9 @@ def run_backtest():
         else:
             cost = 0
 
-        daily_ret = returns.iloc[i][tickers_now].values
+        # ✅ FIX: safe alignment
+        daily_ret = returns.iloc[i].reindex(tickers_now).fillna(0).values
+
         port_ret = np.dot(weights, daily_ret)
 
         portfolio_value *= (1 + port_ret - cost)
