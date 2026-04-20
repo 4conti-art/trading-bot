@@ -62,7 +62,7 @@ def correlation_filter(returns, max_corr=0.75):
     return keep
 
 # -----------------------------
-# PORTFOLIO (UPDATED)
+# PORTFOLIO
 # -----------------------------
 def construct_portfolio(signal, returns):
     latest = signal.iloc[-1]
@@ -79,7 +79,6 @@ def construct_portfolio(signal, returns):
     if len(selected) == 0:
         return pd.Series(dtype=float)
 
-    # ✅ FIX: preserve data instead of dropping rows
     sub_returns = returns[selected].fillna(0)
 
     cov = sub_returns.cov()
@@ -94,7 +93,7 @@ def construct_portfolio(signal, returns):
     return weights
 
 # -----------------------------
-# BACKTEST
+# BACKTEST (UPDATED)
 # -----------------------------
 def backtest(prices):
     returns = prices.pct_change().dropna()
@@ -113,7 +112,9 @@ def backtest(prices):
             portfolio_returns.append(0)
             continue
 
-        next_ret = returns.iloc[i + 1][weights.index]
+        # ✅ FIX: align returns safely
+        next_ret = returns.iloc[i + 1].reindex(weights.index).fillna(0)
+
         port_ret = (weights * next_ret).sum()
 
         portfolio_returns.append(port_ret)
