@@ -65,7 +65,6 @@ def correlation_filter(returns, max_corr=0.75):
 # PORTFOLIO (UPDATED)
 # -----------------------------
 def construct_portfolio(signal, returns):
-    # ✅ Persistence only (no positivity requirement)
     latest = signal.iloc[-1]
     prev = signal.iloc[-2]
 
@@ -80,7 +79,8 @@ def construct_portfolio(signal, returns):
     if len(selected) == 0:
         return pd.Series(dtype=float)
 
-    sub_returns = returns[selected].dropna()
+    # ✅ FIX: preserve data instead of dropping rows
+    sub_returns = returns[selected].fillna(0)
 
     cov = sub_returns.cov()
     inv_cov = np.linalg.pinv(cov.values)
