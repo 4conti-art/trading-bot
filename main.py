@@ -62,7 +62,7 @@ def correlation_filter(returns, max_corr=0.75):
     return keep
 
 # -----------------------------
-# PORTFOLIO
+# PORTFOLIO (UPDATED)
 # -----------------------------
 def construct_portfolio(signal, returns):
     latest = signal.iloc[-1]
@@ -82,6 +82,10 @@ def construct_portfolio(signal, returns):
     sub_returns = returns[selected].fillna(0)
 
     cov = sub_returns.cov()
+
+    # ✅ NEW: diagonal regularization
+    cov += np.eye(len(cov)) * 1e-5
+
     inv_cov = np.linalg.pinv(cov.values)
 
     ones = np.ones(len(selected))
@@ -93,7 +97,7 @@ def construct_portfolio(signal, returns):
     return weights
 
 # -----------------------------
-# BACKTEST (UPDATED)
+# BACKTEST
 # -----------------------------
 def backtest(prices):
     returns = prices.pct_change().dropna()
@@ -112,7 +116,6 @@ def backtest(prices):
             portfolio_returns.append(0)
             continue
 
-        # ✅ FIX: align returns safely
         next_ret = returns.iloc[i + 1].reindex(weights.index).fillna(0)
 
         port_ret = (weights * next_ret).sum()
