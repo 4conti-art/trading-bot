@@ -65,13 +65,13 @@ def correlation_filter(returns, max_corr=0.75):
 # PORTFOLIO (UPDATED)
 # -----------------------------
 def construct_portfolio(signal, returns):
-    # ✅ NEW: persistence filter (2 consecutive positive signals)
+    # ✅ Persistence only (no positivity requirement)
     latest = signal.iloc[-1]
     prev = signal.iloc[-2]
 
-    persistent = (latest > 0) & (prev > 0)
+    persistent = latest.notna() & prev.notna()
 
-    filtered_signal = latest[persistent].dropna()
+    filtered_signal = latest[persistent]
 
     ranked = filtered_signal.sort_values(ascending=False)
 
