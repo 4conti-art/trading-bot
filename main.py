@@ -21,22 +21,20 @@ def fetch_data(tickers, start="2015-01-01"):
     return data.dropna(axis=1, how="all")
 
 # -----------------------------
-# SIGNAL (UPDATED)
+# SIGNAL
 # -----------------------------
 def compute_signal(prices):
     returns = prices.pct_change()
 
-    # Momentum (shifted to avoid lookahead)
     mom_3m = prices.pct_change(63).shift(1)
     mom_6m = prices.pct_change(126).shift(1)
 
     momentum = (mom_3m + mom_6m) / 2
 
-    # ✅ NEW: Cross-sectional z-score
+    # Cross-sectional z-score
     momentum_z = momentum.sub(momentum.mean(axis=1), axis=0)
     momentum_z = momentum_z.div(momentum.std(axis=1), axis=0)
 
-    # Volatility penalty
     vol = returns.rolling(63).std() * np.sqrt(252)
 
     signal = momentum_z - vol
@@ -64,13 +62,23 @@ def correlation_filter(returns, max_corr=0.75):
     return keep
 
 # -----------------------------
-# PORTFOLIO
+# PORTFOLIO (UPDATED)
 # -----------------------------
 def construct_portfolio(signal, returns):
-    latest_signal = signal.iloc[-1].dropna()
-    ranked = latest_signal.sort_values(ascending=False)
+    # ✅ NEW: persistence filter (2 consecutive positive signals)
+    latest = signal.iloc[-1]
+    prev = signal.iloc[-2]
+
+    persistent = (latest > 0) & (prev > 0)
+
+    filtered_signal = latest[persistent].dropna()
+
+    ranked = filtered_signal.sort_values(ascending=False)
 
     selected = ranked.index[:10]
+
+    if len(selected) == 0:
+        return pd.Series(dtype=float)
 
     sub_returns = returns[selected].dropna()
 
@@ -100,6 +108,10 @@ def backtest(prices):
 
         sig = compute_signal(window_prices)
         weights = construct_portfolio(sig, window_returns)
+
+        if len(weights) == 0:
+            portfolio_returns.append(0)
+            continue
 
         next_ret = returns.iloc[i + 1][weights.index]
         port_ret = (weights * next_ret).sum()
