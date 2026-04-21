@@ -1,212 +1,172 @@
-```python
+from fastapi import FastAPI
 import yfinance as yf
 import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 import concurrent.futures
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+app = FastAPI()
 
-# Constants
+# =========================
+# CONFIG
+# =========================
 PRICE_LOWER_BOUND = 10
 PRICE_UPPER_BOUND = 200
 NUM_RECOMMENDATIONS = 5
-HISTORICAL_DATA_YEARS = 10
+HISTORICAL_DATA_YEARS = 2
+MAX_WORKERS = 5
 
-def get_nyse_symbols():
-    """
-    Retrieves a list of NYSE stock and ETF symbols from a local file.
-    This function assumes you have a file named 'nyse_symbols.txt'
-    containing a list of stock symbols, one per line.
+TICKERS = ["AAPL", "MSFT", "NVDA", "TSLA", "AMD", "META"]
 
-    Returns:
-        list: A list of stock symbols traded on the NYSE.
-    """
-    try:
-        with open("nyse_symbols.txt", "r") as f:
-            symbols = [line.strip() for line in f]
-        return symbols
-    except FileNotFoundError:
-        logging.error("nyse_symbols.txt not found.  Please create this file with a list of NYSE symbols.")
-        return []
-    except Exception as e:
-        logging.error(f"Error reading nyse_symbols.txt: {e}")
-        return []
+logging.basicConfig(level=logging.INFO)
 
+
+# =========================
+# DATA FETCH
+# =========================
 def fetch_historical_data(symbol, start_date, end_date):
-    """
-    Fetches historical stock data from Yahoo Finance.
-
-    Args:
-        symbol (str): The stock symbol.
-        start_date (str): The start date for historical data (YYYY-MM-DD).
-        end_date (str): The end date for historical data (YYYY-MM-DD).
-
-    Returns:
-        pandas.DataFrame: A DataFrame containing the historical data, or None if an error occurred.
-    """
     try:
-        data = yf.download(symbol, start=start_date, end=end_date)
-        if data.empty:
-            logging.warning(f"No data found for {symbol} between {start_date} and {end_date}.")
+        data = yf.download(
+            symbol,
+            start=start_date,
+            end=end_date,
+            progress=False,
+            threads=False
+        )
+
+        if data is None or data.empty:
             return None
+
         return data
+
     except Exception as e:
-        logging.error(f"Error fetching data for {symbol}: {e}")
+        logging.error(f"{symbol} fetch error: {e}")
         return None
 
-def analyze_stock(symbol, historical_data):
-    """
-    Analyzes a stock's historical data to infer trends and calculate indicators.
 
-    Args:
-        symbol (str): The stock symbol.
-        historical_data (pandas.DataFrame): The historical data for the stock.
-
-    Returns:
-        dict: A dictionary containing analysis results, or None if analysis failed.
-    """
+# =========================
+# ANALYSIS
+# =========================
+def analyze_stock(symbol, df):
     try:
-        # Simple Moving Average (SMA) - Example Trend Indicator
-        historical_data['SMA_50'] = historical_data['Close'].rolling(window=50).mean()
-        historical_data['SMA_200'] = historical_data['Close'].rolling(window=200).mean()
+        if len(df) < 200:
+            return None
 
-        # Daily Return - Example Volatility Indicator
-        historical_data['Daily_Return'] = historical_data['Close'].pct_change()
+        df = df.copy()
 
-        # Calculate recent volatility (e.g., standard deviation of daily returns over the last 30 days)
-        recent_volatility = historical_data['Daily_Return'].tail(30).std()
+        df["SMA_50"] = df["Close"].rolling(50).mean()
+        df["SMA_200"] = df["Close"].rolling(200).mean()
+        df["Return"] = df["Close"].pct_change()
 
-        # Basic Trend Identification (example: SMA crossover)
-        if historical_data['SMA_50'].iloc[-1] > historical_data['SMA_200'].iloc[-1]:
-            trend = "Uptrend"
-        elif historical_data['SMA_50'].iloc[-1] < historical_data['SMA_200'].iloc[-1]:
-            trend = "Downtrend"
-        else:
-            trend = "Sideways"
+        current_price = df["Close"].iloc[-1]
+        sma50 = df["SMA_50"].iloc[-1]
+        sma200 = df["SMA_200"].iloc[-1]
 
-        # Get current price
-        current_price = historical_data['Close'].iloc[-1]
+        if pd.isna(sma50) or pd.isna(sma200):
+            return None
 
-        analysis_results = {
-            'symbol': symbol,
-            'current_price': current_price,
-            'trend': trend,
-            'recent_volatility': recent_volatility,
-            'sma_50': historical_data['SMA_50'].iloc[-1],
-            'sma_200': historical_data['SMA_200'].iloc[-1]
+        trend = 1 if sma50 > sma200 else -1 if sma50 < sma200 else 0
+
+        vol = df["Return"].tail(30).std()
+
+        if len(df) < 5:
+            return None
+
+        momentum = (
+            df["Close"].iloc[-1] - df["Close"].iloc[-5]
+        ) / df["Close"].iloc[-5]
+
+        if pd.isna(vol) or pd.isna(momentum):
+            return None
+
+        return {
+            "symbol": symbol,
+            "price": float(current_price),
+            "trend": int(trend),
+            "volatility": float(vol),
+            "momentum": float(momentum),
         }
-        return analysis_results
 
     except Exception as e:
-        logging.error(f"Error analyzing stock {symbol}: {e}")
+        logging.error(f"{symbol} analysis error: {e}")
         return None
 
-def filter_and_rank_stocks(analysis_results):
-    """
-    Filters stocks based on price and ranks them based on analysis results.
 
-    Args:
-        analysis_results (list): A list of dictionaries containing stock analysis results.
+# =========================
+# SCORING
+# =========================
+def score_stock(stock):
+    return (
+        stock["trend"] * 1.0
+        + stock["momentum"] * 2.0
+        - stock["volatility"] * 1.0
+    )
 
-    Returns:
-        list: A list of top-ranked stock symbols.
-    """
-    try:
-        # Filter by price
-        eligible_stocks = [
-            stock for stock in analysis_results
-            if PRICE_LOWER_BOUND <= stock['current_price'] <= PRICE_UPPER_BOUND
-        ]
 
-        if not eligible_stocks:
-            logging.warning("No stocks found within the specified price range.")
-            return []
+def filter_and_rank(stocks):
+    filtered = [
+        s for s in stocks
+        if PRICE_LOWER_BOUND <= s["price"] <= PRICE_UPPER_BOUND
+    ]
 
-        # Rank by a combination of factors (example: trend, volatility)
-        # This is a simplified ranking; a more sophisticated model could be used.
-        def ranking_function(stock):
-            # Example: Higher score for uptrend, lower for downtrend.  Lower volatility is preferred.
-            trend_score = 1 if stock['trend'] == 'Uptrend' else -1 if stock['trend'] == 'Downtrend' else 0
-            volatility_score = -stock['recent_volatility']  # Invert volatility (lower is better)
-            return trend_score + volatility_score
+    ranked = sorted(filtered, key=score_stock, reverse=True)
+    return ranked[:NUM_RECOMMENDATIONS]
 
-        ranked_stocks = sorted(eligible_stocks, key=ranking_function, reverse=True)
 
-        top_stocks = [stock['symbol'] for stock in ranked_stocks[:NUM_RECOMMENDATIONS]]
-        return top_stocks
-
-    except Exception as e:
-        logging.error(f"Error filtering and ranking stocks: {e}")
-        return []
-
-def generate_daily_recommendations():
-    """
-    Generates daily stock recommendations based on market analysis.
-
-    Returns:
-        list: A list of recommended stock symbols.
-    """
-    try:
-        symbols = get_nyse_symbols()
-        if not symbols:
-            logging.error("No symbols found.  Unable to generate recommendations.")
-            return []
-
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=365 * HISTORICAL_DATA_YEARS)).strftime('%Y-%m-%d')
-
-        analysis_results = []
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            future_to_symbol = {executor.submit(fetch_and_analyze, symbol, start_date, end_date): symbol for symbol in symbols}
-            for future in concurrent.futures.as_completed(future_to_symbol):
-                symbol = future_to_symbol[future]
-                try:
-                    result = future.result()
-                    if result:
-                        analysis_results.append(result)
-                except Exception as e:
-                    logging.error(f"Error processing {symbol}: {e}")
-
-        recommendations = filter_and_rank_stocks(analysis_results)
-        return recommendations
-
-    except Exception as e:
-        logging.error(f"Error generating daily recommendations: {e}")
-        return []
-
-def fetch_and_analyze(symbol, start_date, end_date):
-    """
-    Helper function to fetch and analyze a single stock.
-
-    Args:
-        symbol (str): The stock symbol.
-        start_date (str): The start date for historical data.
-        end_date (str): The end date for historical data.
-
-    Returns:
-        dict: The analysis results, or None if an error occurred.
-    """
-    historical_data = fetch_historical_data(symbol, start_date, end_date)
-    if historical_data is not None:
-        return analyze_stock(symbol, historical_data)
+# =========================
+# PIPELINE
+# =========================
+def process_symbol(symbol, start, end):
+    df = fetch_historical_data(symbol, start, end)
+    if df is not None:
+        return analyze_stock(symbol, df)
     return None
 
-def main():
-    """
-    Main function to generate and print daily stock recommendations.
-    """
-    recommendations = generate_daily_recommendations()
-    if recommendations:
-        print("Daily Stock Recommendations:")
-        for symbol in recommendations:
-            print(f"- {symbol}")
-    else:
-        print("No stock recommendations generated.")
 
-if __name__ == "__main__":
-    main()
-```
+def generate_recommendations():
+    end = datetime.utcnow()
+    start = end - timedelta(days=365 * HISTORICAL_DATA_YEARS)
+
+    results = []
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = [
+            executor.submit(process_symbol, s, start, end)
+            for s in TICKERS
+        ]
+
+        for f in concurrent.futures.as_completed(futures):
+            try:
+                r = f.result(timeout=15)
+                if r:
+                    results.append(r)
+            except Exception as e:
+                logging.error(f"Thread error: {e}")
+
+    return filter_and_rank(results)
+
+
+# =========================
+# API
+# =========================
+@app.get("/")
+def home():
+    return {"message": "Trading bot V2 is alive"}
+
+
+@app.get("/recommendations")
+def recommendations():
+    try:
+        picks = generate_recommendations()
+
+        return {
+            "picks": picks,
+            "note": "Trend + Momentum + Volatility model"
+        }
+
+    except Exception as e:
+        logging.error(f"Endpoint error: {e}")
+        return {
+            "picks": [],
+            "error": "Failed to generate recommendations"
+        }
