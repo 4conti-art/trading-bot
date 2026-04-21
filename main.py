@@ -33,7 +33,7 @@ def fetch(symbol, start, end):
 
 
 # =========================
-# ANALYSIS (TREND ONLY)
+# ANALYSIS (TREND + MOMENTUM)
 # =========================
 def analyze(symbol, df):
     try:
@@ -42,6 +42,7 @@ def analyze(symbol, df):
 
         df = df.copy()
 
+        # Trend
         df["SMA_50"] = df["Close"].rolling(50).mean()
         df["SMA_200"] = df["Close"].rolling(200).mean()
 
@@ -53,9 +54,21 @@ def analyze(symbol, df):
 
         trend = 1 if sma50 > sma200 else -1 if sma50 < sma200 else 0
 
+        # Momentum (5-day)
+        if len(df) < 5:
+            return {"symbol": symbol, "error": "not_enough_for_momentum"}
+
+        momentum = (
+            df["Close"].iloc[-1] - df["Close"].iloc[-5]
+        ) / df["Close"].iloc[-5]
+
+        if pd.isna(momentum):
+            return {"symbol": symbol, "error": "nan_momentum"}
+
         return {
             "symbol": symbol,
             "trend": trend,
+            "momentum": float(momentum),
             "price": float(df["Close"].iloc[-1])
         }
 
@@ -96,4 +109,4 @@ def home():
 
 @app.get("/recommendations")
 def recommendations():
-    return {"trend_debug": run()}
+    return {"momentum_debug": run()}
