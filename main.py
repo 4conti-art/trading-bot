@@ -33,12 +33,12 @@ def fetch(symbol, start, end):
 
 
 # =========================
-# ANALYSIS (ADD SCORE)
+# ANALYSIS
 # =========================
 def analyze(symbol, df):
     try:
         if len(df) < 200:
-            return {"symbol": symbol, "error": "not_enough_data"}
+            return None
 
         df = df.copy()
 
@@ -50,20 +50,20 @@ def analyze(symbol, df):
         sma200 = df["SMA_200"].iloc[-1]
 
         if pd.isna(sma50) or pd.isna(sma200):
-            return {"symbol": symbol, "error": "nan_sma"}
+            return None
 
         trend = 1 if sma50 > sma200 else -1 if sma50 < sma200 else 0
 
         # Momentum
         if len(df) < 5:
-            return {"symbol": symbol, "error": "not_enough_for_momentum"}
+            return None
 
         momentum = (
             df["Close"].iloc[-1] - df["Close"].iloc[-5]
         ) / df["Close"].iloc[-5]
 
         if pd.isna(momentum):
-            return {"symbol": symbol, "error": "nan_momentum"}
+            return None
 
         # Score
         score = trend + (momentum * 2)
@@ -77,7 +77,7 @@ def analyze(symbol, df):
         }
 
     except:
-        return {"symbol": symbol, "error": "analysis_failed"}
+        return None
 
 
 # =========================
@@ -87,7 +87,7 @@ def run():
     end = datetime.utcnow()
     start = end - timedelta(days=365 * HISTORICAL_DATA_YEARS)
 
-    out = []
+    results = []
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as ex:
         futures = [ex.submit(fetch, s, start, end) for s in TICKERS]
@@ -95,12 +95,15 @@ def run():
         for f in concurrent.futures.as_completed(futures):
             symbol, df = f.result()
 
-            if df is None:
-                out.append({"symbol": symbol, "error": "no_data"})
-            else:
-                out.append(analyze(symbol, df))
+            if df is not None:
+                r = analyze(symbol, df)
+                if r:
+                    results.append(r)
 
-    return out
+    # 🔥 NEW: ranking
+    ranked = sorted(results, key=lambda x: x["score"], reverse=True)
+
+    return ranked
 
 
 # =========================
@@ -113,4 +116,4 @@ def home():
 
 @app.get("/recommendations")
 def recommendations():
-    return {"score_debug": run()}
+    return {"ranked": run()}
