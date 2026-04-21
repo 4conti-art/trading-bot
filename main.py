@@ -23,35 +23,44 @@ def fetch(symbol, start, end):
         if df is None or df.empty:
             return symbol, None
 
-        # 🔧 FIX: flatten multi-index columns if present
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
 
         return symbol, df
 
-    except Exception:
+    except:
         return symbol, None
 
 
 # =========================
-# ANALYSIS (SAFE)
+# ANALYSIS (TREND ONLY)
 # =========================
 def analyze(symbol, df):
     try:
-        if "Close" not in df.columns:
-            return {"symbol": symbol, "error": "no_close_column"}
+        if len(df) < 200:
+            return {"symbol": symbol, "error": "not_enough_data"}
+
+        df = df.copy()
+
+        df["SMA_50"] = df["Close"].rolling(50).mean()
+        df["SMA_200"] = df["Close"].rolling(200).mean()
+
+        sma50 = df["SMA_50"].iloc[-1]
+        sma200 = df["SMA_200"].iloc[-1]
+
+        if pd.isna(sma50) or pd.isna(sma200):
+            return {"symbol": symbol, "error": "nan_sma"}
+
+        trend = 1 if sma50 > sma200 else -1 if sma50 < sma200 else 0
 
         return {
             "symbol": symbol,
-            "rows": int(len(df)),
-            "last_price": float(df["Close"].iloc[-1])
+            "trend": trend,
+            "price": float(df["Close"].iloc[-1])
         }
 
-    except Exception:
-        return {
-            "symbol": symbol,
-            "error": "analysis_failed"
-        }
+    except:
+        return {"symbol": symbol, "error": "analysis_failed"}
 
 
 # =========================
@@ -87,4 +96,4 @@ def home():
 
 @app.get("/recommendations")
 def recommendations():
-    return {"debug": run()}
+    return {"trend_debug": run()}
