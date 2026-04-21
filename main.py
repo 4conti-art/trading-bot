@@ -35,6 +35,7 @@ def fetch_historical_data(symbol, start_date, end_date):
         )
 
         if data is None or data.empty:
+            logging.info(f"{symbol}: no data")
             return None
 
         return data
@@ -50,6 +51,7 @@ def fetch_historical_data(symbol, start_date, end_date):
 def analyze_stock(symbol, df):
     try:
         if len(df) < 200:
+            logging.info(f"{symbol}: not enough data ({len(df)})")
             return None
 
         df = df.copy()
@@ -63,6 +65,7 @@ def analyze_stock(symbol, df):
         sma200 = df["SMA_200"].iloc[-1]
 
         if pd.isna(sma50) or pd.isna(sma200):
+            logging.info(f"{symbol}: NaN in SMA")
             return None
 
         trend = 1 if sma50 > sma200 else -1 if sma50 < sma200 else 0
@@ -70,6 +73,7 @@ def analyze_stock(symbol, df):
         vol = df["Return"].tail(30).std()
 
         if len(df) < 5:
+            logging.info(f"{symbol}: not enough for momentum")
             return None
 
         momentum = (
@@ -77,15 +81,20 @@ def analyze_stock(symbol, df):
         ) / df["Close"].iloc[-5]
 
         if pd.isna(vol) or pd.isna(momentum):
+            logging.info(f"{symbol}: NaN in metrics")
             return None
 
-        return {
+        result = {
             "symbol": symbol,
             "price": float(current_price),
             "trend": int(trend),
             "volatility": float(vol),
             "momentum": float(momentum),
         }
+
+        logging.info(f"{symbol}: PASSED analysis -> {result}")
+
+        return result
 
     except Exception as e:
         logging.error(f"{symbol} analysis error: {e}")
@@ -108,6 +117,8 @@ def filter_and_rank(stocks):
         s for s in stocks
         if PRICE_LOWER_BOUND <= s["price"] <= PRICE_UPPER_BOUND
     ]
+
+    logging.info(f"AFTER PRICE FILTER: {filtered}")
 
     ranked = sorted(filtered, key=score_stock, reverse=True)
     return ranked[:NUM_RECOMMENDATIONS]
@@ -143,7 +154,9 @@ def generate_recommendations():
             except Exception as e:
                 logging.error(f"Thread error: {e}")
 
-    return filter_and_rank(results)
+    logging.info(f"RAW RESULTS: {results}")
+
+    return results  # <-- IMPORTANT: NO FILTERING FOR NOW
 
 
 # =========================
@@ -161,7 +174,7 @@ def recommendations():
 
         return {
             "picks": picks,
-            "note": "Trend + Momentum + Volatility model"
+            "note": "DEBUG MODE - raw results"
         }
 
     except Exception as e:
