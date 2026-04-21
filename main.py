@@ -10,7 +10,11 @@ app = FastAPI()
 # CONFIG
 # =========================
 TICKERS = ["AAPL", "MSFT", "NVDA", "TSLA", "AMD", "META"]
+
 HISTORICAL_DATA_YEARS = 2
+PRICE_LOWER = 10
+PRICE_UPPER = 200
+TOP_N = 5
 
 
 # =========================
@@ -55,9 +59,6 @@ def analyze(symbol, df):
         trend = 1 if sma50 > sma200 else -1 if sma50 < sma200 else 0
 
         # Momentum
-        if len(df) < 5:
-            return None
-
         momentum = (
             df["Close"].iloc[-1] - df["Close"].iloc[-5]
         ) / df["Close"].iloc[-5]
@@ -100,10 +101,17 @@ def run():
                 if r:
                     results.append(r)
 
-    # 🔥 NEW: ranking
+    # Rank
     ranked = sorted(results, key=lambda x: x["score"], reverse=True)
 
-    return ranked
+    # Filter by price
+    filtered = [
+        r for r in ranked
+        if PRICE_LOWER <= r["price"] <= PRICE_UPPER
+    ]
+
+    # Top N
+    return filtered[:TOP_N]
 
 
 # =========================
@@ -111,9 +119,12 @@ def run():
 # =========================
 @app.get("/")
 def home():
-    return {"status": "alive"}
+    return {"status": "Trading bot live"}
 
 
 @app.get("/recommendations")
 def recommendations():
-    return {"ranked": run()}
+    return {
+        "picks": run(),
+        "note": "Trend + Momentum model"
+    }
