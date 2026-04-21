@@ -33,7 +33,7 @@ def fetch(symbol, start, end):
 
 
 # =========================
-# ANALYSIS (TREND + MOMENTUM)
+# ANALYSIS (ADD SCORE)
 # =========================
 def analyze(symbol, df):
     try:
@@ -54,7 +54,7 @@ def analyze(symbol, df):
 
         trend = 1 if sma50 > sma200 else -1 if sma50 < sma200 else 0
 
-        # Momentum (5-day)
+        # Momentum
         if len(df) < 5:
             return {"symbol": symbol, "error": "not_enough_for_momentum"}
 
@@ -65,10 +65,14 @@ def analyze(symbol, df):
         if pd.isna(momentum):
             return {"symbol": symbol, "error": "nan_momentum"}
 
+        # Score
+        score = trend + (momentum * 2)
+
         return {
             "symbol": symbol,
             "trend": trend,
             "momentum": float(momentum),
+            "score": float(score),
             "price": float(df["Close"].iloc[-1])
         }
 
@@ -109,4 +113,4 @@ def home():
 
 @app.get("/recommendations")
 def recommendations():
-    return {"momentum_debug": run()}
+    return {"score_debug": run()}
