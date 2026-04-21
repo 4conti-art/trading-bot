@@ -19,22 +19,35 @@ HISTORICAL_DATA_YEARS = 2
 def fetch(symbol, start, end):
     try:
         df = yf.download(symbol, start=start, end=end, progress=False, threads=False)
-        return df if df is not None and not df.empty else None
-    except:
-        return None
+
+        if df is None or df.empty:
+            return symbol, None
+
+        # 🔧 FIX: flatten multi-index columns if present
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
+
+        return symbol, df
+
+    except Exception:
+        return symbol, None
 
 
 # =========================
-# DEBUG ANALYSIS (no filters)
+# ANALYSIS (SAFE)
 # =========================
 def analyze(symbol, df):
     try:
+        if "Close" not in df.columns:
+            return {"symbol": symbol, "error": "no_close_column"}
+
         return {
             "symbol": symbol,
-            "rows": len(df),
-            "last_price": float(df["Close"].iloc[-1]) if len(df) > 0 else None
+            "rows": int(len(df)),
+            "last_price": float(df["Close"].iloc[-1])
         }
-    except:
+
+    except Exception:
         return {
             "symbol": symbol,
             "error": "analysis_failed"
@@ -53,9 +66,8 @@ def run():
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as ex:
         futures = [ex.submit(fetch, s, start, end) for s in TICKERS]
 
-        for i, f in enumerate(concurrent.futures.as_completed(futures)):
-            df = f.result()
-            symbol = TICKERS[i]
+        for f in concurrent.futures.as_completed(futures):
+            symbol, df = f.result()
 
             if df is None:
                 out.append({"symbol": symbol, "error": "no_data"})
