@@ -17,7 +17,7 @@ last_date = None
 
 @app.get("/")
 def root():
-    return {"status": "ok", "mode": "daily_random_with_ranking"}
+    return {"status": "ok", "mode": "decision_engine_v1"}
 
 def fetch_eod(symbol: str):
     url = f"https://eodhd.com/api/eod/{symbol}?api_token={API_KEY}&fmt=json&limit=2"
@@ -71,11 +71,25 @@ def get_eod():
     top = ranked[0] if ranked else None
     bottom = ranked[-1] if ranked else None
 
+    # --- NEW: decision logic ---
+    if top and top["change"] > 0:
+        decision = {
+            "action": "BUY",
+            "ticker": top["ticker"],
+            "change": top["change"]
+        }
+    else:
+        decision = {
+            "action": "HOLD",
+            "reason": "no positive momentum"
+        }
+
     return {
         "date": str(today),
         "tickers_selected": daily_tickers,
         "tickers_returned": len(results),
         "top": top,
         "bottom": bottom,
+        "decision": decision,
         "ranked": ranked
     }
