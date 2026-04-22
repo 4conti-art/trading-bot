@@ -15,9 +15,12 @@ POOL = [
 daily_tickers = None
 last_date = None
 
+# --- NEW: state ---
+current_position = None
+
 @app.get("/")
 def root():
-    return {"status": "ok", "mode": "decision_engine_v1"}
+    return {"status": "ok", "mode": "stateful_engine_v1"}
 
 def fetch_eod(symbol: str):
     url = f"https://eodhd.com/api/eod/{symbol}?api_token={API_KEY}&fmt=json&limit=2"
@@ -51,7 +54,7 @@ def fetch_eod(symbol: str):
 
 @app.get("/eod")
 def get_eod():
-    global daily_tickers, last_date
+    global daily_tickers, last_date, current_position
 
     today = datetime.utcnow().date()
 
@@ -69,27 +72,52 @@ def get_eod():
     ranked = sorted(results, key=lambda x: x["change"], reverse=True)
 
     top = ranked[0] if ranked else None
-    bottom = ranked[-1] if ranked else None
 
-    # --- NEW: decision logic ---
-    if top and top["change"] > 0:
-        decision = {
-            "action": "BUY",
-            "ticker": top["ticker"],
-            "change": top["change"]
-        }
+    # --- STATEFUL DECISION LOGIC ---
+    if current_position is None:
+        # no position → can BUY
+        if top and top["change"] > 0:
+            current_position = top["ticker"]
+            decision = {
+                "action": "BUY",
+                "ticker": current_position,
+                "change": top["change"]
+            }
+        else:
+            decision = {
+                "action": "HOLD",
+                "reason": "no positive momentum"
+            }
+
     else:
-        decision = {
-            "action": "HOLD",
-            "reason": "no positive momentum"
-        }
+        # already holding something
+        if not top or top["change"] <= 0:
+            decision = {
+                "action": "HOLD",
+                "ticker": current_position,
+                "reason": "holding, no better signal"
+            }
+
+        elif top["ticker"] == current_position:
+            decision = {
+                "action": "HOLD",
+                "ticker": current_position,
+                "reason": "still top performer"
+            }
+
+        else:
+            decision = {
+                "action": "ROTATE",
+                "sell": current_position,
+                "buy": top["ticker"],
+                "change": top["change"]
+            }
+            current_position = top["ticker"]
 
     return {
         "date": str(today),
         "tickers_selected": daily_tickers,
-        "tickers_returned": len(results),
-        "top": top,
-        "bottom": bottom,
+        "current_position": current_position,
         "decision": decision,
         "ranked": ranked
     }
