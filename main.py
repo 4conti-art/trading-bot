@@ -9,12 +9,34 @@ app = FastAPI()
 # =========================
 # CONFIG
 # =========================
-TICKERS = ["AAPL", "MSFT", "NVDA", "TSLA", "AMD", "META"]
-
 HISTORICAL_DATA_YEARS = 2
 PRICE_LOWER = 10
 PRICE_UPPER = 200
 TOP_N = 5
+MAX_WORKERS = 5
+MAX_TICKERS = 150  # limit for performance
+
+
+# =========================
+# LOAD TICKERS (AUTO)
+# =========================
+def load_tickers():
+    try:
+        url = "https://raw.githubusercontent.com/datasets/nasdaq-listings/master/data/nasdaq-listed-symbols.csv"
+        df = pd.read_csv(url)
+
+        tickers = df["Symbol"].tolist()
+
+        # clean weird symbols (like BRK.B → BRK-B for yfinance)
+        tickers = [t.replace(".", "-") for t in tickers]
+
+        return tickers[:MAX_TICKERS]
+
+    except:
+        return ["AAPL", "MSFT", "NVDA", "TSLA"]  # fallback
+
+
+TICKERS = load_tickers()
 
 
 # =========================
@@ -46,7 +68,6 @@ def analyze(symbol, df):
 
         df = df.copy()
 
-        # Trend
         df["SMA_50"] = df["Close"].rolling(50).mean()
         df["SMA_200"] = df["Close"].rolling(200).mean()
 
@@ -58,7 +79,6 @@ def analyze(symbol, df):
 
         trend = 1 if sma50 > sma200 else -1 if sma50 < sma200 else 0
 
-        # Momentum
         momentum = (
             df["Close"].iloc[-1] - df["Close"].iloc[-5]
         ) / df["Close"].iloc[-5]
@@ -66,7 +86,6 @@ def analyze(symbol, df):
         if pd.isna(momentum):
             return None
 
-        # Score
         score = trend + (momentum * 2)
 
         return {
@@ -90,7 +109,7 @@ def run():
 
     results = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as ex:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
         futures = [ex.submit(fetch, s, start, end) for s in TICKERS]
 
         for f in concurrent.futures.as_completed(futures):
@@ -101,16 +120,13 @@ def run():
                 if r:
                     results.append(r)
 
-    # Rank
     ranked = sorted(results, key=lambda x: x["score"], reverse=True)
 
-    # Filter by price
     filtered = [
         r for r in ranked
         if PRICE_LOWER <= r["price"] <= PRICE_UPPER
     ]
 
-    # Top N
     return filtered[:TOP_N]
 
 
@@ -119,12 +135,12 @@ def run():
 # =========================
 @app.get("/")
 def home():
-    return {"status": "Trading bot live"}
+    return {"status": "Trading bot live", "universe_size": len(TICKERS)}
 
 
 @app.get("/recommendations")
 def recommendations():
     return {
         "picks": run(),
-        "note": "Trend + Momentum model"
+        "note": "Trend + Momentum model (auto universe)"
     }
