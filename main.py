@@ -10,42 +10,34 @@ app = FastAPI()
 # CONFIG
 # =========================
 HISTORICAL_DATA_YEARS = 2
-PRICE_LOWER = 10
-PRICE_UPPER = 200
 TOP_N = 5
 MAX_WORKERS = 5
-MAX_TICKERS = 150  # limit for performance
+MAX_TICKERS = 150
 
 
 # =========================
-# LOAD TICKERS (AUTO)
+# LOAD TICKERS
 # =========================
 def load_tickers():
     try:
         url = "https://raw.githubusercontent.com/datasets/nasdaq-listings/master/data/nasdaq-listed-symbols.csv"
         df = pd.read_csv(url)
-
         tickers = df["Symbol"].tolist()
-
-        # clean weird symbols (like BRK.B → BRK-B for yfinance)
         tickers = [t.replace(".", "-") for t in tickers]
-
         return tickers[:MAX_TICKERS]
-
     except:
-        return ["AAPL", "MSFT", "NVDA", "TSLA"]  # fallback
+        return ["AAPL", "MSFT", "NVDA", "TSLA"]
 
 
 TICKERS = load_tickers()
 
 
 # =========================
-# DATA FETCH
+# FETCH
 # =========================
 def fetch(symbol, start, end):
     try:
         df = yf.download(symbol, start=start, end=end, progress=False, threads=False)
-
         if df is None or df.empty:
             return symbol, None
 
@@ -53,7 +45,6 @@ def fetch(symbol, start, end):
             df.columns = df.columns.get_level_values(0)
 
         return symbol, df
-
     except:
         return symbol, None
 
@@ -67,6 +58,8 @@ def analyze(symbol, df):
             return None
 
         df = df.copy()
+
+        price = float(df["Close"].iloc[-1])
 
         df["SMA_50"] = df["Close"].rolling(50).mean()
         df["SMA_200"] = df["Close"].rolling(200).mean()
@@ -93,7 +86,7 @@ def analyze(symbol, df):
             "trend": trend,
             "momentum": float(momentum),
             "score": float(score),
-            "price": float(df["Close"].iloc[-1])
+            "price": price
         }
 
     except:
@@ -122,12 +115,7 @@ def run():
 
     ranked = sorted(results, key=lambda x: x["score"], reverse=True)
 
-    filtered = [
-        r for r in ranked
-        if PRICE_LOWER <= r["price"] <= PRICE_UPPER
-    ]
-
-    return filtered[:TOP_N]
+    return ranked[:TOP_N]
 
 
 # =========================
@@ -135,12 +123,12 @@ def run():
 # =========================
 @app.get("/")
 def home():
-    return {"status": "Trading bot live", "universe_size": len(TICKERS)}
+    return {"status": "Trading bot live", "universe": len(TICKERS)}
 
 
 @app.get("/recommendations")
 def recommendations():
     return {
         "picks": run(),
-        "note": "Trend + Momentum model (auto universe)"
+        "note": "No price filter"
     }
