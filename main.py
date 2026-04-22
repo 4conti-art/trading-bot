@@ -17,7 +17,7 @@ last_date = None
 
 @app.get("/")
 def root():
-    return {"status": "ok", "mode": "daily_random_with_change"}
+    return {"status": "ok", "mode": "daily_random_with_ranking"}
 
 def fetch_eod(symbol: str):
     url = f"https://eodhd.com/api/eod/{symbol}?api_token={API_KEY}&fmt=json&limit=2"
@@ -66,9 +66,16 @@ def get_eod():
         if data:
             results.append(data)
 
+    ranked = sorted(results, key=lambda x: x["change"], reverse=True)
+
+    top = ranked[0] if ranked else None
+    bottom = ranked[-1] if ranked else None
+
     return {
         "date": str(today),
         "tickers_selected": daily_tickers,
         "tickers_returned": len(results),
-        "data": results
+        "top": top,
+        "bottom": bottom,
+        "ranked": ranked
     }
