@@ -17,20 +17,33 @@ last_date = None
 
 @app.get("/")
 def root():
-    return {"status": "ok", "mode": "daily_random_skeleton"}
+    return {"status": "ok", "mode": "daily_random_with_change"}
 
 def fetch_eod(symbol: str):
-    url = f"https://eodhd.com/api/eod/{symbol}?api_token={API_KEY}&fmt=json&limit=1"
+    url = f"https://eodhd.com/api/eod/{symbol}?api_token={API_KEY}&fmt=json&limit=2"
 
     try:
         r = requests.get(url, timeout=10)
         data = r.json()
 
-        if isinstance(data, list) and len(data) > 0:
+        if isinstance(data, list) and len(data) >= 2:
+            latest = data[0]
+            prev = data[1]
+
+            c = latest.get("close")
+            pc = prev.get("close")
+
+            if c is None or pc in (None, 0):
+                return None
+
+            change = (c - pc) / pc
+
             return {
                 "ticker": symbol,
-                "date": data[0].get("date"),
-                "close": data[0].get("close")
+                "date": latest.get("date"),
+                "close": c,
+                "prev_close": pc,
+                "change": change
             }
         return None
     except Exception:
