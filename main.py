@@ -1,15 +1,13 @@
-import requests
+import yfinance as yf
 import random
 from datetime import datetime
 from fastapi import FastAPI
 
 app = FastAPI()
 
-API_KEY = "69e8cdc7e8f9d9.44028983"
-
 POOL = [
-    "AAPL.US","MSFT.US","NVDA.US","AMZN.US","META.US",
-    "GOOGL.US","TSLA.US","JPM.US","V.US","UNH.US"
+    "AAPL","MSFT","NVDA","AMZN","META",
+    "GOOGL","TSLA","JPM","V","UNH"
 ]
 
 daily_tickers = None
@@ -19,57 +17,36 @@ current_position = None
 
 @app.get("/")
 def root():
-    return {"status": "ok", "mode": "stateful_engine_v3_stable"}
+    return {"status": "ok", "mode": "yfinance_skeleton"}
 
 
 def fetch_eod(symbol: str):
-    url = f"https://eodhd.com/api/eod/{symbol}?api_token={API_KEY}&fmt=json&limit=2"
-
     try:
-        r = requests.get(url, timeout=10)
+        data = yf.Ticker(symbol).history(period="2d")
 
-        # --- handle HTTP errors ---
-        if r.status_code != 200:
-            return {"ticker": symbol, "error": f"http_{r.status_code}"}
-
-        # --- handle empty response ---
-        if not r.text or r.text.strip() == "":
-            return {"ticker": symbol, "error": "empty_response"}
-
-        # --- safe JSON parsing ---
-        try:
-            data = r.json()
-        except Exception:
-            return {"ticker": symbol, "error": "invalid_json"}
-
-        # --- validate structure ---
-        if not isinstance(data, list) or len(data) == 0:
+        if data is None or len(data) == 0:
             return {"ticker": symbol, "error": "no_data"}
 
-        latest = data[0]
-        c = latest.get("close")
+        closes = data["Close"].tolist()
 
-        # --- if only 1 datapoint ---
-        if len(data) < 2:
+        if len(closes) < 2:
             return {
                 "ticker": symbol,
-                "date": latest.get("date"),
-                "close": c,
+                "close": closes[-1],
                 "prev_close": None,
                 "change": None
             }
 
-        prev = data[1]
-        pc = prev.get("close")
+        c = closes[-1]
+        pc = closes[-2]
 
-        if c is None or pc in (None, 0):
+        if pc == 0:
             return {"ticker": symbol, "error": "bad_price"}
 
         change = (c - pc) / pc
 
         return {
             "ticker": symbol,
-            "date": latest.get("date"),
             "close": c,
             "prev_close": pc,
             "change": change
@@ -100,7 +77,6 @@ def get_eod():
         else:
             results.append(data)
 
-    # --- ranking ---
     ranked = sorted(
         [r for r in results if r.get("change") is not None],
         key=lambda x: x["change"],
