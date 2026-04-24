@@ -16,24 +16,41 @@ daily_tickers = None
 last_date = None
 current_position = None
 
+
 @app.get("/")
 def root():
-    return {"status": "ok", "mode": "stateful_engine_v2_robust"}
+    return {"status": "ok", "mode": "stateful_engine_v3_stable"}
+
 
 def fetch_eod(symbol: str):
     url = f"https://eodhd.com/api/eod/{symbol}?api_token={API_KEY}&fmt=json&limit=2"
 
     try:
         r = requests.get(url, timeout=10)
-        data = r.json()
 
+        # --- handle HTTP errors ---
+        if r.status_code != 200:
+            return {"ticker": symbol, "error": f"http_{r.status_code}"}
+
+        # --- handle empty response ---
+        if not r.text or r.text.strip() == "":
+            return {"ticker": symbol, "error": "empty_response"}
+
+        # --- safe JSON parsing ---
+        try:
+            data = r.json()
+        except Exception:
+            return {"ticker": symbol, "error": "invalid_json"}
+
+        # --- validate structure ---
         if not isinstance(data, list) or len(data) == 0:
-            return {"ticker": symbol, "error": "no data"}
+            return {"ticker": symbol, "error": "no_data"}
 
         latest = data[0]
         c = latest.get("close")
 
-        if len(data) == 1:
+        # --- if only 1 datapoint ---
+        if len(data) < 2:
             return {
                 "ticker": symbol,
                 "date": latest.get("date"),
@@ -46,10 +63,7 @@ def fetch_eod(symbol: str):
         pc = prev.get("close")
 
         if c is None or pc in (None, 0):
-            return {
-                "ticker": symbol,
-                "error": "invalid price data"
-            }
+            return {"ticker": symbol, "error": "bad_price"}
 
         change = (c - pc) / pc
 
@@ -63,6 +77,7 @@ def fetch_eod(symbol: str):
 
     except Exception as e:
         return {"ticker": symbol, "error": str(e)}
+
 
 @app.get("/eod")
 def get_eod():
@@ -85,6 +100,7 @@ def get_eod():
         else:
             results.append(data)
 
+    # --- ranking ---
     ranked = sorted(
         [r for r in results if r.get("change") is not None],
         key=lambda x: x["change"],
@@ -93,6 +109,7 @@ def get_eod():
 
     top = ranked[0] if ranked else None
 
+    # --- decision logic ---
     if current_position is None:
         if top and top["change"] > 0:
             current_position = top["ticker"]
@@ -110,21 +127,18 @@ def get_eod():
         if not top or top["change"] <= 0:
             decision = {
                 "action": "HOLD",
-                "ticker": current_position,
-                "reason": "holding, no better signal"
+                "ticker": current_position
             }
         elif top["ticker"] == current_position:
             decision = {
                 "action": "HOLD",
-                "ticker": current_position,
-                "reason": "still top performer"
+                "ticker": current_position
             }
         else:
             decision = {
                 "action": "ROTATE",
                 "sell": current_position,
-                "buy": top["ticker"],
-                "change": top["change"]
+                "buy": top["ticker"]
             }
             current_position = top["ticker"]
 
