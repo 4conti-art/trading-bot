@@ -14,13 +14,11 @@ POOL = [
 
 daily_tickers = None
 last_date = None
-
-# --- NEW: state ---
 current_position = None
 
 @app.get("/")
 def root():
-    return {"status": "ok", "mode": "stateful_engine_v1"}
+    return {"status": "ok", "mode": "stateful_engine_v2_robust"}
 
 def fetch_eod(symbol: str):
     url = f"https://eodhd.com/api/eod/{symbol}?api_token={API_KEY}&fmt=json&limit=2"
@@ -29,28 +27,42 @@ def fetch_eod(symbol: str):
         r = requests.get(url, timeout=10)
         data = r.json()
 
-        if isinstance(data, list) and len(data) >= 2:
-            latest = data[0]
-            prev = data[1]
+        if not isinstance(data, list) or len(data) == 0:
+            return {"ticker": symbol, "error": "no data"}
 
-            c = latest.get("close")
-            pc = prev.get("close")
+        latest = data[0]
+        c = latest.get("close")
 
-            if c is None or pc in (None, 0):
-                return None
-
-            change = (c - pc) / pc
-
+        if len(data) == 1:
             return {
                 "ticker": symbol,
                 "date": latest.get("date"),
                 "close": c,
-                "prev_close": pc,
-                "change": change
+                "prev_close": None,
+                "change": None
             }
-        return None
-    except Exception:
-        return None
+
+        prev = data[1]
+        pc = prev.get("close")
+
+        if c is None or pc in (None, 0):
+            return {
+                "ticker": symbol,
+                "error": "invalid price data"
+            }
+
+        change = (c - pc) / pc
+
+        return {
+            "ticker": symbol,
+            "date": latest.get("date"),
+            "close": c,
+            "prev_close": pc,
+            "change": change
+        }
+
+    except Exception as e:
+        return {"ticker": symbol, "error": str(e)}
 
 @app.get("/eod")
 def get_eod():
@@ -63,19 +75,25 @@ def get_eod():
         last_date = today
 
     results = []
+    errors = []
 
     for ticker in daily_tickers:
         data = fetch_eod(ticker)
-        if data:
+
+        if data.get("error"):
+            errors.append(data)
+        else:
             results.append(data)
 
-    ranked = sorted(results, key=lambda x: x["change"], reverse=True)
+    ranked = sorted(
+        [r for r in results if r.get("change") is not None],
+        key=lambda x: x["change"],
+        reverse=True
+    )
 
     top = ranked[0] if ranked else None
 
-    # --- STATEFUL DECISION LOGIC ---
     if current_position is None:
-        # no position → can BUY
         if top and top["change"] > 0:
             current_position = top["ticker"]
             decision = {
@@ -88,23 +106,19 @@ def get_eod():
                 "action": "HOLD",
                 "reason": "no positive momentum"
             }
-
     else:
-        # already holding something
         if not top or top["change"] <= 0:
             decision = {
                 "action": "HOLD",
                 "ticker": current_position,
                 "reason": "holding, no better signal"
             }
-
         elif top["ticker"] == current_position:
             decision = {
                 "action": "HOLD",
                 "ticker": current_position,
                 "reason": "still top performer"
             }
-
         else:
             decision = {
                 "action": "ROTATE",
@@ -119,5 +133,7 @@ def get_eod():
         "tickers_selected": daily_tickers,
         "current_position": current_position,
         "decision": decision,
-        "ranked": ranked
+        "ranked": ranked,
+        "raw_results": results,
+        "errors": errors
     }
